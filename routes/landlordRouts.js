@@ -1,11 +1,12 @@
 const express = require('express');
 const {createUserData,getAllUsers,getSingleUser,updateUserData,deleteUserData,loginLandlord} = require('../controller/landlordControl');
+const{checkLandlordCreateData} = require('../middlewares/userMiddleware');
 const router = express.Router();
 
 
 router.route('/')
 .get(getAllUsers)
-.post(createUserData);
+.post(checkLandlordCreateData , createUserData);
 
 router.route('/:id')
 .get(getSingleUser)

@@ -1,37 +1,53 @@
 const firebase = require('../model/database');
+const bcrypt = require('bcrypt');
 // const {getDatabase, onValue, ref, set, update, remove, child, get, orderByChild, query} = require('firebase/database');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, increment } = require('firebase/firestore');
 // const db = getDatabase();
 const db = getFirestore();
+const express = require('express');
+const app = express();
 
 
 async function createUserData(req, res) {
 
     let data = req.body;
+    // PASSWORD HASHING
 
+    function encPassword(pass) {
+        let hash = bcrypt.hashSync(pass, 10);
+        return hash;
+    }
+    data.password = encPassword(data.password);
+
+    // GET ALL IDs
     const querySnapshot = await getDocs(collection(db, "landlord"));
 
-    const details = [];
+    const ids = [];
+    const emails = [];
+    const phones = [];
 
     querySnapshot.forEach((doc) => {
-        details.push(doc.data().id);
+        ids.push(doc.data().id);
+        emails.push(doc.data().email);
+        phones.push(doc.data().phone);
     });
 
-    // DATA INSERT
+    // GENERATE DYNAMIC ID 
     function generateId() {
 
         let ritid = Math.round(Math.random(100000, 999999) * 1000000);// or Date.now();
 
         finalSubmit(ritid);
     }
-
+    // CHECK IF ID ALREADY INSERTED
     function checkId(idn) {
 
-        return details.includes(idn);
+        return ids.includes(idn);
     }
 
     let num = Math.round(Math.random(100000, 999999) * 1000000);
 
+    // FINAL SUBMITION DATA
     function finalSubmit(rid) {
 
         if (checkId(rid)) {
@@ -54,8 +70,12 @@ async function createUserData(req, res) {
 
         }
     }
+    if (phones.includes(data.phone) || emails.includes(data.email)) {
+        res.status(400).send("user already exist");
+    } else {
+        finalSubmit(num);
+    }
 
-    finalSubmit(num);
 }
 
 
@@ -68,13 +88,13 @@ async function getAllUsers(req, res) {
 
     // GET ALL DATA
 
-        const querySnapshot = await getDocs(collection(db, "landlord"));
-        const details = [];
-        querySnapshot.forEach((doc) => {
-            // doc.data() is never undefined for query doc snapshots
-            details.push(doc.data());
-        });
-        res.send(details);
+    const querySnapshot = await getDocs(collection(db, "landlord"));
+    const details = [];
+    querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        details.push(doc.data());
+    });
+    res.send(details);
 
 
     //--------------------------REALTIME DATABASE-------------------------------------
@@ -111,7 +131,7 @@ function updateUserData(req, res) {
     const dataRef = doc(db, "landlord", req.params.id);
 
     try {
-          updateDoc(dataRef, data);
+        updateDoc(dataRef, data);
         res.send(`Data updated Successfully with id ${req.params.id}`);
     } catch (error) {
         res.send(error);
@@ -154,14 +174,14 @@ async function getSingleUser(req, res) {
 
 
 
- function deleteUserData(req, res) {
+function deleteUserData(req, res) {
 
     //DELETE DATA
 
-         deleteDoc(doc(db, "landlord", req.params.id))
-         .then(()=>res.send(`Deleted successfully`))
-         .catch((err)=>res.send(err))
-    
+    deleteDoc(doc(db, "landlord", req.params.id))
+        .then(() => res.send(`Deleted successfully`))
+        .catch((err) => res.send(err))
+
 }
 
 

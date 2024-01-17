@@ -1,7 +1,6 @@
 const express = require('express');
 const {requestLog} = require('./middlewares/userMiddleware');
 const session = require('express-session');//jwt
-const bcrypt = require('bcrypt');
 const landlordRouter = require('./routes/landlordRouts')
 
 require('dotenv').config();
