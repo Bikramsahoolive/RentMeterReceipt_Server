@@ -14,7 +14,7 @@ app.use(requestLog());
 
 app.use(express.json()); 
                    
-// app.use(express.urlencoded({extended:true})); //
+app.use(express.urlencoded({extended:true}));
 
 app.use('/landlord',landlordRouter);
 

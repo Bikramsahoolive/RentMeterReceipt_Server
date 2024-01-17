@@ -5,8 +5,6 @@ const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, get
 const db = getFirestore();
 
 
-
-
 async function createUserData(req, res) {
 
     let data = req.body;
@@ -130,7 +128,6 @@ async function getSingleUser(req, res) {
     if (docSnap.exists()) {
         res.send(docSnap.data())
     } else {
-        // docSnap.data() will be undefined in this case
         res.send("No such document!");
     }
 
@@ -154,6 +151,9 @@ async function getSingleUser(req, res) {
 
     //   }
 }
+
+
+
  function deleteUserData(req, res) {
 
     //DELETE DATA
@@ -161,9 +161,6 @@ async function getSingleUser(req, res) {
          deleteDoc(doc(db, "landlord", req.params.id))
          .then(()=>res.send(`Deleted successfully`))
          .catch((err)=>res.send(err))
-        
-    
-        
     
 }
 
@@ -179,7 +176,6 @@ async function loginLandlord(req, res) {
     const querySnapshot = await getDocs(q);
     let user;
     querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
         user = doc.data();
     });
     if (user) {
