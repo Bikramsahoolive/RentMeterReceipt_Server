@@ -1,15 +1,79 @@
-This is the server side programming for rentNmeter.receipt web application.
- 
 
- For ladlord
- ________________
+# rentNmeter.receipt Server-side
 
+This repository contains the server-side programming for the rentNmeter.receipt web application, specifically catering to landlord-related functionalities.
 
- Methods      Endpoints                  Description
+## Endpoints
 
- POST           /landlord                Create new landlord user.
- GET            /landlord                 Get all landlord user data.
- GET            /landlord/:id              Get single landlord user data.
- PUT            /landlord/:id               Update landlord user data.
- DELETE         /landlord/:id                Delete landlord user data.
- POST           /landlord/login               Login landlord user.
+### Create New Landlord User
+
+- **Method**: POST
+- **Endpoint**: /landlord
+- **Description**: Create a new landlord user.
+
+### Get All Landlord User Data
+
+- **Method**: GET
+- **Endpoint**: /landlord
+- **Description**: Retrieve data for all landlord users.
+
+### Get Single Landlord User Data
+
+- **Method**: GET
+- **Endpoint**: /landlord/:id
+- **Description**: Retrieve data for a single landlord user based on the provided ID.
+
+### Update Landlord User Data
+
+- **Method**: PUT
+- **Endpoint**: /landlord/:id
+- **Description**: Update data for a specific landlord user.
+
+### Delete Landlord User Data
+
+- **Method**: DELETE
+- **Endpoint**: /landlord/:id
+- **Description**: Delete data for a specific landlord user.
+
+### Login Landlord User
+
+- **Method**: POST
+- **Endpoint**: /landlord/login
+- **Description**: Authenticate and login a landlord user.
+
+## Usage
+
+Ensure you have the necessary environment and dependencies set up before using the server-side application.
+
+### Prerequisites
+
+List any software, tools, or dependencies that users need to have installed before running the server-side application.
+
+### Installation
+
+Provide instructions on how to install and set up the server-side application.
+
+## Contributing
+
+If you would like to contribute to the development of this server-side application, follow the guidelines below.
+
+### Development Setup
+
+Ensure you have a local development environment set up before making contributions.
+
+### How to Contribute
+
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and commit them with descriptive messages.
+4. Submit a pull request.
+
+## License
+
+Specify the license under which the server-side application is released.
+
+## Contact
+
+For any questions or concerns, please contact the maintainers:
+
+- [Bikram Sahoo](bikramsahoo@live.in)
