@@ -1,8 +1,6 @@
 const firebase = require('../model/database');
 const bcrypt = require('bcrypt');
-// const {getDatabase, onValue, ref, set, update, remove, child, get, orderByChild, query} = require('firebase/database');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, increment } = require('firebase/firestore');
-// const db = getDatabase();
 const db = getFirestore();
 const express = require('express');
 const app = express();
@@ -84,39 +82,18 @@ async function createUserData(req, res) {
 
 async function getAllUsers(req, res) {
 
-    //----------------------------CLOUD STORE-----------------------------------------------
 
     // GET ALL DATA
 
     const querySnapshot = await getDocs(collection(db, "landlord"));
     const details = [];
     querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
+        
         details.push(doc.data());
     });
     res.send(details);
 
 
-    //--------------------------REALTIME DATABASE-------------------------------------
-    //GET ALL DATA REALTIME.
-    // try {
-
-    //     const data = ref(db,"landlord");
-
-    //   onValue (data,(snapshot) => {
-    //             const details=[];
-    //         snapshot.forEach(childSnapshot => {
-
-    //             details.push(childSnapshot.val());
-
-    //         });
-    //         res.send(details);
-    //   });
-
-    //   } catch (error) {
-    //     res.send(error);
-
-    //   }
 }
 
 
@@ -152,24 +129,6 @@ async function getSingleUser(req, res) {
     }
 
 
-
-    //-------------------------------------REALTIME DATABASE-----------------------------------
-
-    //GET SINGLE DATA REALTIME.
-    // try {
-
-    //     // const data = ;
-
-    //   onValue (ref(db,`landlord/${JSON.stringify(req.params.id)}`),(snapshot) => {
-
-    //              res.send(snapshot);
-    //         });
-
-
-    //   } catch (error) {
-    //     res.send(error);
-
-    //   }
 }
 
 
@@ -185,9 +144,6 @@ function deleteUserData(req, res) {
 }
 
 
-
-
-
 async function loginLandlord(req, res) {
     let data = req.body;
 
@@ -199,9 +155,32 @@ async function loginLandlord(req, res) {
         user = doc.data();
     });
     if (user) {
+
+        req.session.key = user;
+
         res.send(user);
+
     } else { res.send("No User found!") }
 
+}
+
+function landlordCheckLogin(req, res) {
+    let data = req.session.key;
+    data.isActive = true;
+    res.send(data);
+}
+
+function landlordLogout(req, res) {
+    req.session.destroy(err => {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send({
+                isActive: false,
+                message: "Logout Successful."
+            });
+        }
+    });
 }
 
 module.exports = {
@@ -210,5 +189,7 @@ module.exports = {
     updateUserData,
     getSingleUser,
     deleteUserData,
-    loginLandlord
+    loginLandlord,
+    landlordCheckLogin,
+    landlordLogout
 };

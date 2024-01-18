@@ -1,5 +1,5 @@
 const express = require('express');
-const {requestLog} = require('./middlewares/userMiddleware');
+const morgan = require('morgan');
 const session = require('express-session');//jwt
 const landlordRouter = require('./routes/landlordRouts')
 
@@ -9,7 +9,13 @@ const PORT = process.env.PORT;
 
 const app = express();
 
-app.use(requestLog());
+app.use(session({
+    secret:process.env.sess_secret,
+    resave:false,
+    saveUninitialized:true
+  }));
+
+app.use(morgan('dev'));
 
 app.use(express.json()); 
                    

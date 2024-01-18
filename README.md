@@ -39,7 +39,19 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 
 - **Method**: POST
 - **Endpoint**: /landlord/login
-- **Description**: Authenticate and login a landlord user.
+- **Description**: Authenticate and login a landlord user with phone and password.
+
+### Check Session of Landlord User
+
+- **Method**: POST
+- **Endpoint**: /landlord/isActive
+- **Description**: Check the session of landlord user and send user json data + {isActive}.
+
+### Logout Landlord User
+
+- **Method**: POST
+- **Endpoint**: /landlord/logout
+- **Description**: Logout landlord user and send json data {isActive,message}.
 
 ## Usage
 
@@ -47,11 +59,11 @@ Ensure you have the necessary environment and dependencies set up before using t
 
 ### Prerequisites
 
-List any software, tools, or dependencies that users need to have installed before running the server-side application.
+node enverment with code editor.
 
 ### Installation
 
-Provide instructions on how to install and set up the server-side application.
+Install node js application , run npm install for all dependencies.
 
 ## Contributing
 

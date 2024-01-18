@@ -1,8 +1,3 @@
-const morgan = require('morgan');
-
-function requestLog(){
-    return (morgan('dev'));
-}
 
 const checkLandlordCreateData = (req,res,next) =>{
     const {name, phone, email, upi, password} = req.body;
@@ -33,9 +28,23 @@ const checkLandlordCreateData = (req,res,next) =>{
     next();
 }
 
+const chckSession = (req,res,next)=>{
+    
+        if (req.session.key){
+          next();
+        }else{
+          res.send({
+            isActive:false,
+            message:"Session Expired !"
+        });
+        }
+
+      
+}
+
 module.exports={
-    requestLog,
-    checkLandlordCreateData
+    checkLandlordCreateData,
+    chckSession
 }
 
 
