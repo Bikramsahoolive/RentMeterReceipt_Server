@@ -20,19 +20,19 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 ### Get Single Landlord User Data
 
 - **Method**: GET
-- **Endpoint**: /landlord/:id
+- **Endpoint**: /landlord/user/:id
 - **Description**: Retrieve data for a single landlord user based on the provided ID.
 
 ### Update Landlord User Data
 
 - **Method**: PUT
-- **Endpoint**: /landlord/:id
+- **Endpoint**: /landlord/user/:id
 - **Description**: Update data for a specific landlord user.
 
 ### Delete Landlord User Data
 
 - **Method**: DELETE
-- **Endpoint**: /landlord/:id
+- **Endpoint**: /landlord/user/:id
 - **Description**: Delete data for a specific landlord user.
 
 ### Login Landlord User
@@ -59,11 +59,11 @@ Ensure you have the necessary environment and dependencies set up before using t
 
 ### Prerequisites
 
-node enverment with code editor.
+node environment support and node package manager.
 
 ### Installation
 
-Install node js application , run npm install for all dependencies.
+node js v- 18.16.0 , npm v- 9.5.1 . run npm install to download all dependencies.
 
 ## Contributing
 
@@ -88,4 +88,4 @@ Specify the license under which the server-side application is released.
 
 For any questions or concerns, please contact the maintainers:
 
-- [Bikram Sahoo](bikramsahoo@live.in)
+- [Bikram Sahoo]( <a href= "mailto:bikramsahoo@live.in">bikramsahoo@live.in</a>).

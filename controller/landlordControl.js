@@ -81,7 +81,7 @@ async function createUserData(req, res) {
 
 
 async function getAllUsers(req, res) {
-
+    console.log(db)
 
     // GET ALL DATA
 
@@ -153,21 +153,46 @@ async function loginLandlord(req, res) {
     let user;
     querySnapshot.forEach((doc) => {
         user = doc.data();
+        
     });
-    if (user) {
-
+    if(user){
+        const match = await bcrypt.compare(data.password, user.password);
+    if (match) {
+        console.log(`user mached: ${match}`);
+        user.isAcrive = true;
+        user.expairTime = Date.now() + 60000 ;
         req.session.key = user;
 
         res.send(user);
 
-    } else { res.send("No User found!") }
+    } else { res.send("Invalid Password") }
+    }else{
+        res.send('Invalid phone or password.')
+    }
 
 }
 
-function landlordCheckLogin(req, res) {
+function landlordSessionCheck(req, res) {
     let data = req.session.key;
-    data.isActive = true;
-    res.send(data);
+    if(Date.now() > data.expairTime){
+        req.session.destroy(err => {
+            if (err) {
+                res.send(err);
+            } else {
+                res.send({
+                    isActive: false,
+                    message: "session expired."
+                });
+            }
+        });
+    }else{
+        data.expairTime = Date.now() + 60000 ;
+        req.session.key = data;
+        res.send(data);
+
+    }
+    
+    
 }
 
 function landlordLogout(req, res) {
@@ -190,6 +215,6 @@ module.exports = {
     getSingleUser,
     deleteUserData,
     loginLandlord,
-    landlordCheckLogin,
+    landlordSessionCheck,
     landlordLogout
 };

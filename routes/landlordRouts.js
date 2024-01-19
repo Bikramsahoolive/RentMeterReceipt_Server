@@ -1,26 +1,26 @@
 const express = require('express');
-const {createUserData,getAllUsers,getSingleUser,updateUserData,deleteUserData,loginLandlord,landlordCheckLogin,landlordLogout} = require('../controller/landlordControl');
+const {createUserData,getAllUsers,getSingleUser,updateUserData,deleteUserData,loginLandlord,landlordSessionCheck,landlordLogout} = require('../controller/landlordControl');
 const{checkLandlordCreateData,chckSession} = require('../middlewares/landlordMiddleware');
-const router = express.Router();
+const landlordRouter = express.Router();
 
 
-router.route('/')
+landlordRouter.route('/')
 .get(getAllUsers)
 .post(checkLandlordCreateData , createUserData);
 
-router.route('/:id')
+landlordRouter.route('/user/:id')
 .get(getSingleUser)
 .put(updateUserData)
 .delete(deleteUserData);
 
-router.route('/login')
+landlordRouter.route('/login')
 .post(loginLandlord);
 
-router.route('/isActive')
-.post(chckSession,landlordCheckLogin);
+landlordRouter.route('/isActive')
+.post(chckSession,landlordSessionCheck);
 
-router.route('/logout')
+landlordRouter.route('/logout')
 .post(chckSession,landlordLogout)
 
 
-module.exports =router;
+module.exports =landlordRouter;
