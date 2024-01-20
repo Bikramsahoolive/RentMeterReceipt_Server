@@ -44,14 +44,14 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 ### Check Session of Landlord User
 
 - **Method**: POST
-- **Endpoint**: /landlord/isActive
-- **Description**: Check the session of landlord user and send user json data + {isActive}.
+- **Endpoint**: /check-rout
+- **Description**: Check the session status of user and send json data + {isActive,message}.
 
 ### Logout Landlord User
 
 - **Method**: POST
-- **Endpoint**: /landlord/logout
-- **Description**: Logout landlord user and send json data {isActive,message}.
+- **Endpoint**: /logout
+- **Description**: Logout user and send json data {isActive,message}.
 
 ## Usage
 
