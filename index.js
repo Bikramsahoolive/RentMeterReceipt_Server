@@ -1,7 +1,9 @@
 const express = require('express');
 const morgan = require('morgan');
 const session = require('express-session');//jwt
-const landlordRouter = require('./routes/landlordRouts')
+const landlordRouter = require('./routes/landlordRouts');
+const rentHolderRouter = require('./routes/rentHolderRouts');
+const{checkRouter, landlordLogout} = require('./controller/authControl');
 
 require('dotenv').config();
 
@@ -22,6 +24,12 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
 app.use('/landlord',landlordRouter);
+app.use('/rentholder',rentHolderRouter);
+
+app.post('/check-rout',checkRouter);
+app.post('/logout',landlordLogout);
+
+
 
 
 

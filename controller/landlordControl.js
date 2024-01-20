@@ -1,4 +1,4 @@
-const firebase = require('../model/database');
+const firebase = require('../model/firebase');
 const bcrypt = require('bcrypt');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, increment } = require('firebase/firestore');
 const db = getFirestore();
@@ -46,6 +46,7 @@ async function createUserData(req, res) {
     let num = Math.round(Math.random(100000, 999999) * 1000000);
 
     // FINAL SUBMITION DATA
+    
     function finalSubmit(rid) {
 
         if (checkId(rid)) {
@@ -65,7 +66,6 @@ async function createUserData(req, res) {
             } catch (error) {
                 res.send(error);
             }
-
         }
     }
     if (phones.includes(data.phone) || emails.includes(data.email)) {
@@ -73,15 +73,9 @@ async function createUserData(req, res) {
     } else {
         finalSubmit(num);
     }
-
 }
 
-
-
-
-
 async function getAllUsers(req, res) {
-    console.log(db)
 
     // GET ALL DATA
 
@@ -93,17 +87,12 @@ async function getAllUsers(req, res) {
     });
     res.send(details);
 
-
 }
 
-
-
-
 function updateUserData(req, res) {
+    let data = req.body;
 
     // UPDATE DATA
-
-    let data = req.body;
 
     const dataRef = doc(db, "landlord", req.params.id);
 
@@ -120,6 +109,7 @@ function updateUserData(req, res) {
 async function getSingleUser(req, res) {
 
     // GET SINGLE DATA
+
     const docSnap = await getDoc(doc(db, "landlord", req.params.id));
 
     if (docSnap.exists()) {
@@ -130,8 +120,6 @@ async function getSingleUser(req, res) {
 
 
 }
-
-
 
 function deleteUserData(req, res) {
 
@@ -148,6 +136,7 @@ async function loginLandlord(req, res) {
     let data = req.body;
 
     //GET FILTERED DATA
+
     const q = query(collection(db, "landlord"), where("phone", "==", (data.phone)));
     const querySnapshot = await getDocs(q);
     let user;
@@ -158,9 +147,8 @@ async function loginLandlord(req, res) {
     if(user){
         const match = await bcrypt.compare(data.password, user.password);
     if (match) {
-        console.log(`user mached: ${match}`);
-        user.isAcrive = true;
-        user.expairTime = Date.now() + 60000 ;
+        user.isActive = true;
+        user.expairTime = Date.now() + 120000;
         req.session.key = user;
 
         res.send(user);
@@ -172,42 +160,6 @@ async function loginLandlord(req, res) {
 
 }
 
-function landlordSessionCheck(req, res) {
-    let data = req.session.key;
-    if(Date.now() > data.expairTime){
-        req.session.destroy(err => {
-            if (err) {
-                res.send(err);
-            } else {
-                res.send({
-                    isActive: false,
-                    message: "session expired."
-                });
-            }
-        });
-    }else{
-        data.expairTime = Date.now() + 60000 ;
-        req.session.key = data;
-        res.send(data);
-
-    }
-    
-    
-}
-
-function landlordLogout(req, res) {
-    req.session.destroy(err => {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send({
-                isActive: false,
-                message: "Logout Successful."
-            });
-        }
-    });
-}
-
 module.exports = {
     createUserData,
     getAllUsers,
@@ -215,6 +167,4 @@ module.exports = {
     getSingleUser,
     deleteUserData,
     loginLandlord,
-    landlordSessionCheck,
-    landlordLogout
-};
+}

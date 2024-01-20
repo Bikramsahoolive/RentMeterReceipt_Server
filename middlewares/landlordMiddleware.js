@@ -28,23 +28,10 @@ const checkLandlordCreateData = (req,res,next) =>{
     next();
 }
 
-const chckSession = (req,res,next)=>{
-    
-        if (req.session.key){
-          next();
-        }else{
-          res.send({
-            isActive:false,
-            message:"Session Expired !"
-        });
-        }
 
-      
-}
 
 module.exports={
-    checkLandlordCreateData,
-    chckSession
+    checkLandlordCreateData
 }
 
 

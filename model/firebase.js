@@ -1,4 +1,3 @@
-// const { async } = require('@firebase/util');
 const {initializeApp} = require('firebase/app');
 
 require('dotenv').config();

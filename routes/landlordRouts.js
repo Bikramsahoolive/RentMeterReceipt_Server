@@ -1,26 +1,24 @@
 const express = require('express');
-const {createUserData,getAllUsers,getSingleUser,updateUserData,deleteUserData,loginLandlord,landlordSessionCheck,landlordLogout} = require('../controller/landlordControl');
-const{checkLandlordCreateData,chckSession} = require('../middlewares/landlordMiddleware');
+const app = express();
+const {createUserData,getAllUsers,getSingleUser,updateUserData,deleteUserData,loginLandlord} = require('../controller/landlordControl');
+const{checkLandlordCreateData} = require('../middlewares/landlordMiddleware');
+const{checkSession} = require('../middlewares/session');
 const landlordRouter = express.Router();
 
 
+
 landlordRouter.route('/')
-.get(getAllUsers)
-.post(checkLandlordCreateData , createUserData);
+.get(checkSession , getAllUsers)
+.post(checkSession , checkLandlordCreateData,createUserData);
 
 landlordRouter.route('/user/:id')
-.get(getSingleUser)
-.put(updateUserData)
-.delete(deleteUserData);
+.get(checkSession, getSingleUser)
+.put(checkSession, updateUserData)
+.delete(checkSession, deleteUserData);
 
 landlordRouter.route('/login')
 .post(loginLandlord);
 
-landlordRouter.route('/isActive')
-.post(chckSession,landlordSessionCheck);
-
-landlordRouter.route('/logout')
-.post(chckSession,landlordLogout)
 
 
 module.exports =landlordRouter;
