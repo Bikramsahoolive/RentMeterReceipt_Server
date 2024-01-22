@@ -41,13 +41,55 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 - **Endpoint**: /landlord/login
 - **Description**: Authenticate and login a landlord user with phone and password.
 
-### Check Session of Landlord User
+###  Create New Rent-Holder User
+
+- **Method**: POST
+- **Endpoint**: /rent-holder
+- **Description**: Create a new rent holder user.
+
+###  Get all Rent-Holder User
+
+- **Method**: GET
+- **Endpoint**: /rent-holder
+- **Description**: Retrieve data for all rent-holder users.
+
+###  Get Single Landlord User Data
+
+- **Method**: GET
+- **Endpoint**: /rent-holder/user/:id
+- **Description**: Retrieve data for a single rent-holder user based on the provided ID.
+
+###  Get all Rent-Holder User of specific landlord user.
+
+- **Method**: GET
+- **Endpoint**: /rent-holder/landlord
+- **Description**: Retrieve data  all rent-holder user based on the landlord sign in.
+
+###  Update Rent-Holder User Data.
+
+- **Method**: PUT
+- **Endpoint**: /rent-holder/user/:id
+- **Description**: Update data for a specific rent-holder user.
+
+### Delete Rent-Holder User Data
+
+- **Method**: DELETE
+- **Endpoint**: /rent-holder/user/:id
+- **Description**: Delete data for a specific rent-holder user.
+
+### Login Rent-Holder User
+
+- **Method**: POST
+- **Endpoint**: /rent-holder/login
+- **Description**: Authenticate and login a rent-holder user with phone and password.
+
+### Check Session of logged in User
 
 - **Method**: POST
 - **Endpoint**: /check-rout
 - **Description**: Check the session status of user and send json data + {isActive,message}.
 
-### Logout Landlord User
+### Logout User
 
 - **Method**: POST
 - **Endpoint**: /logout
