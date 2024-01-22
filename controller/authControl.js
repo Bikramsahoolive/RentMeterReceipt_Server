@@ -1,12 +1,25 @@
 function checkRouter(req,res){
     let data = req.session.key;
-  if(data){
-    res.send(data);
-  }else{
+
+  if(data === undefined){
     res.send({
       isActive:false,
       message:"login required."
-    })
+    });
+  }else if(data.expairTime < Date.now()){
+    req.session.destroy(err => {
+      if (err) {
+          res.send(err);
+      } else {
+          res.send({
+              isActive: false,
+              message: "session expired"
+          });
+      }
+  });
+  }else{
+    data.expairTime = Date.now() + 600000;
+    res.send(data);
   }
 }
 

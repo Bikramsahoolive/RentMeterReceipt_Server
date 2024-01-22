@@ -137,20 +137,20 @@ async function loginLandlord(req, res) {
 
     //GET FILTERED DATA
 
-    const q = query(collection(db, "landlord"), where("phone", "==", (data.phone)));
+    const q = query(collection(db, "landlord"), where("phone", "==",(data.phone)));
     const querySnapshot = await getDocs(q);
     let user;
     querySnapshot.forEach((doc) => {
         user = doc.data();
-        
     });
+
     if(user){
         const match = await bcrypt.compare(data.password, user.password);
     if (match) {
         user.isActive = true;
-        user.expairTime = Date.now() + 120000;
+        user.expairTime = Date.now() + 600000;
         req.session.key = user;
-
+        
         res.send(user);
 
     } else { res.send("Invalid Password") }
@@ -159,6 +159,8 @@ async function loginLandlord(req, res) {
     }
 
 }
+
+
 
 module.exports = {
     createUserData,

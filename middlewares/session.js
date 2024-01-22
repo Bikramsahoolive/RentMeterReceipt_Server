@@ -1,6 +1,6 @@
 const checkSession = (req,res,next)=>{
     let data = req.session.key;
-    if (data){
+    if (data!== undefined){
         if(Date.now() > data.expairTime){
             req.session.destroy(err => {
                 if (err) {

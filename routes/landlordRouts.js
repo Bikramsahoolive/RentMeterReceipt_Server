@@ -19,6 +19,8 @@ landlordRouter.route('/user/:id')
 landlordRouter.route('/login')
 .post(loginLandlord);
 
+// landlordRouter.route('/rent-holder')
+// .get(checkSession,getRentholderOfLandlord);
 
 
 module.exports =landlordRouter;
