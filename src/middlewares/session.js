@@ -20,7 +20,7 @@ const checkSession = (req,res,next)=>{
     }else{
       res.send({
         isActive:false,
-        message:"session not set."
+        message:"Login required."
       });
     }
 }

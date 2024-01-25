@@ -5,9 +5,16 @@ const cors = require('cors');
 
 const session = require('express-session');//jwt
 const cookieParser = require('cookie-parser');
-const landlordRouter = require('./routes/landlordRouts');
-const rentHolderRouter = require('./routes/rentHolderRouts');
-const{checkRouter, landlordLogout} = require('./controller/authControl');
+
+const SignupLandlordRouter = require('./src/routes/signUpLandlordRouts')
+
+const adminRouter = require('./src/routes/adminRouter');
+const landlordRouter = require('./src/routes/landlordRouts');
+const rentHolderRouter = require('./src/routes/rentHolderRouts');
+
+const mainMeterRouter = require('./src/routes/mainMeterRouts')
+
+const{checkRouter, landlordLogout} = require('./src/controller/authControl');
 
 require('dotenv').config();
 
@@ -35,8 +42,14 @@ app.use(express.json());
                    
 app.use(express.urlencoded({extended:true}));
 
+app.use('/signup',SignupLandlordRouter);
+
+app.use('/admin',adminRouter);
 app.use('/landlord',landlordRouter);
 app.use('/rent-holder',rentHolderRouter);
+
+app.use('/mainMeter',mainMeterRouter);
+// app.use('/submeter-bill',);
 
 app.post('/check-rout',checkRouter);
 app.post('/logout',landlordLogout);

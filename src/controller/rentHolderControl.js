@@ -9,6 +9,7 @@ const app = express();
 async function createUserData(req, res) {
 
     let data = req.body;
+
     // PASSWORD HASHING
 
     function encPassword(pass) {
@@ -18,7 +19,7 @@ async function createUserData(req, res) {
     data.password = encPassword(data.password);
 
     // GET ALL IDs
-    const querySnapshot = await getDocs(collection(db, "landlord"));
+    const querySnapshot = await getDocs(collection(db, "rentholder"));
 
     const ids = [];
     const emails = [];
@@ -33,7 +34,7 @@ async function createUserData(req, res) {
     // GENERATE DYNAMIC ID 
     function generateId() {
 
-        let ritid = Math.round(Math.random(100000, 999999) * 1000000);// or Date.now();
+        let ritid = `RH${Math.round(Math.random(100000, 999999) * 1000000)}`;// or Date.now();
 
         finalSubmit(ritid);
     }
@@ -43,20 +44,21 @@ async function createUserData(req, res) {
         return ids.includes(idn);
     }
 
-    let num = Math.round(Math.random(100000, 999999) * 1000000);
+    let num = `RH${Math.round(Math.random(100000, 999999) * 1000000)}`;
 
     // FINAL SUBMITION DATA
-    
     function finalSubmit(rid) {
 
         if (checkId(rid)) {
             generateId();
 
         } else {
-
+            let user = req.session.key;
+            data.landlord_id = user.id;
+            data.landlord_name = user.name;
             data.id = rid;
 
-            let dataRef = doc(db, "landlord", JSON.stringify(rid));
+            let dataRef = doc(db, "rentholder", JSON.stringify(rid));
 
             try {
 
@@ -66,6 +68,7 @@ async function createUserData(req, res) {
             } catch (error) {
                 res.send(error);
             }
+
         }
     }
     if (phones.includes(data.phone) || emails.includes(data.email)) {
@@ -73,28 +76,59 @@ async function createUserData(req, res) {
     } else {
         finalSubmit(num);
     }
+
 }
 
+
+
+
+
 async function getAllUsers(req, res) {
+    let landlordId = req.params.id;
 
     // GET ALL DATA
 
-    const querySnapshot = await getDocs(collection(db, "landlord"));
+    const querySnapshot = await getDocs(collection(db, "rentholder"));
     const details = [];
     querySnapshot.forEach((doc) => {
-        
-        details.push(doc.data());
+            details.push(doc.data());
     });
-    res.send(details);
-
+    if(details.length!=0){
+        res.send(details);
+    }else{res.send('Document is empty.');}
 }
 
+
+
+
+
+async function getRentholderOfLandlord (req,res){
+    let data = req.session.key;
+    let id = data.id;
+
+const q = query(collection(db, "rentholder"), where('landlord_id', '==',id));
+const querySnapshot = await getDocs(q);
+const details = [];
+querySnapshot.forEach((doc) => {
+    details.push(doc.data());
+});
+if(details.length != 0){
+    res.send(details);
+}else{
+    
+    res.send('No data found');
+}
+}
+
+
+
 function updateUserData(req, res) {
-    let data = req.body;
 
     // UPDATE DATA
 
-    const dataRef = doc(db, "landlord", req.params.id);
+    let data = req.body;
+
+    const dataRef = doc(db, "rentholder", req.params.id);
 
     try {
         updateDoc(dataRef, data);
@@ -109,8 +143,7 @@ function updateUserData(req, res) {
 async function getSingleUser(req, res) {
 
     // GET SINGLE DATA
-
-    const docSnap = await getDoc(doc(db, "landlord", req.params.id));
+    const docSnap = await getDoc(doc(db, "rentholder", JSON.stringify(req.params.id)));
 
     if (docSnap.exists()) {
         res.send(docSnap.data())
@@ -121,23 +154,25 @@ async function getSingleUser(req, res) {
 
 }
 
+
+
 function deleteUserData(req, res) {
 
     //DELETE DATA
 
-    deleteDoc(doc(db, "landlord", req.params.id))
+    deleteDoc(doc(db, "rentholder", JSON.stringify(req.params.id)))
         .then(() => res.send(`Deleted successfully`))
         .catch((err) => res.send(err))
 
 }
 
 
-async function loginLandlord(req, res) {
+async function loginRentHolder(req, res) {
     let data = req.body;
 
     //GET FILTERED DATA
 
-    const q = query(collection(db, "landlord"), where("phone", "==",(data.phone)));
+    const q = query(collection(db, "rentholder"), where("phone", "==",(data.phone)));
     const querySnapshot = await getDocs(q);
     let user;
     querySnapshot.forEach((doc) => {
@@ -153,10 +188,8 @@ async function loginLandlord(req, res) {
         
         res.send(user);
 
-    } else { res.send("Invalid Password") }
-    }else{
-        res.send('Invalid phone or password.')
-    }
+    } else { res.send("Invalid Password");}
+    }else{ res.send('Invalid phone or password.');}
 
 }
 
@@ -165,8 +198,10 @@ async function loginLandlord(req, res) {
 module.exports = {
     createUserData,
     getAllUsers,
+    getRentholderOfLandlord,
+
     updateUserData,
     getSingleUser,
     deleteUserData,
-    loginLandlord,
-}
+    loginRentHolder,
+};

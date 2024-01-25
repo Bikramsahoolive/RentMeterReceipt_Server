@@ -1,25 +1,36 @@
 const firebase = require('../model/firebase');
 const bcrypt = require('bcrypt');
-const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, increment } = require('firebase/firestore');
+const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } = require('firebase/firestore');
 const db = getFirestore();
-const express = require('express');
-const app = express();
+
 
 
 async function createUserData(req, res) {
 
     let data = req.body;
-
     // PASSWORD HASHING
 
-    function encPassword(pass) {
-        let hash = bcrypt.hashSync(pass, 10);
-        return hash;
-    }
-    data.password = encPassword(data.password);
+    // function encPassword(pass) {
+    //     let hash = bcrypt.hashSync(pass, 10);
+    //     return hash;
+    // }
+    // data.password = encPassword(data.password);
+
+    if(data.status === "approved"){
+
+        // UPDATE DATA
+    
+        const dataRef = doc(db, "request_landlord", JSON.stringify(req.params.id));
+    
+        try {
+           await updateDoc(dataRef, data);
+        } catch (error) {
+            res.send(error);
+        }
+    
 
     // GET ALL IDs
-    const querySnapshot = await getDocs(collection(db, "rentholder"));
+    const querySnapshot = await getDocs(collection(db, "landlord"));
 
     const ids = [];
     const emails = [];
@@ -34,7 +45,7 @@ async function createUserData(req, res) {
     // GENERATE DYNAMIC ID 
     function generateId() {
 
-        let ritid = `RH${Math.round(Math.random(100000, 999999) * 1000000)}`;// or Date.now();
+        let ritid = `LL${Math.round(Math.random(100000, 999999) * 1000000)}`;// or Date.now();
 
         finalSubmit(ritid);
     }
@@ -44,86 +55,72 @@ async function createUserData(req, res) {
         return ids.includes(idn);
     }
 
-    let num = `RH${Math.round(Math.random(100000, 999999) * 1000000)}`;
+    let num = `LL${Math.round(Math.random(100000, 999999) * 1000000)}`;
 
     // FINAL SUBMITION DATA
+    
     function finalSubmit(rid) {
 
         if (checkId(rid)) {
             generateId();
 
         } else {
-            let user = req.session.key;
-            data.landlord_id = user.id;
+            delete data.status;
             data.id = rid;
 
-            let dataRef = doc(db, "rentholder", JSON.stringify(rid));
+            let dataRef = doc(db, "landlord", JSON.stringify(rid));
 
             try {
 
                 setDoc(dataRef, data);
-                res.send(`Data inserted successfully with id : ${rid}.`);
+                res.send(`Landlord request Approved with landlord Id ${rid}`);
+               
 
             } catch (error) {
                 res.send(error);
             }
-
         }
     }
     if (phones.includes(data.phone) || emails.includes(data.email)) {
-        res.status(400).send("user already exist");
+        res.status(400).send("User already exist");
     } else {
         finalSubmit(num);
+}
+    }else if(data.status ==='rejected'){
+        const dataRef = doc(db, "request_landlord",JSON.stringify( req.params.id));
+    
+        try {
+           await updateDoc(dataRef, data);
+            res.send(`Landlord request Rejected with id ${req.params.id}`);
+        } catch (error) {
+            res.send(error);
+        }
     }
-
 }
 
-
-
-
-
 async function getAllUsers(req, res) {
-    let landlordId = req.params.id;
 
     // GET ALL DATA
 
-    const querySnapshot = await getDocs(collection(db, "rentholder"));
+    const querySnapshot = await getDocs(collection(db, "landlord"));
     const details = [];
     querySnapshot.forEach((doc) => {
-            details.push(doc.data());
+        
+        details.push(doc.data());
     });
-    if(details.length!=0){
-        res.send(details);
-    }else{res.send('Document is empty.');}
-}
-
-async function getRentholderOfLandlord (req,res){
-    let data = req.session.key;
-    let id = data.id;
-
-const q = query(collection(db, "rentholder"), where('landlord_id', '==',JSON.stringify(id)));
-const querySnapshot = await getDocs(q);
-const details = [];
-querySnapshot.forEach((doc) => {
-    details.push(doc.data());
-});
-if(details.length != 0){
     res.send(details);
-}else{
-    
-    res.send('No data found');
-}
-}
 
-
+}
 
 function updateUserData(req, res) {
+    let data = req.body;
+
+    let hash = bcrypt.hashSync(data.password, 10);
+    data.password = hash;
 
     // UPDATE DATA
 
-    let data = req.body;
-
-    const dataRef = doc(db, "rentholder", req.params.id);
+    const dataRef = doc(db, "landlord", req.params.id);
 
     try {
         updateDoc(dataRef, data);
@@ -138,7 +135,8 @@ function updateUserData(req, res) {
 async function getSingleUser(req, res) {
 
     // GET SINGLE DATA
-    const docSnap = await getDoc(doc(db, "rentholder", JSON.stringify(req.params.id)));
+
+    const docSnap = await getDoc(doc(db, "landlord", req.params.id));
 
     if (docSnap.exists()) {
         res.send(docSnap.data())
@@ -149,25 +147,23 @@ async function getSingleUser(req, res) {
 
 }
 
-
-
 function deleteUserData(req, res) {
 
     //DELETE DATA
 
-    deleteDoc(doc(db, "rentholder", JSON.stringify(req.params.id)))
+    deleteDoc(doc(db, "landlord", req.params.id))
         .then(() => res.send(`Deleted successfully`))
         .catch((err) => res.send(err))
 
 }
 
 
-async function loginRentHolder(req, res) {
+async function loginLandlord(req, res) {
     let data = req.body;
 
     //GET FILTERED DATA
 
-    const q = query(collection(db, "rentholder"), where("phone", "==",(data.phone)));
+    const q = query(collection(db, "landlord"), where("phone", "==",(data.phone)));
     const querySnapshot = await getDocs(q);
     let user;
     querySnapshot.forEach((doc) => {
@@ -183,8 +179,10 @@ async function loginRentHolder(req, res) {
         
         res.send(user);
 
-    } else { res.send("Invalid Password");}
-    }else{ res.send('Invalid phone or password.');}
+    } else { res.send("Invalid Password") }
+    }else{
+        res.send('Invalid phone or password.')
+    }
 
 }
 
@@ -193,10 +191,8 @@ async function loginRentHolder(req, res) {
 module.exports = {
     createUserData,
     getAllUsers,
-    getRentholderOfLandlord,
-
     updateUserData,
     getSingleUser,
     deleteUserData,
-    loginRentHolder,
-};
+    loginLandlord,
+}

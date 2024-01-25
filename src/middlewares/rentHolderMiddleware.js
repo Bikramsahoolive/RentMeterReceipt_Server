@@ -1,13 +1,12 @@
 
-const checkLandlordCreateData = (req,res,next) =>{
-    const {name, phone, email, upi, password} = req.body;
+const checkRentHolderCreateData = (req,res,next) =>{
+    const {name, phone, email, rent, password} = req.body;
     
     const phoneRegex = /^[06789]/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const upiRegex = /^[^\s@]+@[^\s@]+$/;
-
-
-    if(!name || !phone || !email || !upi || !password){
+    
+    
+    if(!name || !phone || !email || !rent || !password ){
         return res.status(400).send("Invalid input.");
     }
     else if(name.length>25){
@@ -19,32 +18,19 @@ const checkLandlordCreateData = (req,res,next) =>{
     else if(email.length>35 || !emailRegex.test(email)){
         return res.status(400).send("Invalid email.");
     }
-    else if(upi.length>25 || !upiRegex.test(upi)){
-        return res.status(400).send("Invalid upi.");
+    else if(rent.length<5){
+        return res.status(400).send("Invalid rent input");
     }
     else if (password.length >20){
         return res.status(400).send("Invalid password.");
     }
+
     next();
 }
 
-const chckSession = (req,res,next)=>{
-    
-        if (req.session.key){
-          next();
-        }else{
-          res.send({
-            isActive:false,
-            message:"Session Expired !"
-        });
-        }
-
-      
-}
 
 module.exports={
-    checkLandlordCreateData,
-    chckSession
+    checkRentHolderCreateData
 }
 
 
