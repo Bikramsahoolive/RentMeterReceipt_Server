@@ -7,7 +7,7 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 
 ### Create Admin User
 
-- **Method**: get
+- **Method**: GET
 - **Endpoint**: /admin
 - **Description**: Automatic create admin user once.
 
