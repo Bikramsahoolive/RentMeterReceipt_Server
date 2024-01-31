@@ -2,8 +2,7 @@ const firebase = require('../model/firebase');
 const bcrypt = require('bcrypt');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, increment } = require('firebase/firestore');
 const db = getFirestore();
-const express = require('express');
-const app = express();
+
 
 
 async function createUserData(req, res) {

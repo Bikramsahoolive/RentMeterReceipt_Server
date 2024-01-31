@@ -1,17 +1,20 @@
 const firebase= require('../model/firebase');
 const {getFirestore,  doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query} = require('firebase/firestore');
 const db = getFirestore();
-const{mainBill} = require('../calculation/mainBillCalc')
+const{mainBill} = require('../calculation/mainBillCalc');
 
 function createMainMeterBill(req,res){
     let data = req.body;
+
     let user = req.session.key;
+
     data.landlord_id= user.id;
     data.consumerName = user.name;
     let id =JSON.stringify( Date.now());
     data.id = `mBILL${id.slice(4,10)}`;
 
    let calcVal = mainBill(data);
+//    res.send(calcVal);
         
    let dataRef = doc(db, "mainMeter", JSON.stringify(calcVal.id));
 

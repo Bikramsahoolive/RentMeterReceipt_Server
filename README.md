@@ -7,9 +7,9 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 
 ### Create Admin User
 
-- **Method**: get
+- **Method**: GET
 - **Endpoint**: /admin
-- **Description**: Automatic create admin user once.
+- **Description**: Automatic create admin user once if not created.
 
 ### Reset Admin User Data
 
@@ -119,10 +119,10 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 - **Endpoint**: /rent-holder/login
 - **Description**: Authenticate and login a rent-holder user with phone and password and set {isActive} state.
 
-### Check Session of logged in User
+### Check Session of Logged in User
 
 - **Method**: POST
-- **Endpoint**: /check-rout
+- **Endpoint**: /check-session
 - **Description**: Check the session status of user and send json data + {isActive,message}.
 
 ### Logout User
@@ -160,6 +160,12 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 - **Method**: DELETE
 - **Endpoint**: /mainMeter/bill/:id
 - **Description**: DELETE single main-meter bill, landlord login required.
+
+### Rent-Bill Create
+
+- **Method**: POST
+- **Endpoint**: /rent-bill
+- **Description**: Create a new rent-bill and get the bill number, landlord login required.
 
 ## Usage
 
