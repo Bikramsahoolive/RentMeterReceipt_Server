@@ -1,4 +1,4 @@
-  
+require('dotenv').config();  
  function adminReset(req,res,next){
     let resetKey = req.body.reset_key;
     

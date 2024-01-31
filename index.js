@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const {createServer} = require('http');
 
@@ -23,7 +24,6 @@ const apiKeyValidation = require('./src/middlewares/validateApi');
 
 
 const app = express();
-require('dotenv').config();
 
 const Server = createServer(app);
 const PORT = process.env.PORT || 3000;

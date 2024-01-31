@@ -1,3 +1,4 @@
+require('dotenv').config();
 const firebase = require('../model/firebase');
 const bcrypt = require('bcrypt');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, increment } = require('firebase/firestore');

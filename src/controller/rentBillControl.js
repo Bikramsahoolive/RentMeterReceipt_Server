@@ -15,7 +15,7 @@ function createRentBill (req,res){
    let calcVal = rentBillCalc(data);
 //    res.send(calcVal);
         
-   let dataRef = doc(db, "rentbill","1546852");
+   let dataRef = doc(db, "rentbill",calcVal.id);
 
                 setDoc(dataRef, calcVal)
                 .then(()=>res.send(`rent bill created with bill no : ${calcVal.id}`))
