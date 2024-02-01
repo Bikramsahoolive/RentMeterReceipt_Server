@@ -1,12 +1,11 @@
 
 function mainBill(value){
-    t;
+let prevUnit = value.previousUnit;
 let crntUnit = value.currentUnit;
 let cload = value.connLoad;
 
 let unitAdv = crntUnit-prevUnit;
 
-let prevUnit = value.previousUni
 value.unitAdvance = JSON.stringify(unitAdv);
 
     let rebtUnit = unitAdv;

@@ -1,10 +1,12 @@
 const express = require('express');
-const{signupLandlord,signupStatus}= require('../controller/signupLandlordControl');
-const{checkLandlordCreateData} = require('../middlewares/landlordMiddleware')
+const{signupLandlord,signupStatus,getSignupDataOfLandlord}= require('../controller/signupLandlordControl');
+const{checkLandlordCreateData} = require('../middlewares/landlordMiddleware');
+const{checkSession,checkAdminUser} = require('../middlewares/session');
 const SignupLandlordRouter = express.Router();
 
 SignupLandlordRouter.route('/')
 .post(checkLandlordCreateData,signupLandlord)
+.get(checkSession,checkAdminUser,getSignupDataOfLandlord);
 
 SignupLandlordRouter.route('/status/:id')
 .get(signupStatus)

@@ -1,24 +1,24 @@
 const express = require('express');
-const {createUserData,getAllUsers, getRentholderOfLandlord,getSingleUser,updateUserData,deleteUserData,loginRentHolder} = require('../controller/rentHolderControl');
-const{checkSession} = require('../middlewares/session');
+const {createUserData,getAllUsers, getRentholdersOfLandlord,getSingleUser,updateUserData,deleteUserData,loginRentHolder} = require('../controller/rentHolderControl');
+const{checkSession,checkAdminUser,checkLandlordUser} = require('../middlewares/session');
 const {checkRentHolderCreateData} = require('../middlewares/rentHolderMiddleware')
 const rentHolderRouter = express.Router();
 
 
 rentHolderRouter.route('/')
-.get(checkSession,getAllUsers)
-.post(checkSession,checkRentHolderCreateData,createUserData);
+.get(checkSession,checkAdminUser,getAllUsers)
+.post(checkSession,checkLandlordUser,checkRentHolderCreateData,createUserData);
 
 rentHolderRouter.route('/user/:id')
 .get(checkSession,getSingleUser)
-.put(checkSession,updateUserData)
-.delete(checkSession,deleteUserData);
+.put(checkSession,checkLandlordUser,updateUserData)
+.delete(checkSession,checkLandlordUser,deleteUserData);
 
 rentHolderRouter.route('/login')
 .post(loginRentHolder);
 
 rentHolderRouter.route('/landlord')
-.get(checkSession,getRentholderOfLandlord);
+.get(checkSession,checkLandlordUser,getRentholdersOfLandlord);
 
 
 module.exports =rentHolderRouter;

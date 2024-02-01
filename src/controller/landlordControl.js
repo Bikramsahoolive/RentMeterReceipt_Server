@@ -10,13 +10,13 @@ async function createUserData(req, res) {
     let data = req.body;
     // PASSWORD HASHING
 
-    // function encPassword(pass) {
-    //     let hash = bcrypt.hashSync(pass, 10);
-    //     return hash;
-    // }
-    // data.password = encPassword(data.password);
+    function encPassword(pass) {
+        let hash = bcrypt.hashSync(pass, 10);
+        return hash;
+    }
+    data.password = encPassword(data.password);
 
-    if(data.status === "approved"){
+    if(data.status === "approve"){
 
         // UPDATE DATA
     
@@ -86,7 +86,7 @@ async function createUserData(req, res) {
     } else {
         finalSubmit(num);
 }
-    }else if(data.status ==='rejected'){
+    }else if(data.status ==='reject'){
         const dataRef = doc(db, "request_landlord",JSON.stringify( req.params.id));
     
         try {

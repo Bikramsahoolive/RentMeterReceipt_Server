@@ -25,4 +25,34 @@ const checkSession = (req,res,next)=>{
     }
 }
 
-module.exports = {checkSession};
+const checkAdminUser= (req,res,next)=>{
+    let data = req.session.key;
+    if(data.userType!='admin'){
+        res.status('400').send('You are not authorize to access the service.');
+    }else{
+        next();
+    }
+}
+const checkLandlordUser= (req,res,next)=>{
+    let data = req.session.key;
+    if(data.userType!='landlord' && data.userType!='admin'){
+        res.status('400').send('You are not authorize to access the service.');
+    }else{
+        next();
+    }
+}
+const checkRentHolderUser= (req,res,next)=>{
+    let data = req.session.key;
+    if(data.userType!='rentholder' && data.userType!='landlord' && data.userType!='admin'){
+        res.status('400').send('You are not authorize to access the service.');
+    }else{
+        next();
+    }
+}
+
+module.exports = {
+                checkSession,
+                checkAdminUser,
+                checkLandlordUser,
+                checkRentHolderUser
+                        };

@@ -58,7 +58,8 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
 //Handle Routes 
-
+app.get('/',(req,res)=>res.send("Welcome to Rent N meter.Receipt!"));
+// app.get('/**',(req,res)=>res.status('404').send('Rent n meter can not find any Route, Error code 404!'))
 app.use('/signup',SignupLandlordRouter);
 app.use('/admin',adminRouter);
 app.use('/landlord',landlordRouter);

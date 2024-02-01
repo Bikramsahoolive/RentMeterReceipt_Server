@@ -101,7 +101,7 @@ async function getAllUsers(req, res) {
 
 
 
-async function getRentholderOfLandlord (req,res){
+async function getRentholdersOfLandlord (req,res){
     let data = req.session.key;
     let id = data.id;
 
@@ -197,7 +197,7 @@ async function loginRentHolder(req, res) {
 module.exports = {
     createUserData,
     getAllUsers,
-    getRentholderOfLandlord,
+    getRentholdersOfLandlord,
 
     updateUserData,
     getSingleUser,

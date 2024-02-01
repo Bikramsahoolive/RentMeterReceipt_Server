@@ -16,7 +16,7 @@ function createMainMeterBill(req,res){
    let calcVal = mainBill(data);
 //    res.send(calcVal);
         
-   let dataRef = doc(db, "mainMeter", JSON.stringify(calcVal.id));
+   let dataRef = doc(db, "mainmeter", JSON.stringify(calcVal.id));
 
             try {
 

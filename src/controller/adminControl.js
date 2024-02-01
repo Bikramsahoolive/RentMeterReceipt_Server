@@ -18,7 +18,8 @@ async function adminCreate(req, res) {
             name:process.env.admin_name,
             phone:process.env.admin_phone,
             email:process.env.admin_email,
-            password:pass
+            password:pass,
+            userType:"admin"
         }
         let dataRef = doc(db, "admin", "RNMR_ADMIN");
         try {
@@ -66,7 +67,8 @@ async function adminLogin(req, res) {
     querySnapshot.forEach((doc) => {
         admin = doc.data();
     });
-
+    
+    if(admin!==undefined){
     if(admin){
         const match = await bcrypt.compare(data.password, admin.password);
     if (match) {
@@ -80,6 +82,9 @@ async function adminLogin(req, res) {
     }else{
         res.send('Invalid phone or password.')
     }
+}else{
+    res.send("No admin data found!")
+}
 }
 
 async function adminUpdate(req, res) {

@@ -67,32 +67,21 @@ async function signupStatus(req,res){
 
 }
 
-// async function signupAction (req,res){
-//     let data = req.body;
-
+async function getSignupDataOfLandlord (req,res){
+    
+    const querySnapshot = await getDocs(collection(db, "request_landlord"));
+    const details = [];
+    querySnapshot.forEach((doc) => {
+        
+        details.push(doc.data());
+    });
+    res.send(details);
    
-// }
-
-// async function rejectLandlord (req,res){
-//     let data = req.body;
-//     data.status = "rejected";
-
-//     // UPDATE DATA
-
-//     const dataRef = doc(db, "request_landlord", req.params.id);
-
-//     try {
-//         updateDoc(dataRef, data);
-//         res.send(`Landlord request rejected with id ${req.params.id}`);
-//     } catch (error) {
-//         res.send(error);
-//     }
-
-// }
+}
 
 module.exports={
     signupLandlord,
     signupStatus,
-    // signupAction
+    getSignupDataOfLandlord
 
 };
