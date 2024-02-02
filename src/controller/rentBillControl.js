@@ -23,6 +23,73 @@ function createRentBill (req,res){
 
 }
 
+async function getAllRentBill(req,res){
+    const querySnapshot = await getDocs(collection(db, "rentbill"));
+    const details = [];
+    querySnapshot.forEach((doc) => {
+        
+        details.push(doc.data());
+    });
+    res.send(details);
+}
+
+
+
+
+async function getLandlordRentBill(req,res){
+    let data = req.session.key;
+    let id = data.id;
+
+const q = query(collection(db, "rentbill"), where('landlord_id', '==',id));
+const querySnapshot = await getDocs(q);
+const details = [];
+querySnapshot.forEach((doc) => {
+    details.push(doc.data());
+});
+if(details.length != 0){
+    res.send(details);
+}else{
+    
+    res.send('No data found');
+}
+}
+
+async function getSingleRentBill(req,res){
+    const docSnap = await getDoc(doc(db, "rentbill", JSON.stringify(req.params.id)));
+
+    if (docSnap.exists()) {
+        res.send(docSnap.data())
+    } else {
+        res.send("No such document!");
+    }
+}
+
+function updateRentBill (req,res){
+
+        let data = req.body;
+
+    const dataRef = doc(db, "rentbill", req.params.id);
+
+    try {
+        updateDoc(dataRef, data);
+        res.send(`Data updated Successfully with id ${req.params.id}`);
+    } catch (error) {
+        res.send(error);
+    }
+}
+
+
+function deleteRentBill(req,res){
+    deleteDoc(doc(db, "rentbill", JSON.stringify(req.params.id)))
+        .then(() => res.send(`Rent Bill deleted successfully.`))
+        .catch((err) => res.send(err))
+}
+
 module.exports ={
-    createRentBill
+    createRentBill,
+    getAllRentBill,
+    getLandlordRentBill,
+    getSingleRentBill,
+    updateRentBill,
+    deleteRentBill
 }

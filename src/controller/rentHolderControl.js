@@ -56,6 +56,7 @@ async function createUserData(req, res) {
             data.landlord_id = user.id;
             data.landlord_name = user.name;
             data.id = rid;
+            data.userType = "rentholder";
 
             let dataRef = doc(db, "rentholder", JSON.stringify(rid));
 
@@ -127,6 +128,9 @@ function updateUserData(req, res) {
 
     let data = req.body;
 
+    if(data.userType){
+        delete data.userType;
+    }
     const dataRef = doc(db, "rentholder", req.params.id);
 
     try {

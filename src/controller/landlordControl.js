@@ -67,6 +67,7 @@ async function createUserData(req, res) {
         } else {
             delete data.status;
             data.id = rid;
+            data.userType = "landlord";
 
             let dataRef = doc(db, "landlord", JSON.stringify(rid));
 
@@ -115,6 +116,9 @@ async function getAllUsers(req, res) {
 function updateUserData(req, res) {
     let data = req.body;
 
+    if(data.userType){
+        delete data.userType;
+    }
     let hash = bcrypt.hashSync(data.password, 10);
     data.password = hash;
 
@@ -162,8 +166,8 @@ async function loginLandlord(req, res) {
     let data = req.body;
 
     //GET FILTERED DATA
-
-    const q = query(collection(db, "landlord"), where("phone", "==",(data.phone)));
+    try {
+        const q = query(collection(db, "landlord"), where("phone", "==",(data.phone)));
     const querySnapshot = await getDocs(q);
     let user;
     querySnapshot.forEach((doc) => {
@@ -183,6 +187,10 @@ async function loginLandlord(req, res) {
     }else{
         res.send('Invalid phone or password.')
     }
+    } catch (error) {
+        res.send(error);
+    }
+    
 
 }
 

@@ -1,5 +1,5 @@
 const express = require('express');
-const {createMainMeterBill,getAllMainBill,getLandlordMainBill,getSingleMainBill,deleteMainBill} = require('../controller/mainMeterControl');
+const {createMainMeterBill,getAllMainBill,getLandlordMainBill,getSingleMainBill,updateMainBill,deleteMainBill} = require('../controller/mainMeterControl');
 const{checkSession,checkAdminUser,checkLandlordUser} = require('../middlewares/session')
 const mainMeterRouter = express.Router();
 
@@ -13,7 +13,7 @@ mainMeterRouter.route('/landlord')
 
 mainMeterRouter.route('/bill/:id')
 .get(checkSession,checkLandlordUser,getSingleMainBill)
-// .put()
+.put(checkSession,checkLandlordUser,updateMainBill)
 .delete(checkSession,checkLandlordUser,deleteMainBill);
 
 

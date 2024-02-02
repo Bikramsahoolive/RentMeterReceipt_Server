@@ -72,6 +72,20 @@ async function getSingleMainBill(req,res){
     }
 }
 
+function updateMainBill (req,res){
+
+        let data = req.body;
+
+    const dataRef = doc(db, "mainMeter", req.params.id);
+
+    try {
+        updateDoc(dataRef, data);
+        res.send(`Data updated Successfully with id ${req.params.id}`);
+    } catch (error) {
+        res.send(error);
+    }
+}
+
 
 function deleteMainBill(req,res){
     deleteDoc(doc(db, "mainMeter", JSON.stringify(req.params.id)))
@@ -85,5 +99,6 @@ module.exports = {
     getAllMainBill,
     getLandlordMainBill,
     getSingleMainBill,
+    updateMainBill,
     deleteMainBill
 }

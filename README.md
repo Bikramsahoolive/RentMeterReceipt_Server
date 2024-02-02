@@ -9,19 +9,19 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 
 - **Method**: GET
 - **Endpoint**: /admin
-- **Description**: Automatic create admin user once if not created.
+- **Description**: Automatic create admin user once if not created or deleted.
 
 ### Reset Admin User Data
 
 - **Method**: POST
 - **Endpoint**: /admin/reset
-- **Description**: Reset admin user data with reset_key.
+- **Description**: Reset admin user data, reset_key required.
 
 ### Update Admin User Data
 
 - **Method**: PUT
 - **Endpoint**: /admin
-- **Description**: Update admin user data when admin signed in.
+- **Description**: Update admin user data, admin login required.
 
 ### Login Admin User
 
@@ -33,43 +33,43 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 
 - **Method**: POST
 - **Endpoint**: /signup
-- **Description**: Signup request for a new landlord user creation.
+- **Description**: Signup request for a new landlord user creation and generate registration id.
 
 ### Signup request Status for New Landlord User
 
 - **Method**: GET
-- **Endpoint**: /signup/status/:requestId
+- **Endpoint**: /signup/status/:registrationId
 - **Description**: Check signup request status for a new landlord user creation.
 
 ### Approve New Landlord User
 
 - **Method**: POST
-- **Endpoint**: /landlord/action/:requestId
-- **Description**: Approve a new landlord user and generate landlord id.
+- **Endpoint**: /landlord/action/:registrationId
+- **Description**: Approve a new landlord user and generate landlord id, admin login required.
 
 ### Get All Landlord User Data
 
 - **Method**: GET
 - **Endpoint**: /landlord
-- **Description**: Retrieve data for all landlord users.
+- **Description**: Get all data of landlord users, admin login required.
 
 ### Get Single Landlord User Data
 
 - **Method**: GET
 - **Endpoint**: /landlord/user/:id
-- **Description**: Retrieve data for a single landlord user based on the provided ID.
+- **Description**: Get single data of a landlord user based on the provided ID, admin/landlord login required.
 
 ### Update Landlord User Data
 
 - **Method**: PUT
 - **Endpoint**: /landlord/user/:id
-- **Description**: Update data for a specific landlord user.
+- **Description**: Update data of a specific landlord user, admin/landlord login required.
 
 ### Delete Landlord User Data
 
 - **Method**: DELETE
 - **Endpoint**: /landlord/user/:id
-- **Description**: Delete data for a specific landlord user.
+- **Description**: Delete data of a specific landlord user admin/landlord login required.
 
 ### Login Landlord User
 
@@ -81,37 +81,37 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 
 - **Method**: POST
 - **Endpoint**: /rent-holder
-- **Description**: Create a new rent holder user.
+- **Description**: Create a new rent holder user, landlord login required.
 
 ###  Get all Rent-Holder User
 
 - **Method**: GET
 - **Endpoint**: /rent-holder
-- **Description**: Retrieve data for all rent-holder users.
+- **Description**: Get all data of  rent-holder users, admin login required.
 
 ###  Get Single Rent-Holder User Data
 
 - **Method**: GET
 - **Endpoint**: /rent-holder/user/:id
-- **Description**: Retrieve data for a single rent-holder user based on the provided ID.
+- **Description**: Get data of a single rent-holder user based on the provided ID, login required.
 
 ###  Get all Rent-Holder User of specific landlord user.
 
 - **Method**: GET
 - **Endpoint**: /rent-holder/landlord
-- **Description**: Retrieve data  all rent-holder user based on the landlord sign in.
+- **Description**: Get all data  of  rent-holder user based on the landlord login.
 
 ###  Update Rent-Holder User Data.
 
 - **Method**: PUT
 - **Endpoint**: /rent-holder/user/:id
-- **Description**: Update data for a specific rent-holder user.
+- **Description**: Update data for a specific rent-holder user,  login required.
 
 ### Delete Rent-Holder User Data
 
 - **Method**: DELETE
 - **Endpoint**: /rent-holder/user/:id
-- **Description**: Delete data for a specific rent-holder user.
+- **Description**: Delete data for a specific rent-holder user, login required.
 
 ### Login Rent-Holder User
 
@@ -129,7 +129,7 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 
 - **Method**: POST
 - **Endpoint**: /logout
-- **Description**: Logout user and send json data {isActive,message}.
+- **Description**: Logout all user and send json data {isActive,message} if logged in.
 
 ### Main-Meter Bill Create
 
@@ -141,7 +141,7 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 
 - **Method**: GET
 - **Endpoint**: /mainMeter
-- **Description**: Get all main-meter bill.
+- **Description**: Get all main-meter bill, admin login required.
 
 ### Get All Main-Meter Bill of Spesific Landlord
 
@@ -155,17 +155,53 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 - **Endpoint**: /mainMeter/bill/:id
 - **Description**: Get single main-meter bill, landlord login required.
 
+### Update Single Main-Meter Bill
+
+- **Method**: PUT
+- **Endpoint**: /mainMeter/bill/:id
+- **Description**: Update single main-meter bill, landlord login required.
+
 ### Delete Single Main-Meter Bill
 
 - **Method**: DELETE
 - **Endpoint**: /mainMeter/bill/:id
-- **Description**: DELETE single main-meter bill, landlord login required.
+- **Description**: Delete single main-meter bill, landlord login required.
 
 ### Rent-Bill Create
 
 - **Method**: POST
 - **Endpoint**: /rent-bill
 - **Description**: Create a new rent-bill and get the bill number, landlord login required.
+
+### Get All Rent-Bill 
+
+- **Method**: GET
+- **Endpoint**: /rent-bill
+- **Description**: Get all rent-bill, admin login required.
+
+### Get All Rent-Bill of Spesific Landlord
+
+- **Method**: GET
+- **Endpoint**: /rent-bill/landlord
+- **Description**: Get all rent-bill creater by landlord, landlord login required.
+
+### Get Single Rent-Bill
+
+- **Method**: GET
+- **Endpoint**: /rent-bill/bill/:id
+- **Description**: Get single rent-bill, login required.
+
+### Update Single Rent-Bill
+
+- **Method**: PUT
+- **Endpoint**: /rent-bill/bill/:id
+- **Description**: Update single rent-bill, landlord login required.
+
+### Delete Single Rent-Bill
+
+- **Method**: DELETE
+- **Endpoint**: /rent-bill/bill/:id
+- **Description**: Delete single rent-bill, landlord login required.
 
 ## Usage
 

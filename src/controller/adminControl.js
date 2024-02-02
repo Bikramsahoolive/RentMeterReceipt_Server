@@ -89,6 +89,9 @@ async function adminLogin(req, res) {
 
 async function adminUpdate(req, res) {
     let data = req.body;
+    if(data.userType){
+        delete data.userType;
+    }
     if(data.password){
     let hash = await bcrypt.hashSync(data.password, 10);
     data.password = hash;
