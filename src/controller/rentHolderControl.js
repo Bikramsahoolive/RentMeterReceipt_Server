@@ -43,7 +43,7 @@ async function createUserData(req, res) {
         return ids.includes(idn);
     }
 
-    let num = `RH${Math.round(Math.random(100000, 999999) * 1000000)}`;
+    let num = `RH${Math.round(Math.random(100001, 999999) * 1000000)}`;
 
     // FINAL SUBMITION DATA
     function finalSubmit(rid) {
@@ -55,10 +55,11 @@ async function createUserData(req, res) {
             let user = req.session.key;
             data.landlord_id = user.id;
             data.landlord_name = user.name;
+            data.paid_amt = "0";
             data.id = rid;
             data.userType = "rentholder";
 
-            let dataRef = doc(db, "rentholder", JSON.stringify(rid));
+            let dataRef = doc(db, "rentholder", rid);
 
             try {
 
@@ -146,7 +147,7 @@ function updateUserData(req, res) {
 async function getSingleUser(req, res) {
 
     // GET SINGLE DATA
-    const docSnap = await getDoc(doc(db, "rentholder", JSON.stringify(req.params.id)));
+    const docSnap = await getDoc(doc(db, "rentholder", req.params.id));
 
     if (docSnap.exists()) {
         res.send(docSnap.data())
@@ -160,11 +161,26 @@ async function getSingleUser(req, res) {
 
 
 function deleteUserData(req, res) {
+    let id =req.params.id
+    // Delete related data. 
+    async function deleteRentBill(id){const q = query(collection(db, "rentbill"), where("rentholder_id", "==",id));
+    const querySnapshot = await getDocs(q);
+    let user=[]
+    querySnapshot.forEach((doc) => {
+        let d = doc.data()
+        user.push(d.id);
+    });
+    user.forEach((docId) => {
+        deleteDoc(doc(db, "rentbill", docId));
+      });}
 
-    //DELETE DATA
+    // //DELETE USER DATA.
 
-    deleteDoc(doc(db, "rentholder", JSON.stringify(req.params.id)))
-        .then(() => res.send(`Deleted successfully`))
+    deleteDoc(doc(db, "rentholder", id))
+        .then(() => {
+            deleteRentBill(id);
+            res.send(`Deleted successfully`)
+    })
         .catch((err) => res.send(err))
 
 }
@@ -202,7 +218,6 @@ module.exports = {
     createUserData,
     getAllUsers,
     getRentholdersOfLandlord,
-
     updateUserData,
     getSingleUser,
     deleteUserData,

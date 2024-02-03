@@ -111,7 +111,7 @@ This repository contains the server-side programming for the rentNmeter.receipt 
 
 - **Method**: DELETE
 - **Endpoint**: /rent-holder/user/:id
-- **Description**: Delete data for a specific rent-holder user, login required.
+- **Description**: Delete data for a specific rent-holder user and all related rent-bill data, landlord login required.
 
 ### Login Rent-Holder User
 

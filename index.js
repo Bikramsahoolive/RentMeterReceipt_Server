@@ -15,7 +15,7 @@ const SignupLandlordRouter = require('./src/routes/signUpLandlordRouts');
 const adminRouter = require('./src/routes/adminRouter');
 const landlordRouter = require('./src/routes/landlordRouts');
 const rentHolderRouter = require('./src/routes/rentHolderRouts');
-const mainMeterRouter = require('./src/routes/mainMeterRouts');
+const mainBillRouter = require('./src/routes/mainBillRouts');
 const rentBillRouter = require('./src/routes/rentBillRouts')
 const{checkRouter, landlordLogout} = require('./src/controller/authControl');
 const{checkSession}= require('./src/middlewares/session')
@@ -65,7 +65,7 @@ app.use('/admin',adminRouter);
 app.use('/landlord',landlordRouter);
 app.use('/rent-holder',rentHolderRouter);
 
-app.use('/mainMeter',mainMeterRouter);
+app.use('/main-bill',mainBillRouter);
 app.use('/rent-bill',rentBillRouter);
 
 app.post('/check-session',checkRouter);

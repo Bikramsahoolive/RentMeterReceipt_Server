@@ -1,6 +1,6 @@
 const express = require('express');
 const {adminCreate,adminLogin,adminUpdate, resetAdmin} = require('../controller/adminControl');
-const {adminReset} = require('../middlewares/adminMiddleware');
+const {validateAdminReset} = require('../middlewares/validateUser');
 const{checkSession,checkAdminUser} = require('../middlewares/session')
 const adminRouter = express.Router();
 
@@ -9,7 +9,7 @@ adminRouter.route('/')
 .put(checkSession,checkAdminUser,adminUpdate);
 
 adminRouter.route('/reset')
-.post(adminReset,resetAdmin);
+.post(validateAdminReset,resetAdmin);
 
 
 adminRouter.route('/login')

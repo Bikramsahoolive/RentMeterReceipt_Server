@@ -151,12 +151,62 @@ async function getSingleUser(req, res) {
 
 }
 
-function deleteUserData(req, res) {
+async function deleteUserData(req, res) {
+    let id =  req.params.id;
 
-    //DELETE DATA
+    //Delete related data.
+   async function deleteMainBill (id){
+    const q = query(collection(db, "mainmeter"), where("rentholder_id", "==",id));
+    const querySnapshot = await getDocs(q);
+    let user=[]
+    querySnapshot.forEach((doc) => {
+        let d = doc.data()
+        user.push(d.id);
+    });
+        console.log(user);
+    user.forEach((docId) => {
+        deleteDoc(doc(db, "rentbill", docId));
+      });
+    }
 
-    deleteDoc(doc(db, "landlord", req.params.id))
-        .then(() => res.send(`Deleted successfully`))
+    async function deleteRentBill (id){
+    const q = query(collection(db, "rentbill"), where("landlord_id", "==",id));
+    const querySnapshot = await getDocs(q);
+    let user=[]
+    querySnapshot.forEach((doc) => {
+        let d = doc.data()
+        user.push(d.id);
+    });
+        console.log(user);
+    user.forEach((docId) => {
+        deleteDoc(doc(db, "rentbill", docId));
+      });
+    }
+
+    async function deleteRentHolder (id){
+        const q = query(collection(db, "rentholder"), where("landlord_id", "==",id));
+        const querySnapshot = await getDocs(q);
+        let user=[]
+        querySnapshot.forEach((doc) => {
+            let d = doc.data()
+            user.push(d.id);
+        });
+            console.log(user);
+        user.forEach((docId) => {
+            deleteDoc(doc(db, "rentbill", docId));
+          });
+        }
+
+    //DELETE USER DATA
+
+    deleteDoc(doc(db, "landlord",id))
+        .then(() => {
+            deleteMainBill(id);
+            deleteRentBill(id);
+            deleteRentHolder(id);
+            res.send(`Deleted successfully`)
+        
+        })
         .catch((err) => res.send(err))
 
 }

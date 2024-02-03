@@ -1,7 +1,7 @@
 const express = require('express');
 const {createUserData,getAllUsers, getRentholdersOfLandlord,getSingleUser,updateUserData,deleteUserData,loginRentHolder} = require('../controller/rentHolderControl');
 const{checkSession,checkAdminUser,checkLandlordUser} = require('../middlewares/session');
-const {checkRentHolderCreateData} = require('../middlewares/rentHolderMiddleware')
+const {checkRentHolderCreateData,checkRentHolderUpdateData} = require('../middlewares/validateUser')
 const rentHolderRouter = express.Router();
 
 
@@ -11,7 +11,7 @@ rentHolderRouter.route('/')
 
 rentHolderRouter.route('/user/:id')
 .get(checkSession,getSingleUser)
-.put(checkSession,checkLandlordUser,updateUserData)
+.put(checkSession,checkRentHolderUpdateData,updateUserData)
 .delete(checkSession,checkLandlordUser,deleteUserData);
 
 rentHolderRouter.route('/login')

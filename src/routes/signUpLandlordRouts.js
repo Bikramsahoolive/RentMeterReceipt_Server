@@ -1,6 +1,6 @@
 const express = require('express');
 const{signupLandlord,signupStatus,getSignupDataOfLandlord}= require('../controller/signupLandlordControl');
-const{checkLandlordCreateData} = require('../middlewares/landlordMiddleware');
+const{checkLandlordCreateData} = require('../middlewares/validateUser');
 const{checkSession,checkAdminUser} = require('../middlewares/session');
 const SignupLandlordRouter = express.Router();
 

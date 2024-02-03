@@ -9,6 +9,10 @@ function createRentBill (req,res){
     let user = req.session.key;
 
     data.landlord_id= user.id;
+    data.fine_amt="0";
+    data.fine_type="NA";
+    data.paid_amt="0";
+    data.payment_date="pending";
 
     data.id = JSON.stringify(Date.now());
 
@@ -54,6 +58,25 @@ if(details.length != 0){
 }
 }
 
+
+async function getRentholderRentBill(req,res){
+    let data = req.session.key;
+    let id = data.id;
+
+const q = query(collection(db, "rentbill"), where('rentholder_id', '==',id));
+const querySnapshot = await getDocs(q);
+const details = [];
+querySnapshot.forEach((doc) => {
+    details.push(doc.data());
+});
+if(details.length != 0){
+    res.send(details);
+}else{
+    
+    res.send('No data found');
+}
+}
+
 async function getSingleRentBill(req,res){
     const docSnap = await getDoc(doc(db, "rentbill", JSON.stringify(req.params.id)));
 
@@ -67,11 +90,13 @@ async function getSingleRentBill(req,res){
 function updateRentBill (req,res){
 
         let data = req.body;
-
+        //other needed data will be updated later which require by frontend engg.
+        let updateData ={paid_amt:data.paid_amt};
+    
     const dataRef = doc(db, "rentbill", req.params.id);
 
     try {
-        updateDoc(dataRef, data);
+        updateDoc(dataRef, updateData);
         res.send(`Data updated Successfully with id ${req.params.id}`);
     } catch (error) {
         res.send(error);
@@ -89,6 +114,7 @@ module.exports ={
     createRentBill,
     getAllRentBill,
     getLandlordRentBill,
+    getRentholderRentBill,
     getSingleRentBill,
     updateRentBill,
     deleteRentBill
