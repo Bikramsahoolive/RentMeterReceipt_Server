@@ -92,10 +92,9 @@ function updateRentBill (req,res){
         let data = req.body;
         //other needed data will be updated later which require by frontend engg.
         let updateData ={paid_amt:data.paid_amt};
-    
-    const dataRef = doc(db, "rentbill", req.params.id);
 
     try {
+        const dataRef = doc(db, "rentbill", req.params.id);
         updateDoc(dataRef, updateData);
         res.send(`Data updated Successfully with id ${req.params.id}`);
     } catch (error) {

@@ -46,9 +46,16 @@ function rentBillCreateValidation(req,res,next){
 }
 
 function rentBillUpdateValidation(req,res,next){
-    const {paid_amt} = req.body;
-    if(!paid_amt){
+    const data =req.body;
+    const {paid_amt} = data;
+    const dataval = [paid_amt];
+    const isAvail =dataval.some(val=>val==="");
+    if(!('paid_amt' in data)){
         res.send('Invalid field. [paid_amt] required.')
+    }else if(isAvail){
+        res.send("field/fields should not be empty.");
+    }else{
+        next();
     }
 
 }
