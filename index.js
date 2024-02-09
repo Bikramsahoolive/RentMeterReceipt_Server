@@ -32,13 +32,14 @@ const PORT = process.env.PORT || 3000;
 
 
 //Handle Prevalidate middlewares
+app.use(cors({
+  origin:'http://localhost:4200',
+  credentials: true
+}));
 
 app.use(apiKeyValidation);
 
-app.use(cors({
-  origin:'*',
-  credentials: true
-}));
+
 
 app.use(cookieParser());
 

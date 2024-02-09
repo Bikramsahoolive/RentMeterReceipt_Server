@@ -1,7 +1,7 @@
 const express = require('express');
 // const app = express();
 const {createUserData,getAllUsers,getSingleUser,updateUserData,deleteUserData,loginLandlord} = require('../controller/landlordControl');
-const{checkLandlordCreateData,checkLandlordUpdateData} = require('../middlewares/validateUser');
+const{checkLandlordCreateData,checkLandlordUpdateData,validateLogin} = require('../middlewares/validateUser');
 const{checkSession,checkAdminUser,checkLandlordUser} = require('../middlewares/session');
 const landlordRouter = express.Router();
 
@@ -19,7 +19,7 @@ landlordRouter.route('/user/:id')
 .delete(checkSession,checkAdminUser,deleteUserData);
 
 landlordRouter.route('/login')
-.post(loginLandlord);
+.post(validateLogin,loginLandlord);
 
 
 

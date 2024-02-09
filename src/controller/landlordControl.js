@@ -10,13 +10,13 @@ async function createUserData(req, res) {
     let data = req.body;
     // PASSWORD HASHING
 
-    function encPassword(pass) {
-        let hash = bcrypt.hashSync(pass, 10);
-        return hash;
-    }
-    data.password = encPassword(data.password);
+    // function encPassword(pass) {
+    //     let hash = bcrypt.hashSync(pass, 10);
+    //     return hash;
+    // }
+    // data.password = encPassword(data.password);
 
-    if(data.status === "approve"){
+    if(data.status === "approved"){
 
         // UPDATE DATA
     
@@ -74,7 +74,7 @@ async function createUserData(req, res) {
             try {
 
                 setDoc(dataRef, data);
-                res.send(`Landlord request Approved with landlord Id ${rid}`);
+                res.send({message:`Landlord request Approved with landlord Id ${rid}`});
                
 
             } catch (error) {
@@ -83,16 +83,16 @@ async function createUserData(req, res) {
         }
     }
     if (phones.includes(data.phone) || emails.includes(data.email)) {
-        res.status(400).send("User already exist");
+        res.status(400).send({message:"User already exist"});
     } else {
         finalSubmit(num);
 }
-    }else if(data.status ==='reject'){
+    }else if(data.status ==='rejected'){
         const dataRef = doc(db, "request_landlord",JSON.stringify( req.params.id));
     
         try {
            await updateDoc(dataRef, data);
-            res.send(`Landlord request Rejected with id ${req.params.id}`);
+            res.send({message:`Landlord request Rejected with id ${req.params.id}`});
         } catch (error) {
             res.send(error);
         }
@@ -128,7 +128,7 @@ function updateUserData(req, res) {
 
     try {
         updateDoc(dataRef, data);
-        res.send(`Data updated Successfully with id ${req.params.id}`);
+        res.send({status:"success",message:`Data updated Successfully with id ${req.params.id}`});
     } catch (error) {
         res.send(error);
     }
@@ -145,7 +145,7 @@ async function getSingleUser(req, res) {
     if (docSnap.exists()) {
         res.send(docSnap.data())
     } else {
-        res.send("No such document!");
+        res.send({status:"failure",message:"document not available"});
     }
 
 
@@ -204,7 +204,7 @@ async function deleteUserData(req, res) {
             deleteMainBill(id);
             deleteRentBill(id);
             deleteRentHolder(id);
-            res.send(`Deleted successfully`)
+            res.send({status:"success",message:"Deleted successfully"})
         
         })
         .catch((err) => res.send(err))
@@ -230,12 +230,12 @@ async function loginLandlord(req, res) {
         user.isActive = true;
         user.expairTime = Date.now() + 600000;
         req.session.key = user;
-        
+        delete user.password;
         res.send(user);
 
-    } else { res.send("Invalid Password") }
+    } else { res.status(400).send({message:"Invalid Password"}) }
     }else{
-        res.send('Invalid phone or password.')
+        res.status(400).send({message:'Invalid phone or password'})
     }
     } catch (error) {
         res.send(error);

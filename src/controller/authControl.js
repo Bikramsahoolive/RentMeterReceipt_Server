@@ -1,6 +1,5 @@
 function checkRouter(req,res){
     let data = req.session.key;
-
   if(data === undefined){
     res.send({
       isActive:false,
@@ -18,7 +17,7 @@ function checkRouter(req,res){
       }
   });
   }else{
-    data.expairTime = Date.now() + 600000;
+    data.expairTime = Date.now() + 300000;
     res.send(data);
   }
 }

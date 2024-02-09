@@ -31,15 +31,17 @@ async function signupLandlord(req,res){
     // FINAL SUBMITION DATA
     
     function finalSubmit(rid) {
-
+            
             data.id = rid;
+            delete data.confPass;
+            data.status ="pending";
 
             let dataRef = doc(db, "request_landlord", JSON.stringify(rid));
 
             try {
 
                 setDoc(dataRef, data);
-                res.send(`Your request submitted successfully with id : ${rid}. Kindly Wait for admin response.`);
+                res.send({status:true,message:`Your request submitted successfully with id : ${rid}. Kindly Wait for admin response.`});
 
             } catch (error) {
                 res.send(error);

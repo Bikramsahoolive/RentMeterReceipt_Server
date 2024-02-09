@@ -12,27 +12,28 @@ const checkLandlordCreateData = (req,res,next) =>{
     const isAvail =dataval.some(val=>val==="");
 
     if(!('name' in data &&'phone' in data &&'email' in data &&'upi' in data &&'password' in data)){
-         res.send("Invalid fields. [name, phone, email,upi,password] Fields should be available.");
+         res.send({message:"Invalid fields. [name, phone, email,upi,password] Fields should be available"});
 
     }
     else if(isAvail){
-        res.send("field/fields should not be empty.");
+        res.status(400).send({message:"field/fields should not be empty"});
     }
     else if(name.length>25){
-        return res.status(400).send("Invalid name.");
+        return res.status(400).send({message:"Invalid name"});
     }
     else if(phone.length>11 || phone.length<10 || !phoneRegex.test(phone[0]) ){
-        return res.status(400).send("Invalid Phone.");
+        return res.status(400).send({message:"Invalid Phone"});
     }
     else if(email.length>35 || !emailRegex.test(email)){
-        return res.status(400).send("Invalid email.");
+        return res.status(400).send({message:"Invalid email"});
     }
     else if(upi.length>25 || !upiRegex.test(upi)){
-        return res.status(400).send("Invalid upi.");
+        return res.status(400).send({message:"Invalid upi"});
     }
-    else if (password.length >20){
-        return res.status(400).send("Invalid password.");
-    }else{
+    // else if (password.length >20){
+    //     return res.status(400).send({message:"Invalid password"});
+    // }
+    else{
         next();
     }
     
@@ -49,19 +50,19 @@ function checkLandlordUpdateData (req,res,next){
 
 
     if(name.length>25){
-        return res.status(400).send("Invalid name.");
+        return res.status(400).send({message:"Invalid name"});
     }
     else if(phone.length>11 || phone.length<10 || !phoneRegex.test(phone[0]) ){
-        return res.status(400).send("Invalid Phone.");
+        return res.status(400).send({message:"Invalid Phone"});
     }
     else if(email.length>35 || !emailRegex.test(email)){
-        return res.status(400).send("Invalid email.");
+        return res.status(400).send({message:"Invalid email"});
     }
     else if(upi.length>25 || !upiRegex.test(upi)){
-        return res.status(400).send("Invalid upi.");
+        return res.status(400).send({message:"Invalid upi"});
     }
     else if (password.length >20){
-        return res.status(400).send("Invalid password.");
+        return res.status(400).send({message:"Invalid password"});
     }else{
         next();
     }
@@ -80,26 +81,26 @@ const checkRentHolderCreateData = (req,res,next) =>{
     const isAvail =dataval.some(val=>val==="");
     
     if(!('name' in data &&'phone' in data &&'email' in data &&'rent' in data &&'password' in data)){
-        res.send("Invalid fields. [name, phone, email,rent,password] Fields should be available.");
+        res.send({message:"Invalid fields. [name, phone, email,rent,password] Fields should be available"});
 
    }
    else if(isAvail){
-       res.send("field/fields should not be empty.");
+       res.send({message:"field/fields should not be empty"});
    }
     else if(name.length>25){
-        return res.status(400).send("Invalid name.");
+        return res.status(400).send({message});
     }
     else if(phone.length>11 || phone.length<10 || !phoneRegex.test(phone[0]) ){
-        return res.status(400).send("Invalid Phone.");
+        return res.status(400).send({message:"Invalid Phone"});
     }
     else if(email.length>35 || !emailRegex.test(email)){
-        return res.status(400).send("Invalid email.");
+        return res.status(400).send({message:"Invalid email"});
     }
     else if(rent.length>5){
-        return res.status(400).send("Invalid rent input");
+        return res.status(400).send({message:"Invalid rent input"});
     }
     else if (password.length >20){
-        return res.status(400).send("Invalid password.");
+        return res.status(400).send({message:"Invalid password"});
     }else{
         next();
     }
@@ -114,19 +115,19 @@ function checkRentHolderUpdateData (req,res,next){
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if(name.length>25){
-        return res.status(400).send("Invalid name.");
+        return res.status(400).send({message:"Invalid name"});
     }
     else if(phone.length>11 || phone.length<10 || !phoneRegex.test(phone[0]) ){
-        return res.status(400).send("Invalid Phone.");
+        return res.status(400).send({message:"Invalid Phone"});
     }
     else if(email.length>35 || !emailRegex.test(email)){
-        return res.status(400).send("Invalid email.");
+        return res.status(400).send({message:"Invalid email"});
     }
     else if(rent.length>5){
-        return res.status(400).send("Invalid rent input");
+        return res.status(400).send({message:"Invalid rent input"});
     }
     else if (password.length >20){
-        return res.status(400).send("Invalid password.");
+        return res.status(400).send({message:"Invalid password"});
     }else{
         next();
     }
@@ -139,8 +140,33 @@ function validateAdminReset(req,res,next){
     if(resetKey == process.env.admin_reset_key){
         next();
     }else {
-        res.send('Invalid Reset Key.');
+        res.status(400).send({message:'Invalid Reset Key'});
     }
+ }
+
+ function validateLogin(req,res,next){
+    let data =req.body;
+    const {phone, password} = data;
+
+    const phoneRegex = /^[06789]/;
+
+    let dataval = [ phone, password];
+    const isAvail =dataval.some(val=>val==="");
+    
+    if(!('phone' in data &&'password' in data)){
+        res.status(400).send({message:"Invalid fields. [name, phone, email,rent,password] Fields should be available."});
+
+   }
+   else if(isAvail){
+       res.status(400).send({message:"field/fields should not be empty."});
+   }
+   else if(phone.length>11 || phone.length<10 || !phoneRegex.test(phone[0]) ){
+    return res.status(400).send({message:"Invalid Phone."});
+}
+else{
+    next();
+}
+
  }
 
 
@@ -149,7 +175,8 @@ module.exports={
     checkLandlordUpdateData,
     checkRentHolderCreateData,
     checkRentHolderUpdateData,
-    validateAdminReset
+    validateAdminReset,
+    validateLogin
 }
 
 

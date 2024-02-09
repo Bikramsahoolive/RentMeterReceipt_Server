@@ -3,7 +3,7 @@ function apiKeyValidation(req,res,next){
     if(req.headers.api_key === process.env.api_key){
         next()
     }else{
-        res.send("Invalid API key.");
+        res.send({status:false,message:"invalid API key"});
     }
 }
 
