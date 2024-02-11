@@ -22,7 +22,7 @@ function createRentBill (req,res){
    let dataRef = doc(db, "rentbill",calcVal.id);
 
                 setDoc(dataRef, calcVal)
-                .then(()=>res.send(`rent bill created with bill no : ${calcVal.id}`))
+                .then(()=>res.send({status:'success',message:`rent bill created with bill no : ${calcVal.id}`}))
                 .catch((err)=>res.send(err))
 
 }
@@ -96,7 +96,7 @@ function updateRentBill (req,res){
     try {
         const dataRef = doc(db, "rentbill", req.params.id);
         updateDoc(dataRef, updateData);
-        res.send(`Data updated Successfully with id ${req.params.id}`);
+        res.send({status:'success',message:`Data updated Successfully with id ${req.params.id}`});
     } catch (error) {
         res.send(error);
     }
@@ -104,8 +104,8 @@ function updateRentBill (req,res){
 
 
 function deleteRentBill(req,res){
-    deleteDoc(doc(db, "rentbill", JSON.stringify(req.params.id)))
-        .then(() => res.send(`Rent Bill deleted successfully.`))
+    deleteDoc(doc(db, "rentbill", req.params.id))
+        .then(() => res.send({status:'success',message:`Rent Bill deleted successfully.`}))
         .catch((err) => res.send(err))
 }
 

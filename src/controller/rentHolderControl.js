@@ -64,7 +64,7 @@ async function createUserData(req, res) {
             try {
 
                 setDoc(dataRef, data);
-                res.send(`Data inserted successfully with id : ${rid}.`);
+                res.send({status:true,message:`Data inserted successfully with id : ${rid}`});
 
             } catch (error) {
                 res.send(error);

@@ -18,6 +18,7 @@ function checkRouter(req,res){
   });
   }else{
     data.expairTime = Date.now() + 300000;
+    req.session.key = data;
     res.send(data);
   }
 }
