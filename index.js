@@ -33,7 +33,7 @@ const PORT = process.env.PORT || 3000;
 
 //Handle Prevalidate middlewares
 app.use(cors({
-  origin:'http://localhost:4200',
+  origin:'https://rent-meter-receipt-client.vercel.app',
   credentials: true
 }));
 
