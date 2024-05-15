@@ -9,9 +9,10 @@ function createRentBill (req,res){
     let user = req.session.key;
 
     data.landlord_id= user.id;
-    data.fine_amt="0";
+    data.landlord_name=user.name;
+    data.fine_amt=0;
     data.fine_type="NA";
-    data.paid_amt="0";
+    data.paid_amt=0;
     data.payment_date="pending";
 
     data.id = JSON.stringify(Date.now());
@@ -22,7 +23,7 @@ function createRentBill (req,res){
    let dataRef = doc(db, "rentbill",calcVal.id);
 
                 setDoc(dataRef, calcVal)
-                .then(()=>res.send({status:'success',message:`rent bill created with bill no : ${calcVal.id}`}))
+                .then(()=>res.send({status:true, id:calcVal.id,message:`rent bill created with bill no : ${calcVal.id}`}))
                 .catch((err)=>res.send(err))
 
 }
@@ -51,10 +52,10 @@ querySnapshot.forEach((doc) => {
     details.push(doc.data());
 });
 if(details.length != 0){
-    res.send(details);
+    res.status(200).send(details);
 }else{
     
-    res.send('No data found');
+    res.send({status:false,message:'No record fount.'});
 }
 }
 
@@ -78,7 +79,7 @@ if(details.length != 0){
 }
 
 async function getSingleRentBill(req,res){
-    const docSnap = await getDoc(doc(db, "rentbill", JSON.stringify(req.params.id)));
+    const docSnap = await getDoc(doc(db, "rentbill", req.params.id));
 
     if (docSnap.exists()) {
         res.send(docSnap.data())
@@ -87,21 +88,78 @@ async function getSingleRentBill(req,res){
     }
 }
 
-function updateRentBill (req,res){
+ async function updateRentBillPayment (req,res){
 
         let data = req.body;
-        //other needed data will be updated later which require by frontend engg.
-        let updateData ={paid_amt:data.paid_amt};
 
-    try {
-        const dataRef = doc(db, "rentbill", req.params.id);
-        updateDoc(dataRef, updateData);
-        res.send({status:'success',message:`Data updated Successfully with id ${req.params.id}`});
-    } catch (error) {
-        res.send(error);
+        const docSnap = await getDoc(doc(db, "rentbill", req.params.id));
+
+        if (docSnap.exists()) {
+            let billData = docSnap.data()
+
+        let rentholderPaymentState=await updateRentHolderPaymentData(billData.rentholder_id,data.paid_amt);
+        if(rentholderPaymentState){
+            try {
+                const dataRef = doc(db, "rentbill", req.params.id);
+                updateDoc(dataRef, data);
+                res.send({status:true,message:`Payment Done.`});
+            } catch (err) {
+                res.status(400).send({error:err});
+            }
+        }else{
+            res.status(400).send({status:false,message:'Rent holder not found.'})
+        }
+            
+    
+        } else {
+            res.status(400).send({status:false,message:"document not found."});
+        }
+}
+
+async function updateRentHolderPaymentData(id,paidAmt){
+        let data={};
+    const docSnap = await getDoc(doc(db, "rentholder", id));
+    if(docSnap.exists()){
+        let userData = docSnap.data();
+        data.paid_amt = userData.paid_amt + paidAmt;
+
+        try {
+            const dataRef = doc(db, "rentholder",id);
+            updateDoc(dataRef, data);
+            return true;
+        } catch (err) {
+            return false;
+        }
+
     }
 }
 
+
+
+
+async function addFineRentBill (req,res){
+    let data = req.body;
+
+    const docSnap = await getDoc(doc(db, "rentbill", req.params.id));
+
+    if (docSnap.exists()) {
+        let billData = docSnap.data()
+        data.final_amt = (+billData.final_amt) + (+data.fine_amt);
+
+        try {
+            const dataRef = doc(db, "rentbill", req.params.id);
+            updateDoc(dataRef, data);
+            res.send({status:true,message:`Fine Added Successfully.`});
+        } catch (err) {
+            res.status(400).send({error:err});
+        }
+
+    } else {
+        res.status(400).send({status:false,message:"document not found."});
+    }
+
+
+}
 
 function deleteRentBill(req,res){
     deleteDoc(doc(db, "rentbill", req.params.id))
@@ -115,6 +173,7 @@ module.exports ={
     getLandlordRentBill,
     getRentholderRentBill,
     getSingleRentBill,
-    updateRentBill,
-    deleteRentBill
+    updateRentBillPayment,
+    deleteRentBill,
+    addFineRentBill
 }

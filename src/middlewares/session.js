@@ -13,7 +13,7 @@ const checkSession = (req,res,next)=>{
                 }
             });
         }else{
-            data.expairTime = Date.now() + 300000 ;
+            data.expairTime = Date.now() + 600000 ;
             req.session.key = data;
             next();
         }

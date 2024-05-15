@@ -128,7 +128,7 @@ function updateUserData(req, res) {
 
     try {
         updateDoc(dataRef, data);
-        res.send({status:"success",message:`Data updated Successfully with id ${req.params.id}`});
+        res.send({status:true,message:`Data updated Successfully with id ${req.params.id}`});
     } catch (error) {
         res.send(error);
     }
@@ -140,7 +140,7 @@ async function getSingleUser(req, res) {
 
     // GET SINGLE DATA
 
-    const docSnap = await getDoc(doc(db, "landlord", req.params.id));
+    const docSnap = await getDoc(doc(db, "landlord", JSON.stringify(req.params.id)));
 
     if (docSnap.exists()) {
         res.send(docSnap.data())

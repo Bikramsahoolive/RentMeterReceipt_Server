@@ -50,7 +50,7 @@ async function signupLandlord(req,res){
     }
 
     if (phones.includes(data.phone) || emails.includes(data.email)) {
-        res.status(400).send({message:"user already resister"});
+        res.status(400).send({status:false,message:"user already resister"});
     } else {
         finalSubmit(regId);
     }
@@ -64,7 +64,7 @@ async function signupStatus(req,res){
     if (docSnap.exists()) {
         res.send(docSnap.data())
     } else {
-        res.send("No Request Found!");
+        res.status(400).send({status:false,message:"No Request Found!"});
     }
 
 }

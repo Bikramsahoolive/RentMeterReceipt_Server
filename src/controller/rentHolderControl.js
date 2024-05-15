@@ -117,7 +117,7 @@ if(details.length != 0){
     res.send(details);
 }else{
     
-    res.send('No data found');
+    res.send({status:false,message:'No data found'});
 }
 }
 
@@ -179,7 +179,7 @@ function deleteUserData(req, res) {
     deleteDoc(doc(db, "rentholder", id))
         .then(() => {
             deleteRentBill(id);
-            res.send(`Deleted successfully`)
+            res.send({status:true,message:`Deleted successfully`});
     })
         .catch((err) => res.send(err))
 
