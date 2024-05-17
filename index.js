@@ -4,7 +4,7 @@ const {createServer} = require('http');
 
 //dev module
 
-const morgan = require('morgan');
+// const morgan = require('morgan');
 const cors = require('cors');
 
 
@@ -53,7 +53,7 @@ app.use(session({
     }
   }));
 
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 
 app.use(express.json({limit:'10mb'})); 
                    
