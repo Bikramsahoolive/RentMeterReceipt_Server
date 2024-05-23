@@ -1,4 +1,4 @@
-require('dotenv').config();
+// require('dotenv').config();
 const express = require('express');
 const {createServer} = require('http');
 
@@ -9,6 +9,7 @@ const cors = require('cors');
 
 
 const session = require('express-session');// (stateful) or jwt auth (stateless).
+const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 
 const SignupLandlordRouter = require('./src/routes/signUpLandlordRouts');
@@ -20,7 +21,7 @@ const rentBillRouter = require('./src/routes/rentBillRouts')
 const{checkRouter, landlordLogout} = require('./src/controller/authControl');
 const{checkSession}= require('./src/middlewares/session')
 
-const apiKeyValidation = require('./src/middlewares/validateApi');
+// const apiKeyValidation = require('./src/middlewares/validateApi');
 
 
 
@@ -37,7 +38,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(apiKeyValidation);
+// app.use(apiKeyValidation);
 
 
 
@@ -74,7 +75,7 @@ app.post('/logout',checkSession,landlordLogout);
 
 // Handle Wild Card Routs.
 app.use((req,res,next)=>{
-  res.status('404').send('Rentⓝmeter.Receipt can not find this Route, Error code 404!');
+  res.status(404).send('Rentⓝmeter.Receipt can not find this Route, Error code 404!');
 })
 
 
