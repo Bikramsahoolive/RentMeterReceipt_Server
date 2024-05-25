@@ -34,7 +34,7 @@ const PORT = process.env.PORT || 3000;
 
 //Handle Prevalidate middlewares
 app.use(cors({
-  origin:'*',
+  origin:'https://expert-funicular-7v94jjgw4v5cpw4-4200.app.github.dev',
   credentials: true
 }));
 
