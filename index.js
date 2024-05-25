@@ -9,7 +9,7 @@ const cors = require('cors');
 
 
 const session = require('express-session');// (stateful) or jwt auth (stateless).
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 
 const SignupLandlordRouter = require('./src/routes/signUpLandlordRouts');
@@ -21,7 +21,7 @@ const rentBillRouter = require('./src/routes/rentBillRouts')
 const{checkRouter, landlordLogout} = require('./src/controller/authControl');
 const{checkSession}= require('./src/middlewares/session')
 
-// const apiKeyValidation = require('./src/middlewares/validateApi');
+const apiKeyValidation = require('./src/middlewares/validateApi');
 
 
 
@@ -34,7 +34,7 @@ const PORT = process.env.PORT || 3000;
 
 //Handle Prevalidate middlewares
 app.use(cors({
-  origin:'https://rent-meter-receipt-client.vercel.app',
+  origin:'*',
   credentials: true
 }));
 
