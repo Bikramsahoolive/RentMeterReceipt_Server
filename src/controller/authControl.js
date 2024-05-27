@@ -1,43 +1,84 @@
-function checkRouter(req,res){
-    let data = req.session.key;
-  if(data === undefined){
+function checkRouter(req, res) {
+  // let data = req.session.key;
+  const jwt = require('jsonwebtoken');
+  const secretKey = process.env.sess_secret;
+  try {
+    let data = jwt.verify(req.body.token, secretKey);
+
+    if (Date.now() > data.expairTime) {
+
+      res.cookie('sid', "", { expires: new Date(0) });
+      res.send({
+        isActive: false,
+        message: "session expired."
+      });
+
+
+    } else {
+      data.expairTime = Date.now() + 600000;
+      // req.session.key = data;
+      let token = jwt.sign(data, secretKey);
+      res.cookie('sid', token);
+      next();
+    }
+
+  } catch (error) {
+    console.log("Not Veryfied.");
+
     res.send({
-      isActive:false,
-      message:"login required."
+      isActive: false,
+      message: "login required."
     });
-  }else if(data.expairTime < Date.now()){
-    req.session.destroy(err => {
-      if (err) {
-          res.send(err);
-      } else {
-          res.send({
-              isActive: false,
-              message: "session expired"
-          });
-      }
-  });
-  }else{
-    data.expairTime = Date.now() + 600000;
-    req.session.key = data;
-    res.send(data);
+
   }
+
+
+
+  // if(data === undefined){
+  //   res.send({
+  //     isActive:false,
+  //     message:"login required."
+  //   });
+  // }else if(data.expairTime < Date.now()){
+  //   req.session.destroy(err => {
+  //     if (err) {
+  //         res.send(err);
+  //     } else {
+  //         res.send({
+  //             isActive: false,
+  //             message: "session expired"
+  //         });
+  //     }
+  // });
+  // }else{
+  //   data.expairTime = Date.now() + 600000;
+  //   req.session.key = data;
+  //   res.send(data);
+  // }
 }
 
 function landlordLogout(req, res) {
-    req.session.destroy(err => {
-        if (err) {
-            res.send(err);
-        } else {
-            res.send({
-                isActive: false,
-                message: "Logout Successful."
-            });
-        }
-    });
+  // req.session.destroy(err => {
+  //     if (err) {
+  //         res.send(err);
+  //     } else {
+  //         res.send({
+  //             isActive: false,
+  //             message: "Logout Successful."
+  //         });
+  //     }
+  // });
+
+  res.cookie('sid', '', {});
+  res.send({
+    isActive: false,
+    message: "Logout Successful."
+  });
+
 }
 
 
-module.exports={
-    checkRouter,
-    landlordLogout
+module.exports = {
+  checkRouter,
+  landlordLogout
 }

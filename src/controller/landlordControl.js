@@ -1,5 +1,6 @@
 const firebase = require('../model/firebase');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } = require('firebase/firestore');
 const db = getFirestore();
 
@@ -214,6 +215,7 @@ async function deleteUserData(req, res) {
 
 async function loginLandlord(req, res) {
     let data = req.body;
+    console.log(data);
 
     //GET FILTERED DATA
     try {
@@ -229,8 +231,13 @@ async function loginLandlord(req, res) {
     if (match) {
         user.isActive = true;
         user.expairTime = Date.now() + 600000;
-        req.session.key = user;
+        // req.session.key = user;
         delete user.password;
+        delete user.photo;
+        delete user.signature;
+        const secretKey = process.env.sess_secret;
+        const token = jwt.sign(user.name,secretKey);
+        res.cookie('sid',token,{});
         res.send(user);
 
     } else { res.status(400).send({message:"Invalid Password"}) }

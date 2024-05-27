@@ -1,4 +1,4 @@
-// require('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 const {createServer} = require('http');
 
@@ -8,8 +8,8 @@ const {createServer} = require('http');
 const cors = require('cors');
 
 
-const session = require('express-session');// (stateful) or jwt auth (stateless).
-// const jwt = require('jsonwebtoken');
+// const session = require('express-session');//session auth (stateful).
+// const jwt = require('jsonwebtoken'); //jwt auth (stateless).
 const cookieParser = require('cookie-parser');
 
 const SignupLandlordRouter = require('./src/routes/signUpLandlordRouts');
@@ -38,22 +38,23 @@ app.use(cors({
   credentials: true
 }));
 
-// app.use(apiKeyValidation);
+app.get('/',(req,res)=>res.send("Welcome to Rentⓝmeter.Receipt Server!"));
 
+// app.use(apiKeyValidation);
 
 
 app.use(cookieParser());
 
-app.use(session({
-    secret:process.env.sess_secret,
-    resave:false,
-    saveUninitialized:true,
-    cookie:{
-      sameSite:"None",
-      secure:true
+// app.use(session({
+//     secret:process.env.sess_secret,
+//     resave:false,
+//     saveUninitialized:true,
+//     cookie:{
+//       sameSite:"None",
+//       secure:true
       
-    }
-  }));
+//     }
+//   }));
 
 // app.use(morgan('dev'));
 
@@ -62,7 +63,7 @@ app.use(express.json({limit:'10mb'}));
 app.use(express.urlencoded({extended:true}));
 
 //Handle Routes 
-app.get('/',(req,res)=>res.send("Welcome to Rentⓝmeter.Receipt!"));
+
 app.use('/signup',SignupLandlordRouter);
 app.use('/admin',adminRouter);
 app.use('/landlord',landlordRouter);

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const firebase = require('../model/firebase');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, increment } = require('firebase/firestore');
 const db = getFirestore();
 
@@ -74,8 +75,11 @@ async function adminLogin(req, res) {
     if (match) {
         admin.isActive = true;
         admin.expairTime = Date.now() + 600000;
-        req.session.key = admin;
-        
+        // req.session.key = admin;
+        let token = jwt.sign(admin,process.env.sess_secret);
+        res.cookie('sid',token,{
+
+        })
         res.send(admin);
 
     } else { res.send("Invalid Password") }
