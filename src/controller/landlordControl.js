@@ -236,7 +236,7 @@ async function loginLandlord(req, res) {
         delete user.photo;
         delete user.signature;
         const secretKey = process.env.sess_secret;
-        const token = jwt.sign(user.name,secretKey);
+        const token = jwt.sign(user,secretKey);
         res.cookie('sid',token,{});
         res.send(user);
 

@@ -3,11 +3,12 @@ function checkRouter(req, res) {
   const jwt = require('jsonwebtoken');
   const secretKey = process.env.sess_secret;
   try {
-    let data = jwt.verify(req.body.token, secretKey);
+    let data = jwt.verify(req.cookies.sid, secretKey);
+    console.log(data);
 
     if (Date.now() > data.expairTime) {
 
-      res.cookie('sid', "", { expires: new Date(0) });
+      res.cookie('sid','', {});
       res.send({
         isActive: false,
         message: "session expired."
@@ -19,11 +20,13 @@ function checkRouter(req, res) {
       // req.session.key = data;
       let token = jwt.sign(data, secretKey);
       res.cookie('sid', token);
-      next();
+      // next();
+      res.send(data);
     }
 
   } catch (error) {
-    console.log("Not Veryfied.");
+    
+    console.log("Not Veryfied.",error);
 
     res.send({
       isActive: false,
