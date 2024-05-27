@@ -4,11 +4,10 @@ function checkRouter(req, res) {
   const secretKey = process.env.sess_secret;
   try {
     let data = jwt.verify(req.cookies.sid, secretKey);
-    console.log(data);
 
     if (Date.now() > data.expairTime) {
 
-      res.cookie('sid','', {});
+      res.cookie('sid','', {sameSite:'None',secure:true});
       res.send({
         isActive: false,
         message: "session expired."
@@ -19,7 +18,7 @@ function checkRouter(req, res) {
       data.expairTime = Date.now() + 600000;
       // req.session.key = data;
       let token = jwt.sign(data, secretKey);
-      res.cookie('sid', token);
+      res.cookie('sid', token,{sameSite:'None',secure:true});
       // next();
       res.send(data);
     }
@@ -72,7 +71,7 @@ function landlordLogout(req, res) {
   //     }
   // });
 
-  res.cookie('sid', '', {});
+  res.cookie('sid', '', {sameSite:'None',secure:true});
   res.send({
     isActive: false,
     message: "Logout Successful."

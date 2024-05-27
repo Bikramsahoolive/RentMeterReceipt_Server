@@ -237,7 +237,7 @@ async function loginLandlord(req, res) {
         delete user.signature;
         const secretKey = process.env.sess_secret;
         const token = jwt.sign(user,secretKey);
-        res.cookie('sid',token,{});
+        res.cookie('sid',token,{sameSite:'None',secure:true});
         res.send(user);
 
     } else { res.status(400).send({message:"Invalid Password"}) }
