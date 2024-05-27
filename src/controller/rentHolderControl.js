@@ -1,5 +1,6 @@
 const firebase = require('../model/firebase');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, increment } = require('firebase/firestore');
 const db = getFirestore();
 
@@ -52,7 +53,8 @@ async function createUserData(req, res) {
             generateId();
 
         } else {
-            let user = req.session.key;
+            // let user = req.session.key;
+            let user =jwt.verify(req.cookie.sid,process.env.sess_secret);
             data.landlord_id = user.id;
             data.landlord_name = user.name;
             data.paid_amt = "0";
@@ -104,7 +106,8 @@ async function getAllUsers(req, res) {
 
 
 async function getRentholdersOfLandlord (req,res){
-    let data = req.session.key;
+    // let data = req.session.key;
+    let data = jwt.verify(req.cookie.sid,process.env.sess_secret);
     let id = data.id;
 
 const q = query(collection(db, "rentholder"), where('landlord_id', '==',id));
@@ -187,28 +190,28 @@ function deleteUserData(req, res) {
 
 
 async function loginRentHolder(req, res) {
-    let data = req.body;
+    // let data = req.body;
 
     //GET FILTERED DATA
 
-    const q = query(collection(db, "rentholder"), where("phone", "==",(data.phone)));
-    const querySnapshot = await getDocs(q);
-    let user;
-    querySnapshot.forEach((doc) => {
-        user = doc.data();
-    });
+    // const q = query(collection(db, "rentholder"), where("phone", "==",(data.phone)));
+    // const querySnapshot = await getDocs(q);
+    // let user;
+    // querySnapshot.forEach((doc) => {
+    //     user = doc.data();
+    // });
 
-    if(user){
-        const match = await bcrypt.compare(data.password, user.password);
-    if (match) {
-        user.isActive = true;
-        user.expairTime = Date.now() + 600000;
-        req.session.key = user;
+    // if(user){
+    //     const match = await bcrypt.compare(data.password, user.password);
+    // if (match) {
+    //     user.isActive = true;
+    //     user.expairTime = Date.now() + 600000;
+    //     req.session.key = user;
         
-        res.send(user);
+    //     res.send(user);
 
-    } else { res.send("Invalid Password");}
-    }else{ res.send('Invalid phone or password.');}
+    // } else { res.send("Invalid Password");}
+    // }else{ res.send('Invalid phone or password.');}
 
 }
 

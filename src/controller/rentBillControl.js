@@ -6,7 +6,8 @@ const rentBillCalc = require('../calculation/rentBillCalc');
 function createRentBill (req,res){
     let data = req.body;
 
-    let user = req.session.key;
+    // let user = req.session.key;
+    let user = jwt.verify(req.cookie.sid,process.env.sess_secret);
 
     data.landlord_id= user.id;
     data.landlord_name=user.name;
@@ -42,7 +43,8 @@ async function getAllRentBill(req,res){
 
 
 async function getLandlordRentBill(req,res){
-    let data = req.session.key;
+    // let data = req.session.key;
+    let data = jwt.verify(req.cookie.sid,process.env.sess_secret);
     let id = data.id;
 
 const q = query(collection(db, "rentbill"), where('landlord_id', '==',id));
@@ -61,7 +63,8 @@ if(details.length != 0){
 
 
 async function getRentholderRentBill(req,res){
-    let data = req.session.key;
+    // let data = req.session.key;
+    let data = jwt.verify(req.cookie.sid,process.env.sess_secret);
     let id = data.id;
 
 const q = query(collection(db, "rentbill"), where('rentholder_id', '==',id));
