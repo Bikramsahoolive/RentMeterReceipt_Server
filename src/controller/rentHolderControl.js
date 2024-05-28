@@ -54,7 +54,7 @@ async function createUserData(req, res) {
 
         } else {
             // let user = req.session.key;
-            let user =jwt.verify(req.cookie.sid,process.env.sess_secret);
+            let user =jwt.verify(req.cookies.sid, process.env.sess_secret);
             data.landlord_id = user.id;
             data.landlord_name = user.name;
             data.paid_amt = "0";
@@ -107,7 +107,7 @@ async function getAllUsers(req, res) {
 
 async function getRentholdersOfLandlord (req,res){
     // let data = req.session.key;
-    let data = jwt.verify(req.cookies.sid,process.env.sess_secret);
+    let data = jwt.verify(req.cookies.sid, process.env.sess_secret);
     let id = data.id;
 
 const q = query(collection(db, "rentholder"), where('landlord_id', '==',id));

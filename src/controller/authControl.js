@@ -29,7 +29,7 @@ function checkRouter(req, res) {
 
   } catch (error) {
     
-    console.log("Not Veryfied.",error);
+    // console.log("Not Veryfied.",error);
 
     res.send({
       isActive: false,

@@ -4,7 +4,7 @@ const {createServer} = require('http');
 
 //dev module
 
-const morgan = require('morgan');
+// const morgan = require('morgan');
 const cors = require('cors');
 
 
@@ -40,7 +40,7 @@ app.use(cors({
 
 app.get('/',(req,res)=>res.send("Welcome to Rentⓝmeter.Receipt Server!"));
 
-// app.use(apiKeyValidation);
+app.use(apiKeyValidation);
 
 
 app.use(cookieParser());
@@ -56,7 +56,7 @@ app.use(cookieParser());
 //     }
 //   }));
 
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 
 app.use(express.json({limit:'10mb'})); 
                    

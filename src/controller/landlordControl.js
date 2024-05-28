@@ -164,7 +164,7 @@ async function deleteUserData(req, res) {
         let d = doc.data()
         user.push(d.id);
     });
-        console.log(user);
+        // console.log(user);
     user.forEach((docId) => {
         deleteDoc(doc(db, "rentbill", docId));
       });
@@ -178,7 +178,7 @@ async function deleteUserData(req, res) {
         let d = doc.data()
         user.push(d.id);
     });
-        console.log(user);
+        // console.log(user);
     user.forEach((docId) => {
         deleteDoc(doc(db, "rentbill", docId));
       });
@@ -192,7 +192,7 @@ async function deleteUserData(req, res) {
             let d = doc.data()
             user.push(d.id);
         });
-            console.log(user);
+            // console.log(user);
         user.forEach((docId) => {
             deleteDoc(doc(db, "rentbill", docId));
           });
@@ -215,7 +215,7 @@ async function deleteUserData(req, res) {
 
 async function loginLandlord(req, res) {
     let data = req.body;
-    console.log(data);
+    // console.log(data);
 
     //GET FILTERED DATA
     try {

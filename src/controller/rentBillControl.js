@@ -2,12 +2,12 @@ const firebase = require('../model/firebase');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } = require('firebase/firestore');
 const db = getFirestore();
 const rentBillCalc = require('../calculation/rentBillCalc');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 function createRentBill (req,res){
     let data = req.body;
 
     // let user = req.session.key;
-    let user = jwt.verify(req.cookie.sid,process.env.sess_secret);
+    let user = jwt.verify(req.cookies.sid, process.env.sess_secret);
 
     data.landlord_id= user.id;
     data.landlord_name=user.name;
@@ -44,7 +44,7 @@ async function getAllRentBill(req,res){
 
 async function getLandlordRentBill(req,res){
     // let data = req.session.key;
-    let data = jwt.verify(req.cookies.sid,process.env.sess_secret);
+    let data = jwt.verify(req.cookies.sid, process.env.sess_secret);
     let id = data.id;
 
 const q = query(collection(db, "rentbill"), where('landlord_id', '==',id));
@@ -64,7 +64,7 @@ if(details.length != 0){
 
 async function getRentholderRentBill(req,res){
     // let data = req.session.key;
-    let data = jwt.verify(req.cookie.sid,process.env.sess_secret);
+    let data = jwt.verify(req.cookies.sid, process.env.sess_secret);
     let id = data.id;
 
 const q = query(collection(db, "rentbill"), where('rentholder_id', '==',id));
