@@ -1,3 +1,4 @@
+require('dotenv').config();
 const firebase = require('../model/firebase');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -229,14 +230,15 @@ async function loginLandlord(req, res) {
     if(user){
         const match = await bcrypt.compare(data.password, user.password);
     if (match) {
-        user.isActive = true;
-        user.expairTime = Date.now() + 600000;
+
         // req.session.key = user;
+        let tokenData = {id:user.id,phone:user.phone,email:user.email,userType:user.userType,name:user.name};
+        tokenData.isActive = true;
+        tokenData.expairTime = Date.now() + 600000;
         delete user.password;
-        delete user.photo;
         delete user.signature;
         const secretKey = process.env.sess_secret;
-        const token = jwt.sign(user,secretKey);
+        const token = jwt.sign(tokenData,secretKey);
         res.cookie('sid',token,{sameSite:'None',secure:true});
         res.send(user);
 

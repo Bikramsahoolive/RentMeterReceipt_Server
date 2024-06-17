@@ -24,17 +24,19 @@ function checkRouter(req, res) {
       res.send(data);
     }
 
+    }else{
+      res.send({
+        isActive: false,
+        message: "login required."
+      });
     }
     
 
   } catch (error) {
     
     // console.log("Not Veryfied.",error);
-
-    res.send({
-      isActive: false,
-      message: "login required."
-    });
+    console.log(error);
+    
 
   }
 

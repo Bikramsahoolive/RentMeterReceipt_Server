@@ -58,7 +58,7 @@ const checkAdminUser = (req, res, next) => {
     // let data = req.session.key;
     let data = jwt.verify(req.cookies.sid, secretKey);
     if (data.userType != 'admin') {
-        res.status('400').send('You are not authorize to access the service.');
+        res.status(400).send('You are not authorize to access the service.');
     } else {
         next();
     }
@@ -67,7 +67,7 @@ const checkLandlordUser = (req, res, next) => {
     // let data = req.session.key;
     let data = jwt.verify(req.cookies.sid, secretKey);
     if (data.userType != 'landlord' && data.userType != 'admin') {
-        res.status('400').send('You are not authorize to access the service.');
+        res.status(400).send('You are not authorize to access the service.');
     } else {
         next();
     }

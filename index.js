@@ -34,13 +34,13 @@ const PORT = process.env.PORT || 3000;
 
 //Handle Prevalidate middlewares
 app.use(cors({
-  origin:'https://rent-meter-receipt-client.vercel.app',
+  origin:'https://rnmr.vercel.app',
   credentials: true
 }));
-
+// app.use(apiKeyValidation);
 app.get('/',(req,res)=>res.send("Welcome to Rentⓝmeter.Receipt Server!"));
 
-app.use(apiKeyValidation);
+
 
 
 app.use(cookieParser());
