@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
-const {createServer} = require('http');
-
+// const {createServer} = require('http');
+const axios = require('axios');
 //dev module
 
 // const morgan = require('morgan');
@@ -27,7 +27,7 @@ const apiKeyValidation = require('./src/middlewares/validateApi');
 
 const app = express();
 
-const Server = createServer(app);
+// const Server = createServer(app);
 const PORT = process.env.PORT || 3000;
 
 
@@ -75,6 +75,33 @@ app.use('/rent-bill',rentBillRouter);
 app.post('/check-session',checkRouter);
 app.post('/logout',checkSession,landlordLogout);
 
+app.post('/send-mail',(req,res)=>{
+
+const recipient =req.body.email;
+const subject = req.body.subject;
+const body = req.body.content;
+const isHTML = true;
+
+const scriptUrl = process.env.mail_script_url;
+
+////////  By axios  //////
+const data = new URLSearchParams();
+data.append('recipient', recipient);
+data.append('subject', subject);
+data.append('body', body);
+data.append('isHTML', isHTML);
+
+axios.post(scriptUrl, data)
+    .then(response => {
+        console.log('Response:', response.data);
+        res.send(response.data);
+    })
+    .catch(error => {
+        console.error('Error:', error.message);
+        res.send(error);
+    });
+})
+
 // Handle Wild Card Routs.
 app.use((req,res,next)=>{
   res.status(404).send('Rentⓝmeter.Receipt can not find this Route, Error code 404!');
@@ -84,4 +111,4 @@ app.use((req,res,next)=>{
 
 
 
-Server.listen(PORT,()=>console.log(`Running on http://localhost:${PORT}`));
+app.listen(PORT,()=>console.log(`Running on http://localhost:${PORT}`));

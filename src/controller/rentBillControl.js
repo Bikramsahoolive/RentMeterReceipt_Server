@@ -102,11 +102,20 @@ async function getSingleRentBill(req,res){
         const docSnap = await getDoc(doc(db, "rentbill", req.params.id));
 
         if (docSnap.exists()) {
-            let billData = docSnap.data()
-
+            let billData = docSnap.data();
+            let paidAmount = data.paid_amt;
+            let toBePaid = billData.final_amt - billData.paid_amt;
+            if(billData.final_amt == billData.paid_amt){
+                res.status(400).send({status:"failure",message:"Bill already paid."});
+                return;
+            }else if(data.paid_amt > toBePaid ){
+                res.status(400).send({status:"failure",message:"Invalid Paid Amount."});
+                return;
+            }
         let rentholderPaymentState=await updateRentHolderPaymentData(billData.rentholder_id,data.paid_amt);
         if(rentholderPaymentState){
             try {
+                data.paid_amt = Number(billData.paid_amt) + Number(paidAmount);
                 const dataRef = doc(db, "rentbill", req.params.id);
                 updateDoc(dataRef, data);
                 res.send({status:true,message:`Payment Done.`});

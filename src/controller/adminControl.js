@@ -74,7 +74,7 @@ async function adminLogin(req, res) {
         const match = await bcrypt.compare(data.password, admin.password);
     if (match) {
         admin.isActive = true;
-        admin.expairTime = Date.now() + 600000;
+        admin.expairTime = Date.now() + 1200000;
         // req.session.key = admin;
         let token = jwt.sign(admin,process.env.sess_secret);
         res.cookie('sid',token,{sameSite:'None',secure:true})

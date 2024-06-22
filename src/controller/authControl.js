@@ -6,7 +6,7 @@ function checkRouter(req, res) {
     if(req.cookies.sid){
       let data = jwt.verify(req.cookies.sid, secretKey);
 
-    if (Date.now() > data.expairTime) {
+    if ( Date.now() > data.expairTime) {
 
       res.cookie('sid','', {sameSite:'None',secure:true});
       res.send({
@@ -16,11 +16,10 @@ function checkRouter(req, res) {
 
 
     } else {
-      data.expairTime = Date.now() + 600000;
+      data.expairTime = Date.now() + 1200000;
       // req.session.key = data;
       let token = jwt.sign(data, secretKey);
       res.cookie('sid', token,{sameSite:'None',secure:true});
-      // next();
       res.send(data);
     }
 
@@ -36,6 +35,7 @@ function checkRouter(req, res) {
     
     // console.log("Not Veryfied.",error);
     console.log(error);
+    res.status(400).send(error);
     
 
   }

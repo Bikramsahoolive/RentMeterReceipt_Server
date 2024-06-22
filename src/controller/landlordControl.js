@@ -234,7 +234,7 @@ async function loginLandlord(req, res) {
         // req.session.key = user;
         let tokenData = {id:user.id,phone:user.phone,email:user.email,userType:user.userType,name:user.name};
         tokenData.isActive = true;
-        tokenData.expairTime = Date.now() + 600000;
+        tokenData.expairTime = Date.now() + 1200000;
         delete user.password;
         delete user.signature;
         const secretKey = process.env.sess_secret;
@@ -244,7 +244,7 @@ async function loginLandlord(req, res) {
 
     } else { res.status(400).send({message:"Invalid Password"}) }
     }else{
-        res.status(400).send({message:'Invalid phone or password'})
+        res.status(400).send({message:'Invalid phone or password'});
     }
     } catch (error) {
         res.send(error);
