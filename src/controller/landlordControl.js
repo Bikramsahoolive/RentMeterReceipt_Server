@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } = require('firebase/firestore');
 const db = getFirestore();
+const sendMail=require('./mailSender');
 
 
 
@@ -77,6 +78,17 @@ async function createUserData(req, res) {
 
                 setDoc(dataRef, data);
                 res.send({message:`Landlord request Approved with landlord Id ${rid}`});
+                let clientApproveMailData={
+                    email:data.email,
+                    subject:'Info-RentⓝMeter.Receipt.',
+                    content:`Congratulation!!!
+                    Your request approved with landlord id ${rid},
+                    Now you can login with your phone number and password,
+                    Have a great day.
+                    Thank You -Team RNMR.
+                    `
+                }
+                sendMail(null,clientApproveMailData);
                
 
             } catch (error) {
@@ -95,6 +107,19 @@ async function createUserData(req, res) {
         try {
            await updateDoc(dataRef, data);
             res.send({message:`Landlord request Rejected with id ${req.params.id}`});
+
+            let clientRejectMailData={
+                email:data.email,
+                subject:'Info-RentⓝMeter.Receipt.',
+                content:`Sorry!!!
+                Your request Rejected For some reason,
+                Please contact admin for more details.
+                Have a great day.
+                Thank You -Team RNMR.
+                `
+            }
+            sendMail(null,clientRejectMailData);
+
         } catch (error) {
             res.send(error);
         }
@@ -130,7 +155,7 @@ function updateUserData(req, res) {
 
     try {
         updateDoc(dataRef, data);
-        res.send({status:true,message:`Data updated Successfully with id ${req.params.id}`});
+        res.send({status:'success',message:`Data updated Successfully with id ${req.params.id}`});
     } catch (error) {
         res.send(error);
     }
@@ -157,19 +182,19 @@ async function deleteUserData(req, res) {
     let id =  req.params.id;
 
     //Delete related data.
-   async function deleteMainBill (id){
-    const q = query(collection(db, "mainmeter"), where("rentholder_id", "==",id));
-    const querySnapshot = await getDocs(q);
-    let user=[]
-    querySnapshot.forEach((doc) => {
-        let d = doc.data()
-        user.push(d.id);
-    });
-        // console.log(user);
-    user.forEach((docId) => {
-        deleteDoc(doc(db, "rentbill", docId));
-      });
-    }
+//    async function deleteMainBill (id){
+//     const q = query(collection(db, "mainmeter"), where("rentholder_id", "==",id));
+//     const querySnapshot = await getDocs(q);
+//     let user=[]
+//     querySnapshot.forEach((doc) => {
+//         let d = doc.data()
+//         user.push(d.id);
+//     });
+//         // console.log(user);
+//     user.forEach((docId) => {
+//         deleteDoc(doc(db, "rentbill", docId));
+//       });
+//     }
 
     async function deleteRentBill (id){
     const q = query(collection(db, "rentbill"), where("landlord_id", "==",id));
@@ -195,17 +220,17 @@ async function deleteUserData(req, res) {
         });
             // console.log(user);
         user.forEach((docId) => {
-            deleteDoc(doc(db, "rentbill", docId));
+            deleteDoc(doc(db, "rentholder",docId));
           });
         }
 
     //DELETE USER DATA
 
-    deleteDoc(doc(db, "landlord",id))
-        .then(() => {
-            deleteMainBill(id);
-            deleteRentBill(id);
-            deleteRentHolder(id);
+    deleteDoc(doc(db, "landlord",JSON.stringify(id)))
+        .then(async() => {
+            // deleteMainBill(id);
+           await deleteRentBill(id);
+           await deleteRentHolder(id);
             res.send({status:"success",message:"Deleted successfully"})
         
         })

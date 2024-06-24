@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 // const {createServer} = require('http');
-const axios = require('axios');
 //dev module
 
 // const morgan = require('morgan');
@@ -20,7 +19,7 @@ const mainBillRouter = require('./src/routes/mainBillRouts');
 const rentBillRouter = require('./src/routes/rentBillRouts')
 const{checkRouter, landlordLogout} = require('./src/controller/authControl');
 const{checkSession}= require('./src/middlewares/session')
-
+const sendMail = require('./src/controller/mailSender');
 const apiKeyValidation = require('./src/middlewares/validateApi');
 
 
@@ -74,32 +73,12 @@ app.use('/rent-bill',rentBillRouter);
 
 app.post('/check-session',checkRouter);
 app.post('/logout',checkSession,landlordLogout);
-
-app.post('/send-mail',(req,res)=>{
-
-const recipient =req.body.email;
-const subject = req.body.subject;
-const body = req.body.content;
-const isHTML = true;
-
-const scriptUrl = process.env.mail_script_url;
-
-////////  By axios  //////
-const data = new URLSearchParams();
-data.append('recipient', recipient);
-data.append('subject', subject);
-data.append('body', body);
-data.append('isHTML', isHTML);
-
-axios.post(scriptUrl, data)
-    .then(response => {
-        console.log('Response:', response.data);
-        res.send(response.data);
-    })
-    .catch(error => {
-        console.error('Error:', error.message);
-        res.send(error);
-    });
+app.post('/email-subscribe',(req,res)=>{
+    let emailData={};
+    emailData.email = String(req.body.email);
+    emailData.subject = 'Info-RentⓝMeter.Receipt.';
+    emailData.content = `This is a thank you mail for your subscription,Your email Subscribed successfully. Thank You -RNMR Team.`;
+      sendMail(null,emailData);
 })
 
 // Handle Wild Card Routs.

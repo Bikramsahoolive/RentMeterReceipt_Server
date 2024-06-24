@@ -2,6 +2,7 @@ const firebase = require('../model/firebase');
 const bcrypt = require('bcrypt');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, increment } = require('firebase/firestore');
 const db = getFirestore();
+const sendMail = require('./mailSender');
 
 async function signupLandlord(req,res){
 
@@ -42,7 +43,25 @@ async function signupLandlord(req,res){
 
                 setDoc(dataRef, data);
                 res.send({status:true,message:`Your request submitted successfully with id : ${rid}. Kindly Wait for admin response.`});
-
+                let clientEmailData ={
+                    email:data.email,
+                    subject:"Info-RentⓝMeter.Receipt.",
+                    content:`You are Successfully register with Registration ID :${rid}. Please wait for admin response,The same will be notifyed you shortly. Thank You -Team RNMR.`
+                }
+                adminEmailData={
+                    email:process.env.admin_email,
+                    subject:"New Landlord Request",
+                    content:`A new registration pending for approval
+                        id:${rid}
+                        Name:${data.name}
+                        Phone:${data.phone}
+                        email:${data.email}
+                        please take necessary action.
+                        Thank You -Team RNMR.
+                    `
+                }
+                sendMail(null,clientEmailData);
+                sendMail(null,adminEmailData);
             } catch (error) {
                 res.send(error);
             }

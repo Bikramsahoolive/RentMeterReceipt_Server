@@ -3,11 +3,11 @@ const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, get
 const db = getFirestore();
 const rentBillCalc = require('../calculation/rentBillCalc');
 const jwt = require('jsonwebtoken');
+const sendMail=require('./mailSender');
 
 
 
-
-function createRentBill (req,res){
+ async function createRentBill (req,res){
     let data = req.body;
 
     // let user = req.session.key;
@@ -24,11 +24,31 @@ function createRentBill (req,res){
 
    let calcVal = rentBillCalc(data);
 //    res.send(calcVal);
+const docSnap =  await getDoc(doc(db, "rentholder",calcVal.rentholder_id));
+let rentholderData =docSnap.data();
         
    let dataRef = doc(db, "rentbill",calcVal.id);
 
                 setDoc(dataRef, calcVal)
-                .then(()=>res.send({status:true, id:calcVal.id,message:`rent bill created with bill no : ${calcVal.id}`}))
+                .then(()=>{
+                    res.send({status:true, id:calcVal.id,message:`rent bill created with bill no : ${calcVal.id}`});
+
+                    const billMailData ={
+                        email:rentholderData.email,
+                        subject:'New Bill Created RNMR.',
+                        content:`    Hi ${rentholderData.name}
+                        This is to inform you,
+                        that your bill created successfully with
+                        Bill Id : ${calcVal.id}
+                        Bill Date : ${calcVal.billingDate}
+                        Bill Amount : ${calcVal.final_amt}
+                        and the same will be pay on/before
+                        ${calcVal.dueDate} .
+                        Thank You Team-RNMR.
+                        `,
+                    }
+                    sendMail(null,billMailData);
+                })
                 .catch((err)=>res.send(err))
 
 }
