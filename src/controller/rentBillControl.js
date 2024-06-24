@@ -31,7 +31,7 @@ let rentholderData =docSnap.data();
 
                 setDoc(dataRef, calcVal)
                 .then(()=>{
-                    res.send({status:true, id:calcVal.id,message:`rent bill created with bill no : ${calcVal.id}`});
+                    res.send({status:true, id:calcVal.id,message:`Bill created with ID : ${calcVal.id}`});
 
                     const billMailData ={
                         email:rentholderData.email,
