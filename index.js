@@ -78,7 +78,7 @@ app.post('/email-subscribe',(req,res)=>{
     emailData.email = String(req.body.email);
     emailData.subject = 'Info-RentⓝMeter.Receipt.';
     emailData.content = `This is a thank you mail for your subscription,Your email Subscribed successfully. Thank You -RNMR Team.`;
-      sendMail(null,emailData);
+      sendMail(res,emailData);
 })
 
 // Handle Wild Card Routs.
