@@ -72,7 +72,7 @@ async function createUserData(req, res) {
             data.id = rid;
             data.userType = "landlord";
 
-            let dataRef = doc(db, "landlord", JSON.stringify(rid));
+            let dataRef = doc(db, "landlord", rid);
 
             try {
 

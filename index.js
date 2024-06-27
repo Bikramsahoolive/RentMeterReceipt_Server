@@ -17,6 +17,7 @@ const landlordRouter = require('./src/routes/landlordRouts');
 const rentHolderRouter = require('./src/routes/rentHolderRouts');
 const mainBillRouter = require('./src/routes/mainBillRouts');
 const rentBillRouter = require('./src/routes/rentBillRouts')
+const forgotPasswordRouter = require('./src/routes/forgotPasswordRouts');
 const{checkRouter, landlordLogout} = require('./src/controller/authControl');
 const{checkSession}= require('./src/middlewares/session')
 const sendMail = require('./src/controller/mailSender');
@@ -64,6 +65,7 @@ app.use(express.urlencoded({extended:true}));
 //Handle Routes 
 
 app.use('/signup',SignupLandlordRouter);
+app.use('/forgot-password',forgotPasswordRouter);
 app.use('/admin',adminRouter);
 app.use('/landlord',landlordRouter);
 app.use('/rent-holder',rentHolderRouter);
