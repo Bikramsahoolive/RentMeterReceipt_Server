@@ -23,7 +23,7 @@ async function createUserData(req, res) {
 
         // UPDATE DATA
     
-        const dataRef = doc(db, "request_landlord", JSON.stringify(req.params.id));
+        const dataRef = doc(db, "request_landlord",req.params.id);
     
         try {
            await updateDoc(dataRef, data);
