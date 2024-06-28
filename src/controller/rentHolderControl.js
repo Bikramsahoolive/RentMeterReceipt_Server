@@ -11,7 +11,7 @@ async function createUserData(req, res) {
     let data = req.body;
 
     // PASSWORD HASHING
-
+    let rentholderPassword = data.password;
     function encPassword(pass) {
         let hash = bcrypt.hashSync(pass, 10);
         return hash;
@@ -67,6 +67,24 @@ async function createUserData(req, res) {
 
                 setDoc(dataRef, data);
                 res.send({status:true,message:`Rent holder created with id : ${rid}`});
+                let rentHolderCreateMail={
+                    email:data.email,
+                    subject:'Info-RentⓝMeter.Receipt.',
+                    content:`Dear ${data.name},
+                    Your are registered as a rentholder with id ${rid} by ${user.name},
+                    Now you can login with
+
+                    User ID: ${data.phone}
+                    Password: ${rentholderPassword}
+                    
+                    to get your bill details.
+                    Have a great day.
+                    Thank You
+                    Team
+                    RentⓝMeter.Receipt.
+                    `
+                }
+                sendMail(null,rentHolderCreateMail);
 
             } catch (error) {
                 res.send(error);

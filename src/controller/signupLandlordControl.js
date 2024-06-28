@@ -37,7 +37,7 @@ async function signupLandlord(req,res){
             delete data.confPass;
             data.status ="pending";
 
-            let dataRef = doc(db, "request_landlord", JSON.stringify(rid));
+            let dataRef = doc(db, "request_landlord",rid);
 
             try {
 
@@ -78,7 +78,7 @@ async function signupLandlord(req,res){
 
 async function signupStatus(req,res){
 
-    const docSnap = await getDoc(doc(db, "request_landlord", JSON.stringify(req.params.id)));
+    const docSnap = await getDoc(doc(db, "request_landlord",req.params.id));
 
     if (docSnap.exists()) {
         res.send(docSnap.data())
