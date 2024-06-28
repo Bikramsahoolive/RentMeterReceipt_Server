@@ -142,20 +142,18 @@ async function getAllUsers(req, res) {
 
 function updateUserData(req, res) {
     let data = req.body;
-
-    if(data.userType){
-        delete data.userType;
-    }
+    if (data.password){
     let hash = bcrypt.hashSync(data.password, 10);
     data.password = hash;
+    }
 
     // UPDATE DATA
 
-    const dataRef = doc(db, "landlord", req.params.id);
+    const dataRef = doc(db, "landlord",req.params.id);
 
     try {
         updateDoc(dataRef, data);
-        res.send({status:'success',message:`Data updated Successfully with id ${req.params.id}`});
+        res.send({status:'success',message:`Data updated Successfully.`});
     } catch (error) {
         res.send(error);
     }
@@ -167,7 +165,7 @@ async function getSingleUser(req, res) {
 
     // GET SINGLE DATA
 
-    const docSnap = await getDoc(doc(db, "landlord", JSON.stringify(req.params.id)));
+    const docSnap = await getDoc(doc(db, "landlord",req.params.id));
 
     if (docSnap.exists()) {
         res.send(docSnap.data())
@@ -226,7 +224,7 @@ async function deleteUserData(req, res) {
 
     //DELETE USER DATA
 
-    deleteDoc(doc(db, "landlord",JSON.stringify(id)))
+    deleteDoc(doc(db, "landlord",id))
         .then(async() => {
             // deleteMainBill(id);
            await deleteRentBill(id);
@@ -260,12 +258,16 @@ async function loginLandlord(req, res) {
         let tokenData = {id:user.id,phone:user.phone,email:user.email,userType:user.userType,name:user.name};
         tokenData.isActive = true;
         tokenData.expairTime = Date.now() + 1200000;
-        delete user.password;
-        delete user.signature;
+        let responce = {
+            id:user.id,
+            name:user.name,
+            email:user.email,
+            phone:user.phone
+        }
         const secretKey = process.env.sess_secret;
         const token = jwt.sign(tokenData,secretKey);
         res.cookie('sid',token,{sameSite:'None',secure:true});
-        res.send(user);
+        res.send(responce);
 
     } else { res.status(400).send({message:"Invalid Password"}) }
     }else{

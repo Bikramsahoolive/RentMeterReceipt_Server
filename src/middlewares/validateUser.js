@@ -49,21 +49,45 @@ function checkLandlordUpdateData (req,res,next){
     const upiRegex = /^[^\s@]+@[^\s@]+$/;
 
 
-    if(name.length>25){
+    if(name){
+        if(!name.length>25){
+            next();
+        }
         return res.status(400).send({message:"Invalid name"});
     }
-    else if(phone.length>11 || phone.length<10 || !phoneRegex.test(phone[0]) ){
-        return res.status(400).send({message:"Invalid Phone"});
+    else if(phone){
+        if(phone.length>11 || phone.length<10 || !phoneRegex.test(phone[0])){
+            return res.status(400).send({message:"Invalid Phone"});
+        }else{
+            next();
+        }
+        
     }
-    else if(email.length>35 || !emailRegex.test(email)){
-        return res.status(400).send({message:"Invalid email"});
+    else if(email){
+        if(email.length>35 || !emailRegex.test(email)){
+            return res.status(400).send({message:"Invalid email"});
+        }else{
+            next();
+        }
+        
     }
-    else if(upi.length>25 || !upiRegex.test(upi)){
-        return res.status(400).send({message:"Invalid upi"});
+    else if(upi){
+        if(upi.length>25 || !upiRegex.test(upi)){
+            return res.status(400).send({message:"Invalid upi"});
+        }else{
+            next();
+        }
+        
     }
-    else if (password.length >20){
-        return res.status(400).send({message:"Invalid password"});
+    else if (password){
+        if(password.length >20){
+            return res.status(400).send({message:"Invalid password"});
+        }else{
+            next();
+        }
+        
     }else{
+
         next();
     }
 

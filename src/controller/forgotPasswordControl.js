@@ -62,7 +62,7 @@ async function resendOtp(req,res){
     let data = req.body;
         let otpVal = await createOtp(data.usertype,data.id,true);
         if(otpVal!==null){
-            const docSnap = await getDoc(doc(db, data.usertype, JSON.stringify(data.id)));
+            const docSnap = await getDoc(doc(db, data.usertype,data.id));
            let user =  docSnap.data();
 
             let otpMail = {
@@ -93,7 +93,7 @@ async function forgotPasswordVerify(req,res){
 
     let data =req.body;
 
-    const docSnap = await getDoc(doc(db, data.usertype,JSON.stringify(data.id)));
+    const docSnap = await getDoc(doc(db, data.usertype,data.id));
         if (docSnap.exists()) {
            let userData=  docSnap.data();
             if (userData.otp && userData.otpExp && Date.now() < userData.otpExp){
@@ -103,7 +103,7 @@ async function forgotPasswordVerify(req,res){
                     userData.password = newPassword;
                     delete userData.otp;
                     delete userData.otpExp;
-                    const dataRef = doc(db,data.usertype,JSON.stringify( data.id));
+                    const dataRef = doc(db,data.usertype,data.id);
                     setDoc(dataRef,userData);
                     res.send({status:'success',message:'Password Updated Successfully!'});
                 }else{
@@ -138,7 +138,7 @@ async function createOtp( usertype,userid,isResend){
     }
 
     if (otp.length===6){
-        const dataRef = await doc(db, usertype,JSON.stringify( userid));
+        const dataRef = await doc(db, usertype,userid);
         try {
             updateDoc(dataRef,otpData);
 
@@ -156,7 +156,7 @@ async function createOtp( usertype,userid,isResend){
 async function clearOtp(userType,userId){
     try {
 
-        const docSnap = await getDoc(doc(db, userType, JSON.stringify(userId)));
+        const docSnap = await getDoc(doc(db, userType,userId));
         if (docSnap.exists()) {
            let userData=  docSnap.data()
            if(userData.otp && userData.otpExp){

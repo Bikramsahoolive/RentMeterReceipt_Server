@@ -66,7 +66,7 @@ async function createUserData(req, res) {
             try {
 
                 setDoc(dataRef, data);
-                res.send({status:true,message:`Data inserted successfully with id : ${rid}`});
+                res.send({status:true,message:`Rent holder created with id : ${rid}`});
 
             } catch (error) {
                 res.send(error);
@@ -131,15 +131,15 @@ function updateUserData(req, res) {
     // UPDATE DATA
 
     let data = req.body;
-
-    if(data.userType){
-        delete data.userType;
-    }
+    if (data.password){
+        let hash = bcrypt.hashSync(data.password, 10);
+        data.password = hash;
+        }
     const dataRef = doc(db, "rentholder", req.params.id);
 
     try {
         updateDoc(dataRef, data);
-        res.send(`Data updated Successfully with id ${req.params.id}`);
+        res.send({status:'success',message:`Data updated Successfully.`});
     } catch (error) {
         res.send(error);
     }
