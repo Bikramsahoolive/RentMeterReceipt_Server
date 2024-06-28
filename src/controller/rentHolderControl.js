@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, increment } = require('firebase/firestore');
 const db = getFirestore();
+const sendMail = require('./mailSender');
 
 
 
@@ -66,19 +67,22 @@ async function createUserData(req, res) {
             try {
 
                 setDoc(dataRef, data);
-                res.send({status:true,message:`Rent holder created with id : ${rid}`});
+                res.send({status:true,message:`Rent holder created`});
+
                 let rentHolderCreateMail={
                     email:data.email,
                     subject:'Info-RentⓝMeter.Receipt.',
                     content:`Dear ${data.name},
-                    Your are registered as a rentholder with id ${rid} by ${user.name},
-                    Now you can login with
+                    Your are registered as a rentholder with id ${rid}
+                     by ${user.name},
+                    Now you can login on http://rnmr.vercel.app with,
 
                     User ID: ${data.phone}
                     Password: ${rentholderPassword}
                     
-                    to get your bill details.
+                    to get your rent bill details.
                     Have a great day.
+
                     Thank You
                     Team
                     RentⓝMeter.Receipt.
@@ -87,7 +91,7 @@ async function createUserData(req, res) {
                 sendMail(null,rentHolderCreateMail);
 
             } catch (error) {
-                res.send(error);
+               console.log(error);
             }
 
         }
