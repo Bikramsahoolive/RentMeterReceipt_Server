@@ -14,7 +14,7 @@ landlordRouter.route('/action/:id')
 .post(checkSession,checkAdminUser, checkLandlordCreateData,createUserData);
 
 landlordRouter.route('/user/:id')
-.get(checkSession,checkLandlordUser, getSingleUser)
+.get(checkSession, getSingleUser)
 .put(checkSession,checkLandlordUser,checkLandlordUpdateData,updateUserData)
 .delete(checkSession,checkLandlordUser,deleteUserData);
 

@@ -37,7 +37,6 @@ app.use(cors({
   origin:'https://rnmr.vercel.app',
   credentials: true
 }));
-// app.use(apiKeyValidation);
 app.get('/',(req,res)=>res.send("Welcome to Rentⓝmeter.Receipt Server!"));
 
 
@@ -68,7 +67,7 @@ app.use('/signup',SignupLandlordRouter);
 app.use('/forgot-password',forgotPasswordRouter);
 app.use('/admin',adminRouter);
 app.use('/landlord',landlordRouter);
-app.use('/rent-holder',rentHolderRouter);
+app.use('/rentholder',rentHolderRouter);
 
 app.use('/main-bill',mainBillRouter);
 app.use('/rent-bill',rentBillRouter);

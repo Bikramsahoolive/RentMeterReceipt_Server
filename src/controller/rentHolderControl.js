@@ -175,7 +175,7 @@ async function getSingleUser(req, res) {
     const docSnap = await getDoc(doc(db, "rentholder", req.params.id));
 
     if (docSnap.exists()) {
-        res.send(docSnap.data())
+        res.send(docSnap.data());
     } else {
         res.send("No such document!");
     }
@@ -212,28 +212,36 @@ function deleteUserData(req, res) {
 
 
 async function loginRentHolder(req, res) {
-    // let data = req.body;
+    let data = req.body;
 
     //GET FILTERED DATA
 
-    // const q = query(collection(db, "rentholder"), where("phone", "==",(data.phone)));
-    // const querySnapshot = await getDocs(q);
-    // let user;
-    // querySnapshot.forEach((doc) => {
-    //     user = doc.data();
-    // });
+    const q = query(collection(db, "rentholder"), where("phone", "==",(data.phone)));
+    const querySnapshot = await getDocs(q);
+    let user;
+    querySnapshot.forEach((doc) => {
+        user = doc.data();
+    });
 
-    // if(user){
-    //     const match = await bcrypt.compare(data.password, user.password);
-    // if (match) {
-    //     user.isActive = true;
-    //     user.expairTime = Date.now() + 600000;
-    //     req.session.key = user;
-        
-    //     res.send(user);
+    if(user){
+        const match = await bcrypt.compare(data.password, user.password);
+    if (match) {
+        let tokenData = {id:user.id,phone:user.phone,email:user.email,userType:user.userType,name:user.name};
+        tokenData.isActive = true;
+        tokenData.expairTime = Date.now() + 1200000;
+        let responce = {
+            id:user.id,
+            name:user.name,
+            email:user.email,
+            phone:user.phone
+        }
+        const secretKey = process.env.sess_secret;
+        const token = jwt.sign(tokenData,secretKey);
+        res.cookie('sid',token,{sameSite:'None',secure:true});
+        res.send(responce);
 
-    // } else { res.send("Invalid Password");}
-    // }else{ res.send('Invalid phone or password.');}
+    } else { res.send("Invalid Password");}
+    }else{ res.send('Invalid phone or password.');}
 
 }
 

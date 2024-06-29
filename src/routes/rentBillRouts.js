@@ -12,11 +12,11 @@ rentBillRouter.route('/')
 rentBillRouter.route('/landlord')
 .get(checkSession,checkLandlordUser,getLandlordRentBill);
 
-rentBillRouter.route('/rent-holder')
+rentBillRouter.route('/rentholder')
 .get(checkSession,getRentholderRentBill);
 
 rentBillRouter.route('/bill/:id')
-.get(checkSession,checkLandlordUser,getSingleRentBill)
+.get(checkSession,getSingleRentBill)
 .put(checkSession,checkLandlordUser,updateRentBillPayment)
 .post(checkSession,checkLandlordUser,rentBillUpdateValidation,addFineRentBill)
 .delete(checkSession,checkLandlordUser,deleteRentBill);
