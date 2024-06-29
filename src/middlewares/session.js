@@ -3,7 +3,8 @@ const secretKey = process.env.sess_secret;
 const checkSession = (req, res, next) => {
     // let data = req.session.key;
     try {
-        let data = jwt.verify(req.cookies.sid, secretKey);
+        if(req.cookies.sid !==undefined && req.cookies.sid !==""){
+            let data = jwt.verify(req.cookies.sid, secretKey);
 
         if (Date.now() > data.expairTime) {
             res.cookie('sid',"",{expires: new Date(0)});
@@ -20,6 +21,13 @@ const checkSession = (req, res, next) => {
             res.cookie('sid', token);
             next();
         }
+        }else{
+            res.send({
+                isActive: false,
+                message: "Login required."
+            });
+        }
+        
     } catch (error) {
         console.log(error);
         res.send({
