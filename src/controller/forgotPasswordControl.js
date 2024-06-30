@@ -45,11 +45,11 @@ let emailSample = initialFour[0].slice(initialFour[0].length-4).concat(`@${initi
 
         res.send({status:'success',message:'otp sent',id:user.id,email:emailSample,usertype:user.userType});
         }else{
-            res.status(400).send({status:'failure',message:'error while creating otp.'});
+            res.send({status:'failure',message:'error while creating otp.'});
         }
         
         }else{
-            res.status(400).send({status:'failure',message:'No user found.'});
+            res.send({status:'failure',message:'No user found.'});
         }
         } catch (error) {
             console.log(error);
@@ -84,7 +84,7 @@ RentⓝMeter.Receipt`
             res.send({status:'success',message:'Resend OTP Successfully.'});
         
         }else{
-            res.status(400).send({status:'failure',message:'error while creating otp.'})
+            res.send({status:'failure',message:'error while creating otp.'})
         }
 
 }
@@ -110,10 +110,10 @@ async function forgotPasswordVerify(req,res){
                     res.send({status:'failure',message:'Invalid OTP.'});
                 }
             }else{
-                res.status(200).send({status:"expired",message:"OTP expired"})
+                res.send({status:"expired",message:"OTP expired"})
             }
         }else{
-            res.status(200).send({status:'failure',message:'error while fetching the user data'});
+            res.send({status:'failure',message:'error while fetching the user data'});
         }
 }
 

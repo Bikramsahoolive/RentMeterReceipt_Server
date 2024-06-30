@@ -240,8 +240,8 @@ async function loginRentHolder(req, res) {
         res.cookie('sid',token,{sameSite:'None',secure:true});
         res.send(responce);
 
-    } else { res.send("Invalid Password");}
-    }else{ res.send('Invalid phone or password.');}
+    } else { res.status(400).send("Invalid Password");}
+    }else{ res.status(400).send('Invalid phone or password.');}
 
 }
 
