@@ -162,7 +162,7 @@ async function clearOtp(userType,userId){
            if(userData.otp && userData.otpExp){
             delete userData.otp;
            delete userData.otpExp;
-           const dataRef = doc(db, userType,JSON.stringify (userId));
+           const dataRef = doc(db, userType,userId);
            setDoc(dataRef, userData);
            }
         } 

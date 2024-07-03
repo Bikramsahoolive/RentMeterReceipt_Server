@@ -157,7 +157,7 @@ async function updateRentHolderPaymentData(id,paidAmt){
     const docSnap = await getDoc(doc(db, "rentholder", id));
     if(docSnap.exists()){
         let userData = docSnap.data();
-        data.paid_amt = userData.paid_amt + paidAmt;
+        data.paid_amt = (+userData.paid_amt) + (+paidAmt);
 
         try {
             const dataRef = doc(db, "rentholder",id);

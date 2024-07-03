@@ -58,7 +58,7 @@ async function createUserData(req, res) {
             let user =jwt.verify(req.cookies.sid, process.env.sess_secret);
             data.landlord_id = user.id;
             data.landlord_name = user.name;
-            data.paid_amt = "0";
+            data.paid_amt =0;
             data.id = rid;
             data.userType = "rentholder";
 
