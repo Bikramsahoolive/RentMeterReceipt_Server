@@ -231,9 +231,12 @@ async function loginRentHolder(req, res) {
         tokenData.expairTime = Date.now() + 1200000;
         let responce = {
             id:user.id,
+            landlord_id:user.landlord_id,
             name:user.name,
             email:user.email,
-            phone:user.phone
+            phone:user.phone,
+            rent:user.rent,
+            member_count:user.member_count
         }
         const secretKey = process.env.sess_secret;
         const token = jwt.sign(tokenData,secretKey);

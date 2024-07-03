@@ -168,7 +168,9 @@ async function getSingleUser(req, res) {
     const docSnap = await getDoc(doc(db, "landlord",req.params.id));
 
     if (docSnap.exists()) {
-        res.send(docSnap.data())
+        let user = docSnap.data();
+        delete user.password;
+        res.send(user);
     } else {
         res.send({status:"failure",message:"document not available"});
     }
