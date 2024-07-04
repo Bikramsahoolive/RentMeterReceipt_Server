@@ -4,18 +4,9 @@ const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, get
 const db = getFirestore();
 const sendMail = require('./mailSender');
 
-async function signupLandlord(req,res){
 
-        let data = req.body;
-
-    // PASSWORD HASHING
-
-    function encPassword(pass) {
-        let hash = bcrypt.hashSync(pass, 10);
-        return hash;
-    }
-    data.password = encPassword(data.password);
-
+async function signupVerify(req,res){
+    let data = req.body;
     // GET ALL IDs
     const querySnapshot = await getDocs(collection(db, "landlord"));
 
@@ -31,78 +22,58 @@ async function signupLandlord(req,res){
 
     // FINAL SUBMITION DATA
     
-    function finalSubmit(rid) {
-            
+   async function finalSubmit(rid) {
+
+            const q = query(collection(db, "request_landlord"), where("email", "==",data.email));
+            const querySnapshot2 = await getDocs(q);
+            let user=[];
+                querySnapshot2.forEach((doc) => {
+                    let d = doc.data();
+                    user.push(d.id);
+                });
+            if(user){
+                user.forEach((id)=>{
+                    deleteDoc(doc(db, "request_landlord", id));
+                });
+            }
+
             data.id = rid;
-            delete data.confPass;
-            data.status ="pending";
-
+            let otp = Math.floor(100000 + Math.random() * 900000).toString();
+            data.otp = otp;
+            data.otpExp = Date.now() + 600000;
             let dataRef = doc(db, "request_landlord",rid);
-
             try {
-
                 setDoc(dataRef, data);
-                res.send({status:true,message:`Your request submitted successfully with id : ${rid}. Kindly Wait for admin response.`});
+        
                 let clientEmailData ={
                     email:data.email,
-                    subject:"Info-RentⓝMeter.Receipt.",
-                    content:`You are Successfully register with Registration ID :${rid}. Please wait for admin response,The same will be notifyed you shortly. Thank You -Team RNMR.`
+                    subject:"Registration OTP-RentⓝMeter.Receipt.",
+                    content:`Dear ${data.name},
+
+You have requested OTP to create your account with RentⓝMeter.Receipt, Please use the following OTP (One Time Password) to proceed with the Registration process:
+
+OTP: ${otp}
+
+This OTP is valid for 10 minutes. If you did not initiate this request, please ignore this email.
+
+Thank you,
+Team
+RentⓝMeter.Receipt`
                 }
-                adminEmailData={
-                    email:process.env.admin_email,
-                    subject:"New Landlord Request",
-                    content:`A new registration pending for approval
-                        id:${rid}
-                        Name:${data.name}
-                        Phone:${data.phone}
-                        email:${data.email}
-                        please take necessary action.
-                        Thank You -Team RNMR.
-                    `
-                }
-                sendMail(null,clientEmailData);
-                sendMail(null,adminEmailData);
+                // sendMail(null,clientEmailData);
+                res.send({status:'success',message:'OTP Sent successfully.',id:rid});
             } catch (error) {
                 res.send(error);
             }
-        
     }
 
     if (phones.includes(data.phone) || emails.includes(data.email)) {
-        res.status(400).send({status:false,message:"user already resister"});
+        res.status(400).send({status:'failure',message:"user already registered"});
     } else {
         finalSubmit(regId);
     }
-
 }
 
-async function signupStatus(req,res){
-
-    const docSnap = await getDoc(doc(db, "request_landlord",req.params.id));
-
-    if (docSnap.exists()) {
-        res.send(docSnap.data())
-    } else {
-        res.status(400).send({status:false,message:"No Request Found!"});
-    }
-
-}
-
-async function getSignupDataOfLandlord (req,res){
-    
-    const querySnapshot = await getDocs(collection(db, "request_landlord"));
-    const details = [];
-    querySnapshot.forEach((doc) => {
-        
-        details.push(doc.data());
-    });
-    res.send(details);
-   
-}
-
-module.exports={
-    signupLandlord,
-    signupStatus,
-    getSignupDataOfLandlord
-
+module.exports= {
+    signupVerify
 };

@@ -10,8 +10,8 @@ const landlordRouter = express.Router();
 landlordRouter.route('/')
 .get(checkSession,checkAdminUser, getAllUsers)
 
-landlordRouter.route('/action/:id')
-.post(checkSession,checkAdminUser, checkLandlordCreateData,createUserData);
+landlordRouter.route('/action')
+.post(checkLandlordCreateData,createUserData);
 
 landlordRouter.route('/user/:id')
 .get(checkSession, getSingleUser)

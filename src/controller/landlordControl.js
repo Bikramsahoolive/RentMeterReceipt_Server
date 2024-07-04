@@ -11,38 +11,45 @@ const sendMail=require('./mailSender');
 async function createUserData(req, res) {
 
     let data = req.body;
+    if(!data.termNconditions){
+        res.send({status:"failure",message:"error while creating laldlord profile"});
+        return;
+    }
+    delete data.termNconditions;
+    delete data.confPass;
+
+    const dataRef = doc(db, "request_landlord",data.id);
+    const docSnap = await getDoc(dataRef);
+
+    if (docSnap.exists()) {
+        let user = docSnap.data();
+        if(user.otp !== data.otp || data.otpExp< Date.now()){
+            res.send({status:"failure",message:"invalid otp or otp expaired."});
+            return;
+        }
+    }
+    deleteDoc(dataRef);
+    delete data.otp;
+
     // PASSWORD HASHING
 
-    // function encPassword(pass) {
-    //     let hash = bcrypt.hashSync(pass, 10);
-    //     return hash;
-    // }
-    // data.password = encPassword(data.password);
-
-    if(data.status === "approved"){
-
-        // UPDATE DATA
-    
-        const dataRef = doc(db, "request_landlord",req.params.id);
-    
-        try {
-           await updateDoc(dataRef, data);
-        } catch (error) {
-            res.send(error);
-        }
-    
+    function encPassword(pass) {
+        let hash = bcrypt.hashSync(pass, 10);
+        return hash;
+    }
+    data.password = encPassword(data.password);
 
     // GET ALL IDs
     const querySnapshot = await getDocs(collection(db, "landlord"));
 
     const ids = [];
-    const emails = [];
-    const phones = [];
+    // const emails = [];
+    // const phones = [];
 
     querySnapshot.forEach((doc) => {
         ids.push(doc.data().id);
-        emails.push(doc.data().email);
-        phones.push(doc.data().phone);
+        // emails.push(doc.data().email);
+        // phones.push(doc.data().phone);
     });
 
     // GENERATE DYNAMIC ID 
@@ -68,24 +75,27 @@ async function createUserData(req, res) {
             generateId();
 
         } else {
-            delete data.status;
             data.id = rid;
             data.userType = "landlord";
+            data.photo='';
+            data.signature='';
 
             let dataRef = doc(db, "landlord", rid);
 
             try {
 
                 setDoc(dataRef, data);
-                res.send({message:`Landlord request Approved with landlord Id ${rid}`});
+                res.send({status:'success',message:`Landlord request Approved with landlord Id ${rid}`});
                 let clientApproveMailData={
                     email:data.email,
                     subject:'Info-RentⓝMeter.Receipt.',
-                    content:`Congratulation!!!
-                    Your request approved with landlord id ${rid},
-                    Now you can login with your phone number and password,
+                    content:`        Congratulation!!!
+                    Your profile created with landlord id ${rid},
+                    Now you can login with your
+                    phone number as userID and password,
                     Have a great day.
-                    Thank You -Team RNMR.
+                    Thank You
+		    Team -RentⓝMeter.Receipt
                     `
                 }
                 sendMail(null,clientApproveMailData);
@@ -93,37 +103,12 @@ async function createUserData(req, res) {
 
             } catch (error) {
                 res.send(error);
+                console.log(error);
             }
         }
     }
-    if (phones.includes(data.phone) || emails.includes(data.email)) {
-        res.status(400).send({message:"User already exist"});
-    } else {
-        finalSubmit(num);
-}
-    }else if(data.status ==='rejected'){
-        const dataRef = doc(db, "request_landlord",JSON.stringify( req.params.id));
-    
-        try {
-           await updateDoc(dataRef, data);
-            res.send({message:`Landlord request Rejected with id ${req.params.id}`});
 
-            let clientRejectMailData={
-                email:data.email,
-                subject:'Info-RentⓝMeter.Receipt.',
-                content:`Sorry!!!
-                Your request Rejected For some reason,
-                Please contact admin for more details.
-                Have a great day.
-                Thank You -Team RNMR.
-                `
-            }
-            sendMail(null,clientRejectMailData);
-
-        } catch (error) {
-            res.send(error);
-        }
-    }
+    finalSubmit(num);
 }
 
 async function getAllUsers(req, res) {
