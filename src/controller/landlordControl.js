@@ -24,7 +24,11 @@ async function createUserData(req, res) {
     if (docSnap.exists()) {
         let user = docSnap.data();
         if(user.otp !== data.otp || data.otpExp< Date.now()){
-            res.send({status:"failure",message:"invalid otp or otp expaired."});
+            res.send({status:"failure",message:"Invalid otp or otp expaired, try again."});
+            return;
+        }
+        if(user.name!== data.name || user.phone !==data.phone || user.email!== data.email){
+            res.send({status:"failure",message:"Registered data mismatch, try again"});
             return;
         }
     }
@@ -90,9 +94,10 @@ async function createUserData(req, res) {
                     email:data.email,
                     subject:'Info-RentⓝMeter.Receipt.',
                     content:`        Congratulation!!!
-                    Your profile created with landlord id ${rid},
+                    Your profile created with landlord id ${rid}
+                    on RentⓝMeter.Receipt as a Landlord,
                     Now you can login with your
-                    phone number as userID and password,
+                    phone as user ID and password,
                     Have a great day.
                     Thank You
 		    Team -RentⓝMeter.Receipt
@@ -100,7 +105,6 @@ async function createUserData(req, res) {
                 }
                 sendMail(null,clientApproveMailData);
                
-
             } catch (error) {
                 res.send(error);
                 console.log(error);

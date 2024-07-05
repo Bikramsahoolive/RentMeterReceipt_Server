@@ -60,7 +60,7 @@ Thank you,
 Team
 RentⓝMeter.Receipt`
                 }
-                // sendMail(null,clientEmailData);
+                sendMail(null,clientEmailData);
                 res.send({status:'success',message:'OTP Sent successfully.',id:rid});
             } catch (error) {
                 res.send(error);
@@ -68,7 +68,7 @@ RentⓝMeter.Receipt`
     }
 
     if (phones.includes(data.phone) || emails.includes(data.email)) {
-        res.status(400).send({status:'failure',message:"user already registered"});
+        res.status(400).send({status:'failure',message:"User Already Registered"});
     } else {
         finalSubmit(regId);
     }
