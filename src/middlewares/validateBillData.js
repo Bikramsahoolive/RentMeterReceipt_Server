@@ -23,23 +23,47 @@ function mainBillCreateValidation(req,res,next){
 
 function rentBillCreateValidation(req,res,next){
     const data = req.body;
-    const {billingDate,totalUnit,totalAmount,previousUnit,currentUnit,adjustUnit,dueAmount,rent,rentholder_id,consumer_Name} = data;
+    const {billingDate,totalUnit,totalAmount,previousUnit,currentUnit,adjustUnit,dueAmount,rent,rentholder_id,consumer_Name,water_bill,electric_status,eBill,perunit} = data;
 
-    const dataval = [billingDate,totalUnit,totalAmount,previousUnit,currentUnit,rent,rentholder_id,consumer_Name]
+    const dataval = [billingDate,totalUnit,totalAmount,previousUnit,currentUnit,rent,rentholder_id,consumer_Name,electric_status,water_bill,dueAmount,adjustUnit]
     const isAvail =dataval.some(val=>val==="");
-    if(!('billingDate' in data &&'totalUnit' in data &&'totalAmount' in data &&'previousUnit' in data &&'currentUnit' in data &&'adjustUnit' in data &&'dueAmount'in data &&'rent'in data &&'rentholder_id' in data && 'consumer_Name' in data)){
+    if(!('billingDate' in data &&'totalUnit' in data &&'totalAmount' in data &&'previousUnit' in data 
+        &&'currentUnit' in data &&'adjustUnit' in data &&'dueAmount'in data &&'rent'in data &&'rentholder_id' in data 
+        && 'consumer_Name' in data && 'eBill' in data && 'electric_status' in data && 'perunit' in data && 'water_bill' in data)){
         res.send("Invalid fields. [billingDate, totalUnit, totalAmount, previousUnit, currentUnit, adjustUnit, dueAmount, rent, rentholder_id, consumer_Name] Fields should be available.")
     }
     else if(isAvail){
         res.send("field/fields should not be empty.");
 
-    }else if((+previousUnit) > (+currentUnit) || (+previousUnit) < 0 ){
+    }
+    else if(electric_status==='mmbd'){
+        if(totalAmount===''||totalAmount===null ||totalUnit===''||totalUnit===null || (+totalAmount)<=0 ||(+totalUnit)<=0){
+            res.status(400).send("invalid total Unit or total amount.");
+        }
+        if((+previousUnit) > (+currentUnit) || (+previousUnit) < 0 ){
+            res.send("invalid previousUnit and currentUnit");
+        }
+    }
 
-        res.send("invalid previousUnit and currentUnit");
-    }else if((+totalAmount)<=0||(+totalUnit)<=0){
-        res.send("invalid total Unit or total amount.")
-    }else if((+rent)<0){
-        res.send("invalid rent amount.")
+    else if(electric_status==='pu'){
+        if(perunit<0){
+            res.send("invalid per Unit Value");
+        }
+        if((+previousUnit) > (+currentUnit) || (+previousUnit) < 0 ){
+            res.send("invalid previousUnit and currentUnit");
+        }
+        
+    }
+    else if(electric_status==='am'){
+        if(eBill<0){
+            res.send("invalid electric bill Amount");
+        }
+        
+    }
+    else if((+rent)<0){
+        res.send("invalid rent amount.");
+    }else if(water_bill<0){
+        res.send("invalid water bill amount.");
     }else{
         next()
     }

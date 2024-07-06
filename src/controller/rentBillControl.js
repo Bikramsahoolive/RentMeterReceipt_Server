@@ -15,8 +15,8 @@ const sendMail=require('./mailSender');
 
     data.landlord_id= user.id;
     data.landlord_name=user.name;
-    data.fine_amt=0;
-    data.fine_type="NA";
+    // data.fine_amt=0;
+    // data.fine_type="NA";
     data.paid_amt=0;
     data.payment_date="pending";
 
