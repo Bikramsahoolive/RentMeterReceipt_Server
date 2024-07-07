@@ -73,19 +73,21 @@ async function createUserData(req, res) {
                     email:data.email,
                     subject:'Info-RentⓝMeter.Receipt.',
                     content:`Dear ${data.name},
-                    Your are registered as a rentholder with id ${rid}
-                     by ${user.name},
-                    Now you can login on http://rnmr.vercel.app with,
+                    Your are registered as a rentholder with
+                     id ${rid}
+                     By ${user.name},
+                    Now you can login on
+                    https://rnmr.vercel.app with,
 
                     User ID: ${data.phone}
                     Password: ${rentholderPassword}
                     
-                    to get your rent bill details.
+                    To Get your Rent and Bill details.
+
                     Have a great day.
 
                     Thank You
-                    Team
-                    RentⓝMeter.Receipt.
+                    Team -RentⓝMeter.Receipt.
                     `
                 }
                 sendMail(null,rentHolderCreateMail);
@@ -142,7 +144,7 @@ if(details.length != 0){
     res.send(details);
 }else{
     
-    res.send({status:false,message:'No data found'});
+    res.status(400).send({status:false,message:'No data found'});
 }
 }
 

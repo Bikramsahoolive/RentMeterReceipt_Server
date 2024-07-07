@@ -37,10 +37,10 @@ app.use(cors({
   origin:'https://rnmr.vercel.app',
   credentials: true
 }));
-app.get('/',(req,res)=>res.send("Welcome to Rentⓝmeter.Receipt Server!"));
 
-
-
+app.get('/',(req,res)=>{
+  res.status(200).send({status:'success',message:"Welcome to Rentⓝmeter.Receipt Server!"});
+});
 
 app.use(cookieParser());
 

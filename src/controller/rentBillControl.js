@@ -82,7 +82,7 @@ if(details.length != 0){
     res.status(200).send(details);
 }else{
     
-    res.send({status:false,message:'No record fount.'});
+    res.status(400).send({status:false,message:'No record fount.'});
 }
 }
 

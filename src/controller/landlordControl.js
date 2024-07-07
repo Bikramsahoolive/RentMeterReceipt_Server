@@ -89,7 +89,8 @@ async function createUserData(req, res) {
             try {
 
                 setDoc(dataRef, data);
-                res.send({status:'success',message:`Landlord request Approved with landlord Id ${rid}`});
+                res.send({status:'success',message:`Landlord request Approved with
+                     landlord Id ${rid}`});
                 let clientApproveMailData={
                     email:data.email,
                     subject:'Info-RentⓝMeter.Receipt.',
@@ -99,6 +100,7 @@ async function createUserData(req, res) {
                     Now you can login with your
                     phone as user ID and password,
                     Have a great day.
+                    
                     Thank You
 		    Team -RentⓝMeter.Receipt
                     `
