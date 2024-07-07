@@ -36,15 +36,16 @@ let rentholderData =docSnap.data();
                     const billMailData ={
                         email:rentholderData.email,
                         subject:'New Bill Created RNMR.',
-                        content:`    Hi ${rentholderData.name}
+                        content:`    Hi ${rentholderData.name}!
                         This is to inform you,
-                        that your bill created successfully with
+                        that your rent bill created successfully on
+                        Bill Date : ${calcVal.billingDate} with
                         Bill Id : ${calcVal.id}
-                        Bill Date : ${calcVal.billingDate}
-                        Bill Amount : ${calcVal.final_amt}
-                        and the same will be pay on/before
-                        ${calcVal.dueDate} .
-                        Thank You Team-RNMR.
+                        Bill Amount : ₹${calcVal.final_amt}/-
+                        and will pay on/before
+                        Due Date : ${calcVal.dueDate} .
+                        Thank You,
+                        Team-RentⓝMeter.Receipt.
                         `,
                     }
                     sendMail(null,billMailData);

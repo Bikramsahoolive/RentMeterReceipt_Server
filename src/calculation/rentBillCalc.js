@@ -70,7 +70,6 @@ function rentBillCalc (value){
 
             value.billingDate = billDate;
             value.dueDate = lastDate;
-            console.log(value);
             return value;
 
 }
