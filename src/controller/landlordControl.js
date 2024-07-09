@@ -255,7 +255,8 @@ async function loginLandlord(req, res) {
             id:user.id,
             name:user.name,
             email:user.email,
-            phone:user.phone
+            phone:user.phone,
+            isActive:true
         }
         const secretKey = process.env.sess_secret;
         const token = jwt.sign(tokenData,secretKey);

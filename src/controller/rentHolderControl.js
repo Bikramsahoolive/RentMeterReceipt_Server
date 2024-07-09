@@ -238,7 +238,8 @@ async function loginRentHolder(req, res) {
             email:user.email,
             phone:user.phone,
             rent:user.rent,
-            member_count:user.member_count
+            member_count:user.member_count,
+            isActive:true
         }
         const secretKey = process.env.sess_secret;
         const token = jwt.sign(tokenData,secretKey);
