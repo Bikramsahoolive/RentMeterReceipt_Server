@@ -2,7 +2,7 @@ const express = require('express');
 const rentBillRouter = express.Router();
 const{createRentBill,getAllRentBill,getLandlordRentBill,getRentholderRentBill,getSingleRentBill,updateRentBillPayment,deleteRentBill,addFineRentBill}=require('../controller/rentBillControl');
 const{rentBillCreateValidation,rentBillUpdateValidation}=require('../middlewares/validateBillData');
-const {checkSession,checkAdminUser,checkLandlordUser} =require('../middlewares/session')
+const {checkSession,checkAdminUser,checkLandlordUser,checkRentHolderUser} =require('../middlewares/session')
 
 
 rentBillRouter.route('/')
@@ -13,10 +13,10 @@ rentBillRouter.route('/landlord')
 .get(checkSession,checkLandlordUser,getLandlordRentBill);
 
 rentBillRouter.route('/rentholder')
-.get(checkSession,getRentholderRentBill);
+.get(checkSession,checkRentHolderUser,getRentholderRentBill);
 
 rentBillRouter.route('/bill/:id')
-.get(checkSession,getSingleRentBill)
+.get(checkSession,checkRentHolderUser,getSingleRentBill)
 .put(checkSession,checkLandlordUser,updateRentBillPayment)
 .post(checkSession,checkLandlordUser,rentBillUpdateValidation,addFineRentBill)
 .delete(checkSession,checkLandlordUser,deleteRentBill);

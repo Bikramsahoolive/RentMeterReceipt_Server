@@ -11,6 +11,7 @@ async function createUserData(req, res) {
 
     let data = req.body;
 
+    delete data.confPass;
     // PASSWORD HASHING
     let rentholderPassword = data.password;
     function encPassword(pass) {
@@ -19,8 +20,28 @@ async function createUserData(req, res) {
     }
     data.password = encPassword(data.password);
 
+    let user =jwt.verify(req.cookies.sid, process.env.sess_secret);
+    const docSnap = await getDoc(doc(db, "landlord", user.id));
+    let landlordData = docSnap.data();
+
     // GET ALL IDs
     const querySnapshot = await getDocs(collection(db, "rentholder"));
+
+
+
+    const q = query(collection(db, "rentholder"), where('landlord_id', '==',user.id));
+    const querySnapshot3 = await getDocs(q);
+    const details = [];
+    querySnapshot3.forEach((doc) => {
+        details.push(doc.data());
+    });
+
+
+
+    if(details.length >= landlordData.rcrCount){
+        res.status(400).send({status:'failure',message:"Maximum Rentholder Reached, Upgrade the plan for more registration."});
+        return;
+    }
 
     const ids = [];
     const emails = [];
@@ -31,6 +52,8 @@ async function createUserData(req, res) {
         emails.push(doc.data().email);
         phones.push(doc.data().phone);
     });
+
+
 
     // GENERATE DYNAMIC ID 
     function generateId() {
@@ -55,7 +78,7 @@ async function createUserData(req, res) {
 
         } else {
             // let user = req.session.key;
-            let user =jwt.verify(req.cookies.sid, process.env.sess_secret);
+            
             data.landlord_id = user.id;
             data.landlord_name = user.name;
             data.paid_amt =0;
@@ -99,7 +122,7 @@ async function createUserData(req, res) {
         }
     }
     if (phones.includes(data.phone) || emails.includes(data.email)) {
-        res.status(400).send("user already exist");
+        res.status(400).send({status:'failure',message:"user already exist"});
     } else {
         finalSubmit(num);
     }
