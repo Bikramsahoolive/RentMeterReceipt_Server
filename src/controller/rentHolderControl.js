@@ -188,7 +188,7 @@ function updateUserData(req, res) {
         updateDoc(dataRef, data);
         res.send({status:'success',message:`Data updated Successfully.`});
     } catch (error) {
-        res.send(error);
+        res.status(400).send(error);
     }
 }
 

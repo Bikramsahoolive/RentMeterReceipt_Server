@@ -138,22 +138,40 @@ function checkRentHolderUpdateData (req,res,next){
     const phoneRegex = /^[06789]/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if(name.length>25){
-        return res.status(400).send({message:"Invalid name"});
+    if(name){
+        if(name.length>25){
+        return res.send({status:'failure',message:"Invalid name"});
+        }else{
+            next();
+        }
     }
-    else if(phone.length>11 || phone.length<10 || !phoneRegex.test(phone[0]) ){
-        return res.status(400).send({message:"Invalid Phone"});
-    }
-    else if(email.length>35 || !emailRegex.test(email)){
-        return res.status(400).send({message:"Invalid email"});
-    }
-    else if(rent.length>5){
-        return res.status(400).send({message:"Invalid rent input"});
-    }
-    else if (password.length >20){
-        return res.status(400).send({message:"Invalid password"});
+    else if(phone){
+    if(phone.length!==10 || !phoneRegex.test(phone) ){
+        return res.send({status:'failure',message:"Invalid Phone"});
     }else{
         next();
+    }
+    }
+    else if(email){
+    if(email.length>30 || !emailRegex.test(email)){
+        return res.send({message:"Invalid email"});
+    }else{
+        next();
+    }
+    }
+    else if(rent){
+     if( rent<=0 || rent.length>5){
+        return res.send({message:"Invalid rent input"});
+     }else{
+        next();
+     }
+    }
+    else if(password){
+    if (password.length >20){
+        return res.send({message:"Invalid password"});
+    }else{
+        next();
+    }
     }
 
 }
