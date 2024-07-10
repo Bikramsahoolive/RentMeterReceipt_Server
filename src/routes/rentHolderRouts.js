@@ -10,8 +10,8 @@ rentHolderRouter.route('/')
 .post(checkSession,checkLandlordUser,checkRentHolderCreateData,createUserData);
 
 rentHolderRouter.route('/user/:id')
-.get(checkSession,checkRentHolderUser,getSingleUser)//
-.put(checkSession,checkLandlordUser,checkRentHolderUpdateData,updateUserData)//
+.get(checkSession,checkRentHolderUser,getSingleUser)
+.put(checkSession,checkLandlordUser,updateUserData)
 .delete(checkSession,checkLandlordUser,deleteUserData);
 
 rentHolderRouter.route('/login')
