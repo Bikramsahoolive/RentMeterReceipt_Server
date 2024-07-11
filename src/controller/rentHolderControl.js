@@ -96,22 +96,19 @@ async function createUserData(req, res) {
                     email:data.email,
                     subject:'Info-RentⓝMeter.Receipt.',
                     content:`Dear ${data.name},
-                    Your are registered as a rentholder with
-                     id ${rid}
-                     By ${user.name},
-                    Now you can login on
-                    https://rnmr.vercel.app with,
 
-                    User ID: ${data.phone}
-                    Password: ${rentholderPassword}
-                    
-                    To Get your Rent and Bill details.
+You have been registered as a rentholder with ID ${rid} by ${user.name}. You can now log in at https://rnmr.vercel.app using the following credentials:
 
-                    Have a great day.
+User ID: ${data.phone}
+Password: ${rentholderPassword}
 
-                    Thank You
-                    Team -RentⓝMeter.Receipt.
-                    `
+Once logged in, you can view your rent and bill details also pay online.
+
+We hope you have a great experience using our platform. If you have any questions, feel free to contact our support team.
+
+Thank you,
+
+Team RentⓝMeter.Receipt`
                 }
                 sendMail(null,rentHolderCreateMail);
 
@@ -178,6 +175,7 @@ function updateUserData(req, res) {
     // UPDATE DATA
 
     let data = req.body;
+    // console.log(data);
     if (data.password){
         let hash = bcrypt.hashSync(data.password, 10);
         data.password = hash;

@@ -20,8 +20,7 @@ const rentBillRouter = require('./src/routes/rentBillRouts')
 const forgotPasswordRouter = require('./src/routes/forgotPasswordRouts');
 const{checkRouter, landlordLogout} = require('./src/controller/authControl');
 const{checkSession}= require('./src/middlewares/session')
-const sendMail = require('./src/controller/mailSender');
-const apiKeyValidation = require('./src/middlewares/validateApi');
+const clientMailRouter = require('./src/routes/clientMailRouts');
 
 
 
@@ -71,16 +70,10 @@ app.use('/rentholder',rentHolderRouter);
 
 app.use('/main-bill',mainBillRouter);
 app.use('/rent-bill',rentBillRouter);
+app.use('/client',clientMailRouter);
 
 app.post('/check-session',checkRouter);
 app.post('/logout',checkSession,landlordLogout);
-app.post('/email-subscribe',(req,res)=>{
-    let emailData={};
-    emailData.email = String(req.body.email);
-    emailData.subject = 'Info-RentⓝMeter.Receipt.';
-    emailData.content = `This is a thank you mail for your subscription,Your email Subscribed successfully. Thank You -RNMR Team.`;
-      sendMail(res,emailData);
-})
 
 // Handle Wild Card Routs.
 app.use((req,res,next)=>{

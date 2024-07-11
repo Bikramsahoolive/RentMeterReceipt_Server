@@ -95,17 +95,18 @@ async function createUserData(req, res) {
                      landlord Id ${rid}`});
                 let clientApproveMailData={
                     email:data.email,
-                    subject:'Info-RentⓝMeter.Receipt.',
-                    content:`        Congratulation!!!
-                    Your profile created with landlord id ${rid}
-                    on RentⓝMeter.Receipt as a Landlord,
-                    Now you can login with your
-                    phone as user ID and password,
-                    Have a great day.
-                    
-                    Thank You
-		    Team -RentⓝMeter.Receipt
-                    `
+                    subject:'Welcome to RentⓝMeter.Receipt! Landlord Registration Completed',
+                    content:`        Congratulations!
+
+Your profile has been created with Landlord ID: ${rid} on RentⓝMeter.Receipt. As a landlord, you can now log in using your phone number as your user ID and the password you chose during registration.
+
+We are excited to have you on board! RentⓝMeter.Receipt aims to make rental management effortless and efficient. Manage your properties, track payments, and communicate with tenants all in one place.
+
+Thank you for choosing RentⓝMeter.Receipt. If you have any questions, our support team is here to help.
+
+Best regards,
+
+Team RentⓝMeter.Receipt`
                 }
                 sendMail(null,clientApproveMailData);
                

@@ -35,18 +35,21 @@ let rentholderData =docSnap.data();
 
                     const billMailData ={
                         email:rentholderData.email,
-                        subject:'New Bill Created RNMR.',
-                        content:`    Hi ${rentholderData.name}!
-                        This is to inform you,
-                        that your rent bill created successfully on
-                        Bill Date : ${calcVal.billingDate} with
-                        Bill Id : ${calcVal.id}
-                        Bill Amount : ₹${calcVal.final_amt}/-
-                        and will pay on/before
-                        Due Date : ${calcVal.dueDate} .
-                        Thank You,
-                        Team-RentⓝMeter.Receipt.
-                        `,
+                        subject:'New Rent Bill is Generated -RentⓝMeter.Receipt',
+                        content:`Hi ${rentholderData.name}!
+
+We are pleased to inform you that your rent bill has been successfully created.
+
+- **Bill Date**: ${calcVal.billingDate}
+- **Bill ID**: ${calcVal.id}
+- **Bill Amount**: ₹${calcVal.final_amt}/-
+- **Due Date**: ${calcVal.dueDate}
+
+Please ensure to pay the bill on or before the due date. You can also view and track your bill details by logging into your account at https://rnmr.vercel.app.
+
+Thank you,
+
+Team RentⓝMeter.Receipt`,
                     }
                     sendMail(null,billMailData);
                 })
