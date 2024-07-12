@@ -40,12 +40,12 @@ let rentholderData =docSnap.data();
 
 We are pleased to inform you that your rent bill has been successfully created.
 
-- **Bill Date**: ${calcVal.billingDate}
-- **Bill ID**: ${calcVal.id}
-- **Bill Amount**: ₹${calcVal.final_amt}/-
-- **Due Date**: ${calcVal.dueDate}
+- **Bill Date**:  ${calcVal.billingDate}
+- **Bill ID**:  ${calcVal.id}
+- **Bill Amount**:  ₹${calcVal.final_amt}/-
+- **Due Date**:  ${calcVal.dueDate}
 
-Please ensure to pay the bill on or before the due date. You can also view and track your bill details by logging into your account at https://rnmr.vercel.app.
+Please ensure to pay the bill on or before the due date. You can also track your bill details by logging into your account at https://rnmr.vercel.app
 
 Thank you,
 

@@ -50,7 +50,7 @@ async function signupVerify(req,res){
                     subject:"Registration OTP-RentⓝMeter.Receipt.",
                     content:`Dear ${data.name},
 
-You have requested OTP to create your account with RentⓝMeter.Receipt, Please use the following OTP (One Time Password) to proceed with the Registration process:
+You have requested OTP to create your landlord profile with RentⓝMeter.Receipt, Please use the following OTP (One Time Password) to proceed with the Registration process:
 
 OTP: ${otp}
 
