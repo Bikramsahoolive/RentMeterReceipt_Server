@@ -10,6 +10,7 @@ const cors = require('cors');
 // const session = require('express-session');//session auth (stateful).
 // const jwt = require('jsonwebtoken'); //jwt auth (stateless).
 const cookieParser = require('cookie-parser');
+const Razorpay = require('razorpay');
 
 const SignupLandlordRouter = require('./src/routes/signUpLandlordRouts');
 const adminRouter = require('./src/routes/adminRouter');
@@ -74,6 +75,26 @@ app.use('/client',clientMailRouter);
 
 app.post('/check-session',checkRouter);
 app.post('/logout',checkSession,landlordLogout);
+
+//razor pay test.
+const razorpay = new Razorpay({
+  key_id:process.env.key_id,
+  key_secret:process.env.key_secret
+});
+
+app.post('/create-order',async(req,res)=>{
+  const {amount,currency,receipt}=req.body;
+  try {
+    const order = await razorpay.orders.create({
+      amount:amount,
+      currency:currency,
+      receipt:receipt
+    });
+    res.json(order);
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 // Handle Wild Card Routs.
 app.use((req,res,next)=>{
