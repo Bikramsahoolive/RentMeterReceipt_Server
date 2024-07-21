@@ -57,8 +57,18 @@ to unsubscribe click on the link : https://rnmr.vercel.app/unsubscribe/${String(
     }
 }
 
-function sendUnsubscribeResponse(req,res){
+async function sendUnsubscribeResponse(req,res){
     let email = req.body.email;
+
+    let status =await checkSubscribtion(email);
+    if(!status){
+        res.send({status:'failure',message:"Email id not exists or unsubscribed."});
+        return;
+    }else if(status ==='error'){
+        res.status(500).send({status:'error',message:"Error while fetching data. try again"});
+        return;
+    }
+
     try {
         deleteDoc(doc(db, "subcribed_mail", email));
         res.send({status:'success',message:'Unsubscribed Successfully'});
@@ -91,8 +101,39 @@ The RentⓝMeter.Receipt Team`;
       sendMail(res,emailData);
 }
 
+async function checkUnsubscribed(req,res){
+
+    let status =await checkSubscribtion(req.body.email);
+    if(status){
+        res.send({status:true,message:"Email id exists"});
+    }else if(status ==='error'){
+        res.status(500).send({status:'error',message:"Error while fetching data."});
+    }else{
+        res.send({status:false,message:"Email id not exists or unsubscribed."});
+    }
+}
+
+async function checkSubscribtion(id){
+    
+    try {
+        const docSnap = await getDoc(doc(db, "subcribed_mail",id));
+
+        if (docSnap.exists()) {
+            return true;
+        } else {
+            return false;
+        }
+
+    } catch (error) {
+        console.log(error);
+        return 'error';
+    }
+   
+}
+
 module.exports ={
     sendSubscribeMail,
     sendFeedbackMail,
-    sendUnsubscribeResponse
+    sendUnsubscribeResponse,
+    checkUnsubscribed
 }
