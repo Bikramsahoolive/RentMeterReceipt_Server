@@ -19,6 +19,7 @@ const sendMail=require('./mailSender');
     // data.fine_type="NA";
     data.paid_amt=0;
     data.payment_date="pending";
+    data.payment_method="pending"
 
     data.id = JSON.stringify(Date.now());
 
@@ -122,11 +123,17 @@ async function getSingleRentBill(req,res){
  async function updateRentBillPayment (req,res){
 
         let data = req.body;
-
+        let billId = data.id;
+        delete data.id;
         const docSnap = await getDoc(doc(db, "rentbill", req.params.id));
 
         if (docSnap.exists()) {
+            let userdetails = jwt.verify(req.cookies.sid,process.env.sess_secret);
             let billData = docSnap.data();
+            if(billData.landlord_id !== userdetails.id){
+                res.status(400).send({status:'failure',message:'Unauthorized bill access.'});
+                return;
+            }
             let paidAmount = data.paid_amt;
             let toBePaid = billData.final_amt - billData.paid_amt;
             if(billData.final_amt == billData.paid_amt){
@@ -137,12 +144,34 @@ async function getSingleRentBill(req,res){
                 return;
             }
         let rentholderPaymentState=await updateRentHolderPaymentData(billData.rentholder_id,data.paid_amt);
-        if(rentholderPaymentState){
+        if(rentholderPaymentState.status){
             try {
                 data.paid_amt = Number(billData.paid_amt) + Number(paidAmount);
                 const dataRef = doc(db, "rentbill", req.params.id);
                 updateDoc(dataRef, data);
                 res.send({status:true,message:`Payment Done.`});
+
+                let emailData = {
+                    email:rentholderPaymentState.email,
+                    subject:"Rent Bill Payment Confirmation.",
+                    content:`Dear ${rentholderPaymentState.name},
+
+We are pleased to inform you that your rent bill payment has been successfully processed.
+
+- **Bill ID**:   ${billId};
+- **Payment Date**:   ${data.payment_date}
+- **Paid Amount**:   ₹${data.paid_amt}/-
+- **Payment Method**:   ${data.payment_method}
+
+You can view and track all your payment details by logging into your account at https://rnmr.vercel.app.
+
+Thank you for your payment.
+
+Best regards,
+
+Team RentⓝMeter.Receipt`
+                }
+                sendMail(null,emailData)
             } catch (err) {
                 res.status(400).send({error:err});
             }
@@ -166,9 +195,9 @@ async function updateRentHolderPaymentData(id,paidAmt){
         try {
             const dataRef = doc(db, "rentholder",id);
             updateDoc(dataRef, data);
-            return true;
+            return {status:true,name:userData.name,email:userData.email};
         } catch (err) {
-            return false;
+            return {status:false};
         }
 
     }
