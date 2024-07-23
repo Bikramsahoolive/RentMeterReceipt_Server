@@ -83,7 +83,7 @@ async function createUserData(req, res) {
             data.userType = "landlord";
             data.photo='';
             data.signature='';
-            data.plan = 'simple';
+            data.plan = 'Free';
             data.rcrCount=3;
 
             let dataRef = doc(db, "landlord", rid);

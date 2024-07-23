@@ -1,5 +1,5 @@
 function rentBillCalc (value){
-    const {billingDate,totalUnit,totalAmount,previousUnit,currentUnit,adjustUnit,dueAmount,rent,electric_status,perunit,eBill,water_bill} = value;
+    const {billingDate,totalUnit,totalAmount,previousUnit,currentUnit,adjustUnit,dueAmount,rent,electric_status,perunit,eBill,maintenance,water_bill} = value;
 
     
        if(adjustUnit===''||adjustUnit===null)value.adjustUnit=0;
@@ -49,7 +49,7 @@ function rentBillCalc (value){
         
 
         
-        let finalAmount = ebillData.billamount+(+rent)+(+dueAmount)+(+water_bill);
+        let finalAmount = ebillData.billamount+(+rent)+(+dueAmount)+(+water_bill)+(+maintenance);
         value.final_amt = finalAmount;
         value.paid_amt = 0;
         
