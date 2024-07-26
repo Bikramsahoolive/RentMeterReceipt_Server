@@ -13,18 +13,59 @@ const sendMail=require('./mailSender');
     // let user = req.session.key;
     let user = jwt.verify(req.cookies.sid, process.env.sess_secret);
 
+    const landlordDataRef = doc(db, "landlord", user.id);
+    const docSnap1 =  await getDoc(landlordDataRef);
+    let landlordData =docSnap1.data();
+    
+    if(landlordData.planExp===""){
+        res.status(400).send({status:false,message:"your paln has expired."});
+        return;
+    }else
+    if(Date.parse(landlordData.planExp) < Date.now()){
+        if(landlordData.plan!=="No Plan"){
+         updateDoc(landlordDataRef,{plan:"No Plan",rcrCount:0,billCount:0,billCountRenewOn:""});
+        }
+    res.status(400).send({status:false,message:"Sorry! No Active Plan."});
+        return;
+    }else{
+        if(landlordData.billCount<=0){
+            if(Date.parse(landlordData.billCountRenewOn)>Date.now()){
+                res.status(400).send({status:false,message:"Your monthly bill quota has been reached,Please upgrade the plan"});
+                return;
+            }else{
+                let date = new Date(landlordData.billCountRenewOn);
+                date.setMonth(date.getMonth()+1);
+                
+                landlordData.billCountRenewOn = date.toISOString().split('T')[0];
+                console.log(landlordData.billCountRenewOn);
+                
+                if(landlordData.plan ==='Pro'){
+                    landlordData.billCount = 150;
+                }else if(landlordData.plan==='Basic'){
+                    landlordData.billCount = 40;
+                }else{
+                    landlordData.billCount = 10;
+                }
+                
+                updateDoc(landlordDataRef, {billCountRenewOn:landlordData.billCountRenewOn});
+
+            }
+        }
+    }
+    landlordData.billCount -=1;
+    updateDoc(landlordDataRef, {billCount:landlordData.billCount});
+
     data.landlord_id= user.id;
     data.landlord_name=user.name;
-    // data.fine_amt=0;
-    // data.fine_type="NA";
+    
     data.paid_amt=0;
     data.payment_date="pending";
-    data.payment_method="pending"
+    data.payment_method="NA"
 
     data.id = JSON.stringify(Date.now());
 
    let calcVal = rentBillCalc(data);
-//    res.send(calcVal);
+
 const docSnap =  await getDoc(doc(db, "rentholder",calcVal.rentholder_id));
 let rentholderData =docSnap.data();
         

@@ -24,6 +24,19 @@ async function createUserData(req, res) {
     const docSnap = await getDoc(doc(db, "landlord", user.id));
     let landlordData = docSnap.data();
 
+    if(landlordData.planExp===""){
+        res.status(400).send({status:"failure",message:"Sorry! No Active Plan."});
+        return;
+    }else
+    if(Date.parse(landlordData.planExp) < Date.now()){
+        if(landlordData.plan!=="No Plan"){
+             updateDoc(landlordDataRef,{plan:"No Plan",rcrCount:0,billCount:0,billCountRenewOn:""});
+        }
+    
+    res.status(400).send({status:"failure",message:"Your paln has been expired."});
+        return;
+    }
+
     // GET ALL IDs
     const querySnapshot = await getDocs(collection(db, "rentholder"));
 

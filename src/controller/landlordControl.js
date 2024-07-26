@@ -79,12 +79,22 @@ async function createUserData(req, res) {
             generateId();
 
         } else {
+
+            let date= new Date();
+            let year = date.getFullYear();
+            let month =(date.getMonth()+2).toString().padStart(2,'0');
+            // let day = date.getDate().toString().padStart(2,'0');
+             
+
             data.id = rid;
             data.userType = "landlord";
             data.photo='';
             data.signature='';
             data.plan = 'Free';
-            data.rcrCount=3;
+            data.planExp = '2024-10-02';
+            data.billCount = 10;
+            data.billCountRenewOn = `${year}-${month}-01`;
+            data.rcrCount= 5;
 
             let dataRef = doc(db, "landlord", rid);
 
