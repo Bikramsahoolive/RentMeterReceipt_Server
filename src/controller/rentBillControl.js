@@ -136,6 +136,7 @@ async function getSingleRentBill(req,res){
             }
             let paidAmount = data.paid_amt;
             let toBePaid = billData.final_amt - billData.paid_amt;
+            let remainingAmount = toBePaid - data.paid_amt;
             if(billData.final_amt == billData.paid_amt){
                 res.status(400).send({status:"failure",message:"Bill already paid."});
                 return;
@@ -159,9 +160,13 @@ async function getSingleRentBill(req,res){
 We are pleased to inform you that your rent bill payment has been successfully processed.
 
 - **Bill ID**:   ${billId};
+- **Bill Amount**:   ₹${billData.final_amt}/-
+
 - **Payment Date**:   ${data.payment_date}
-- **Paid Amount**:   ₹${data.paid_amt}/-
+- **Paid Amount**:   ₹${paidAmount}/-
 - **Payment Method**:   ${data.payment_method}
+
+- **Remaining Amount**:   ₹${remainingAmount}/-
 
 You can view and track all your payment details by logging into your account at https://rnmr.vercel.app.
 
