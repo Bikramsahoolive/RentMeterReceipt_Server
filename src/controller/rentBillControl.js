@@ -18,14 +18,14 @@ const sendMail=require('./mailSender');
     let landlordData =docSnap1.data();
     
     if(landlordData.planExp===""){
-        res.status(400).send({status:false,message:"your paln has expired."});
+        res.status(400).send({status:false,message:"Sorry! No Active Plan"});
         return;
     }else
     if(Date.parse(landlordData.planExp) < Date.now()){
         if(landlordData.plan!=="No Plan"){
          updateDoc(landlordDataRef,{plan:"No Plan",rcrCount:0,billCount:0,billCountRenewOn:""});
         }
-    res.status(400).send({status:false,message:"Sorry! No Active Plan."});
+    res.status(400).send({status:false,message:"your paln has expired"});
         return;
     }else{
         if(landlordData.billCount<=0){

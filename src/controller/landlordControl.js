@@ -91,7 +91,7 @@ async function createUserData(req, res) {
             data.photo='';
             data.signature='';
             data.plan = 'Free';
-            data.planExp = '2024-10-02';
+            data.planExp = '2025-01-01';
             data.billCount = 10;
             data.billCountRenewOn = `${year}-${month}-01`;
             data.rcrCount= 5;
