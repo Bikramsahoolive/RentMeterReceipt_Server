@@ -11,7 +11,7 @@ rentHolderRouter.route('/')
 
 rentHolderRouter.route('/user/:id')
 .get(checkSession,checkRentHolderUser,getSingleUser)
-.put(checkSession,checkLandlordUser,updateUserData)
+.put(checkSession,checkRentHolderUser,updateUserData)
 .delete(checkSession,checkLandlordUser,deleteUserData);
 
 rentHolderRouter.route('/login')
