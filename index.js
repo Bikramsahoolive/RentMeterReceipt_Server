@@ -82,13 +82,14 @@ const razorpay = new Razorpay({
   key_secret:process.env.key_secret
 });
 
-app.post('/create-order',async(req,res)=>{
-  const {amount,currency,receipt}=req.body;
+app.post('/create-order',checkSession,async(req,res)=>{
+  const {amount,currency,billid}=req.body;
+  const finalAmt = amount + Math.round(amount*(3/100));
   try {
     const order = await razorpay.orders.create({
-      amount:amount * 100,
+      amount:finalAmt * 100,
       currency:currency,
-      receipt:receipt
+      notes:{billId:billid,billAmt:amount}
     });
     res.json(order);
   } catch (error) {

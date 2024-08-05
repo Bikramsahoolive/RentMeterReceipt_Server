@@ -5,6 +5,13 @@ const rentBillCalc = require('../calculation/rentBillCalc');
 const jwt = require('jsonwebtoken');
 const sendMail=require('./mailSender');
 
+const Razorpay = require('razorpay');
+
+
+const razorpay = new Razorpay({
+    key_id:process.env.key_id,
+    key_secret:process.env.key_secret
+  });
 
 
  async function createRentBill (req,res){
@@ -60,7 +67,8 @@ const sendMail=require('./mailSender');
     
     data.paid_amt=0;
     data.payment_date="pending";
-    data.payment_method="NA"
+    data.payment_method="NA";
+    data.transaction_id = "NA";
 
     data.id = JSON.stringify(Date.now());
 
@@ -80,7 +88,7 @@ let rentholderData =docSnap.data();
                         subject:'New Rent Bill is Generated -RentⓝMeter.Receipt',
                         content:`Hi ${rentholderData.name}!
 
-We are pleased to inform you that your rent bill has been successfully created.
+This is to inform you that your rent bill has been successfully created.
 
 - **Bill Date**:  ${calcVal.billingDate}
 - **Bill ID**:  ${calcVal.id}
@@ -241,7 +249,7 @@ async function updateRentHolderPaymentData(id,paidAmt){
         try {
             const dataRef = doc(db, "rentholder",id);
             updateDoc(dataRef, data);
-            return {status:true,name:userData.name,email:userData.email};
+            return {status:true,name:userData.name,email:userData.email,landlordId:userData.landlord_id};
         } catch (err) {
             return {status:false};
         }
@@ -249,32 +257,82 @@ async function updateRentHolderPaymentData(id,paidAmt){
     }
 }
 
+async function updateCapturedPaymentData(req,res){
+    const {paymentId,paymentDate}=req.body;
+    try {
+        const paymentDetails = await razorpay.payments.fetch(paymentId);
+          if(paymentDetails.status==="captured"){
+            const docSnap = await getDoc(doc(db, "rentbill",paymentDetails.notes.billId));
+            let billdata ;
+            if (docSnap.exists()) {
+                billdata = docSnap.data();
+            }
+            let capAmount =(+paymentDetails.notes.billAmt) + (+billdata.paid_amt);
+            let rentholderPaymentState = await updateRentHolderPaymentData(billdata.rentholder_id,paymentDetails.notes.billAmt);
+            const dataRef = doc(db, "rentbill", paymentDetails.notes.billId);
+                  updateDoc(dataRef, {paid_amt:capAmount,payment_date:paymentDate,payment_method:paymentDetails.method,transaction_id:paymentDetails.id});
+            res.send({message:"payment successful",status:"success"});
 
+            let emailDataRentholder = {
+                email:rentholderPaymentState.email,
+                subject:"Rent Bill Payment Confirmation.",
+                content:`Dear ${billdata.consumer_Name},
 
+We are pleased to inform you that your rent bill payment has been successfully processed.
 
-async function addFineRentBill (req,res){
-    let data = req.body;
+- **Bill ID**:   ${billdata.id};
+- **Bill Amount**:   ₹${billdata.final_amt}/-
 
-    const docSnap = await getDoc(doc(db, "rentbill", req.params.id));
+- **Payment Date**:   ${paymentDate}
+- **Paid Amount**:   ₹${paymentDetails.notes.billAmt}/-
+- **Payment Method**:   ${paymentDetails.method}
 
-    if (docSnap.exists()) {
-        let billData = docSnap.data()
-        data.final_amt = (+billData.final_amt) + (+data.fine_amt);
+- **Remaining Amount**:   ₹${(+billdata.final_amt)-(+capAmount)}/-
 
-        try {
-            const dataRef = doc(db, "rentbill", req.params.id);
-            updateDoc(dataRef, data);
-            res.send({status:true,message:`Fine Added Successfully.`});
-        } catch (err) {
-            res.status(400).send({error:err});
-        }
+You can view and track all your payment details by logging into your account at https://rnmr.vercel.app.
 
-    } else {
-        res.status(400).send({status:false,message:"document not found."});
+Thank you for your payment.
+
+Best regards,
+
+Team RentⓝMeter.Receipt`
+            };
+
+            sendMail(null,emailDataRentholder);
+            
+          }else{
+            res.status(402).send({message:"payment failed",status:"failre"});
+          }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(error);
     }
-
-
 }
+
+
+// async function addFineRentBill (req,res){
+//     let data = req.body;
+
+//     const docSnap = await getDoc(doc(db, "rentbill", req.params.id));
+
+//     if (docSnap.exists()) {
+//         let billData = docSnap.data()
+//         data.final_amt = (+billData.final_amt) + (+data.fine_amt);
+
+//         try {
+//             const dataRef = doc(db, "rentbill", req.params.id);
+//             updateDoc(dataRef, data);
+//             res.send({status:true,message:`Fine Added Successfully.`});
+//         } catch (err) {
+//             res.status(400).send({error:err});
+//         }
+
+//     } else {
+//         res.status(400).send({status:false,message:"document not found."});
+//     }
+
+
+// }
 
 function deleteRentBill(req,res){
     deleteDoc(doc(db, "rentbill", req.params.id))
@@ -289,6 +347,7 @@ module.exports ={
     getRentholderRentBill,
     getSingleRentBill,
     updateRentBillPayment,
+    updateCapturedPaymentData,
     deleteRentBill,
-    addFineRentBill
+    // addFineRentBill
 }
