@@ -21,7 +21,7 @@ rentBillRouter.route('/bill/:id')
 // .post(checkSession,checkLandlordUser,rentBillUpdateValidation,addFineRentBill)
 .delete(checkSession,checkLandlordUser,deleteRentBill);
 
-rentBillRouter.route('/capture-payment',)
+rentBillRouter.route('/verify-payment')
 .post(checkSession,checkRentHolderUser,updateCapturedPaymentData);
 
 module.exports=rentBillRouter;
