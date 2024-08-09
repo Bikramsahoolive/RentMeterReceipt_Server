@@ -249,7 +249,7 @@ async function updateRentHolderPaymentData(id,paidAmt){
         try {
             const dataRef = doc(db, "rentholder",id);
             updateDoc(dataRef, data);
-            return {status:true,name:userData.name,email:userData.email,landlordId:userData.landlord_id};
+            return {status:true,name:userData.name,email:userData.email,landlord_id:userData.landlord_id};
         } catch (err) {
             return {status:false};
         }
@@ -269,6 +269,13 @@ async function updateCapturedPaymentData(req,res){
             }
             let capAmount =(+paymentDetails.notes.billAmt) + (+billdata.paid_amt);
             let rentholderPaymentState = await updateRentHolderPaymentData(billdata.rentholder_id,paymentDetails.notes.billAmt);
+            const landlordDocSnap = await getDoc(doc(db, "landlord",rentholderPaymentState.landlord_id));
+            const landlordData = landlordDocSnap.data();
+            let payoutVal = (+landlordData.payout) + (+paymentDetails.notes.billAmt);
+            
+            const landlorddataRef = doc(db, "landlord", landlordData.id);
+                  updateDoc(landlorddataRef,{payout:payoutVal});
+
             const dataRef = doc(db, "rentbill", paymentDetails.notes.billId);
                   updateDoc(dataRef, {paid_amt:capAmount,payment_date:paymentDate,payment_method:paymentDetails.method,transaction_id:paymentDetails.id});
             res.send({message:"payment successful",status:"success"});
@@ -298,6 +305,35 @@ Best regards,
 Team RentⓝMeter.Receipt`
             };
 
+            let emailDataLandlord = {
+                email:landlordData.email,
+                subject:"Online Rent Bill Payment Confirmation.",
+                content:`Dear ${landlordData.name},
+
+We are pleased to inform you that, ${billdata.consumer_Name} was paid a  rent bill online and  payment has been successfully processed.
+
+- **Bill ID**:   ${billdata.id};
+- **Bill Amount**:   ₹${billdata.final_amt}/-
+
+- **Payment Date**:   ${paymentDate}
+- **Paid Amount**:   ₹${paymentDetails.notes.billAmt}/-
+- **Payment Method**:   ${paymentDetails.method}
+
+- **Remaining Amount**:   ₹${(+billdata.final_amt)-(+capAmount)}/-
+
+- **Total Payout Amount**:   ₹${payoutVal}/-
+
+You can view and track all your payment details by logging into your account at https://rnmr.vercel.app.
+
+Thank you for your payment.
+
+Best regards,
+
+Team RentⓝMeter.Receipt`
+            };
+
+
+            sendMail(null,emailDataLandlord);
             sendMail(null,emailDataRentholder);
             
           }else{

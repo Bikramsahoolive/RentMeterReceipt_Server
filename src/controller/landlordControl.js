@@ -91,7 +91,8 @@ async function createUserData(req, res) {
             data.photo='';
             data.signature='';
             data.plan = 'Free';
-            data.planExp = '2025-01-01';
+            data.planExp = '2026-01-01';
+            data.payout = 0;
             data.billCount = 10;
             data.billCountRenewOn = `${year}-${month}-01`;
             data.rcrCount= 5;
@@ -287,6 +288,71 @@ async function loginLandlord(req, res) {
 
 }
 
+async function landlordPayout(req,res){
+    let data = req.body;
+    let payoutData = await checkPayoutAlreadyExist(data.id);
+    if(payoutData){
+        res.status(400).send({message:"Payout already queued.",status:"failure"});
+        return;
+    }
+
+    if(data.payout_amt < 100 || data.payout_amt > 10000){
+        res.status(400).send({status:'failure',message:'Invalid payout amount (Should be ₹100 to ₹10,000).'});
+        return;
+    }
+    let docref = doc(db,"payout",data.id);
+    setDoc(docref,data)
+    res.send({status:"success",message:"Your payout request queued."});
+
+    const adminMailData = {
+        email:process.env.admin_email,
+        subject:'Payout Request pending.',
+        content:`        Hi Admin !
+
+A new payout request pending in queue to settle with
+ 
+
+ Landlord details-:
+
+ ID : ${data.id}
+ Name: ${data.name}
+ Phone : ${data.phone}
+ Email : ${data.email}
+ UPI ID : ${data.upi}
+
+ Payout Amount : ₹ ${data.payout_amt}/-
+ Request Date : ${data.request_date}
+
+ And the same should be settled with in 3 to 5 days.
+ 
+
+Team RentⓝMeter.Receipt`
+    }
+    sendMail(null,adminMailData);
+}
+
+async function checkAlreadyQueuedPayoutRequest(req,res){
+    const id = req.params.id;
+    let payoutData = await checkPayoutAlreadyExist(id);
+    if(payoutData){
+        res.send(payoutData);
+    }else{
+        res.send({message:"Payout data not found.",status:false});
+    }
+}
+
+async function checkPayoutAlreadyExist(id){
+
+    const docSnap = await getDoc(doc(db, "payout",id));
+
+    if (docSnap.exists()) {
+        let payoutData = docSnap.data();
+        
+        return payoutData;
+    } else {
+        return false;
+    }
+}
 
 
 module.exports = {
@@ -296,4 +362,6 @@ module.exports = {
     getSingleUser,
     deleteUserData,
     loginLandlord,
+    landlordPayout,
+    checkAlreadyQueuedPayoutRequest
 }
