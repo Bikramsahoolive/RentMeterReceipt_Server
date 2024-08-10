@@ -267,6 +267,11 @@ async function updateCapturedPaymentData(req,res){
             if (docSnap.exists()) {
                 billdata = docSnap.data();
             }
+            if(billdata.final_amt <= billdata.paid_amt){
+                res.status(400).send({status:'failure',message:"Payment Processing Canceled."});
+                return;
+            }
+
             let capAmount =(+paymentDetails.notes.billAmt) + (+billdata.paid_amt);
             let rentholderPaymentState = await updateRentHolderPaymentData(billdata.rentholder_id,paymentDetails.notes.billAmt);
             const landlordDocSnap = await getDoc(doc(db, "landlord",rentholderPaymentState.landlord_id));
@@ -278,7 +283,7 @@ async function updateCapturedPaymentData(req,res){
 
             const dataRef = doc(db, "rentbill", paymentDetails.notes.billId);
                   updateDoc(dataRef, {paid_amt:capAmount,payment_date:paymentDate,payment_method:paymentDetails.method,transaction_id:paymentDetails.id});
-            res.send({message:"payment successful",status:"success"});
+            res.send({message:"payment successful",status:"success",billId:paymentDetails.notes.billId});
 
             let emailDataRentholder = {
                 email:rentholderPaymentState.email,
@@ -307,7 +312,7 @@ Team RentⓝMeter.Receipt`
 
             let emailDataLandlord = {
                 email:landlordData.email,
-                subject:"Online Rent Bill Payment Confirmation.",
+                subject:" Online Rentholder Bill Payment Confirmation.",
                 content:`Dear ${landlordData.name},
 
 We are pleased to inform you that, ${billdata.consumer_Name} was paid a  rent bill online and  payment has been successfully processed.
@@ -337,7 +342,7 @@ Team RentⓝMeter.Receipt`
             sendMail(null,emailDataRentholder);
             
           }else{
-            res.status(402).send({message:"payment failed",status:"failre"});
+            res.status(402).send({message:"Payment Processing Failed",status:"failure"});
           }
     } catch (error) {
       console.log(error);
