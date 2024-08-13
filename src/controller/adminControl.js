@@ -111,4 +111,14 @@ async function adminUpdate(req, res) {
     }
 }
 
-module.exports = { adminCreate, adminLogin, adminUpdate, resetAdmin };
+async function getAllPayoutData(req,res){
+    const querySnapshot = await getDocs(collection(db, "payout"));
+    const details = [];
+    querySnapshot.forEach((doc) => {
+        
+        details.push(doc.data());
+    });
+    res.send(details);
+}
+
+module.exports = { adminCreate, adminLogin, adminUpdate, resetAdmin, getAllPayoutData };

@@ -7,7 +7,7 @@ const checkSession = (req, res, next) => {
             let data = jwt.verify(req.cookies.sid, secretKey);
 
         if (Date.now() > data.expairTime) {
-            res.cookie('sid',"",{expires: new Date(0)});
+            // res.cookie('sid',"",{expires: new Date(0)});
             res.send({
                 isActive: false,
                 message: "session expired."
