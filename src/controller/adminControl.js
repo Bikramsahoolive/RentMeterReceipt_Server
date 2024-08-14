@@ -121,4 +121,48 @@ async function getAllPayoutData(req,res){
     res.send(details);
 }
 
-module.exports = { adminCreate, adminLogin, adminUpdate, resetAdmin, getAllPayoutData };
+async function processPayout(req,res){
+
+    let data = req.body;
+
+    //minus landlord payout amount.
+
+    try {
+        const dataRef = doc(db, "landlord",data.id);
+
+    const docSnap = await getDoc(dataRef);
+    let user;
+    if (docSnap.exists()) {
+         user = docSnap.data();
+         
+    } else {
+        res.status(400).send({status:"failure",message:"landlord data not found"});
+        return;
+    }
+
+    const newPayoutAmount = (+user.payout) - (+data.payout_amt);
+
+        updateDoc(dataRef, {payout:newPayoutAmount});
+
+    //set  complete Payout document.
+
+    let tid = String(Date.now());
+    const payoutRef = doc(db, "post_payout",tid);
+
+    setDoc(payoutRef,data);
+    //delete payout document.
+
+    deleteDoc(doc(db, "payout",data.id));
+
+    res.status(200).send({status:'success'});
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+    
+
+    
+    
+}
+
+module.exports = { adminCreate, adminLogin, adminUpdate, resetAdmin, getAllPayoutData, processPayout };
