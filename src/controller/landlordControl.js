@@ -306,10 +306,10 @@ async function landlordPayout(req,res){
 
     const adminMailData = {
         email:process.env.admin_email,
-        subject:'Payout Request pending.',
-        content:`        Hi Admin !
+        subject:'Payout Request',
+        content:`Hi Admin !
 
-A new payout request pending in queue to settle with
+A new payout request pending in queue to process with
  
 
  Landlord details-:
@@ -319,13 +319,17 @@ A new payout request pending in queue to settle with
  Phone : ${data.phone}
  Email : ${data.email}
  UPI ID : ${data.upi}
+ A/c no : ${data.account_no}
+ IFSC : ${data.ifsc}
+
+ Payout Details-:
 
  Payout Amount : ₹ ${data.payout_amt}/-
  Request Date : ${data.request_date}
+ Method : ${data.request_method}
 
- And the same should be settled with in 3 to 5 days.
+ And the same should be processed with in 3 to 5 working days.
  
-
 Team RentⓝMeter.Receipt`
     }
     sendMail(null,adminMailData);
@@ -354,6 +358,24 @@ async function checkPayoutAlreadyExist(id){
     }
 }
 
+async function getProcessedPayoutOfLandlord(req,res){
+    const user = jwt.verify(req.cookies.sid, process.env.sess_secret);
+    try {
+        const q = query(collection(db, "post_payout"), where("id", "==",(user.id)));
+        const querySnapshot = await getDocs(q);
+        let data=[];
+        querySnapshot.forEach((doc) => {
+            data.push( doc.data());
+        });
+        res.send(data)
+    } catch (error) {
+
+        console.log(error);
+        res.status(500).send(error);
+        
+    }
+}
+
 
 module.exports = {
     createUserData,
@@ -363,5 +385,6 @@ module.exports = {
     deleteUserData,
     loginLandlord,
     landlordPayout,
-    checkAlreadyQueuedPayoutRequest
+    checkAlreadyQueuedPayoutRequest,
+    getProcessedPayoutOfLandlord
 }

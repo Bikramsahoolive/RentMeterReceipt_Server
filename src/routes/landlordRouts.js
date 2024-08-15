@@ -1,6 +1,7 @@
 const express = require('express');
 // const app = express();
-const {createUserData,getAllUsers,getSingleUser,updateUserData,deleteUserData,loginLandlord,landlordPayout,checkAlreadyQueuedPayoutRequest} = require('../controller/landlordControl');
+const {createUserData,getAllUsers,getSingleUser,updateUserData,deleteUserData,
+    loginLandlord,landlordPayout,checkAlreadyQueuedPayoutRequest,getProcessedPayoutOfLandlord} = require('../controller/landlordControl');
 const{checkLandlordCreateData,checkLandlordUpdateData,validateLogin} = require('../middlewares/validateUser');
 const{checkSession,checkAdminUser,checkLandlordUser,checkRentHolderUser} = require('../middlewares/session');
 const landlordRouter = express.Router();
@@ -23,6 +24,9 @@ landlordRouter.route('/login')
 
 landlordRouter.route('/payout')
 .post(checkSession,checkLandlordUser,landlordPayout);
+
+landlordRouter.route('/payout')
+.get(checkSession,checkLandlordUser,getProcessedPayoutOfLandlord);
 
 landlordRouter.route('/check-payout/:id')
 .get(checkSession,checkLandlordUser,checkAlreadyQueuedPayoutRequest);
