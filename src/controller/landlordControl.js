@@ -519,7 +519,7 @@ async function loginWithPasskey(req,res){
 
         const validateUser =await verifyAuthenticationResponse({
             response:publicKey,
-            expectedOrigin:'https://rnme.vercel.app',
+            expectedOrigin:'https://rnmr.vercel.app',
             expectedChallenge:user.passkey_challlenge,
             expectedRPID:"rnmr.vercel.app",
             authenticator: passkeyInfo
