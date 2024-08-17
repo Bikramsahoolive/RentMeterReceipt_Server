@@ -1,7 +1,7 @@
 const express = require('express');
 // const app = express();
 const {createUserData,getAllUsers,getSingleUser,updateUserData,deleteUserData,
-    loginLandlord,landlordPayout,checkAlreadyQueuedPayoutRequest,getProcessedPayoutOfLandlord} = require('../controller/landlordControl');
+    loginLandlord,landlordPayout,checkAlreadyQueuedPayoutRequest,getProcessedPayoutOfLandlord,registerChallenge,verifyChallenge,authOptions,loginWithPasskey} = require('../controller/landlordControl');
 const{checkLandlordCreateData,checkLandlordUpdateData,validateLogin} = require('../middlewares/validateUser');
 const{checkSession,checkAdminUser,checkLandlordUser,checkRentHolderUser} = require('../middlewares/session');
 const landlordRouter = express.Router();
@@ -27,6 +27,18 @@ landlordRouter.route('/payout')
 
 landlordRouter.route('/payout')
 .get(checkSession,checkLandlordUser,getProcessedPayoutOfLandlord);
+
+landlordRouter.route('/reg-challenge')
+.get(checkSession,checkLandlordUser,registerChallenge);
+
+landlordRouter.route('/verify-challenge')
+.post(checkSession,checkLandlordUser,verifyChallenge);
+
+landlordRouter.route('/auth-options/:id')
+.get(authOptions);
+
+landlordRouter.route('/login-passkey')
+.post(loginWithPasskey);
 
 landlordRouter.route('/check-payout/:id')
 .get(checkSession,checkLandlordUser,checkAlreadyQueuedPayoutRequest);

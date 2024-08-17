@@ -2,9 +2,11 @@ require('dotenv').config();
 const firebase = require('../model/firebase');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const {generateRegistrationOptions,verifyRegistrationResponse,generateAuthenticationOptions,verifyAuthenticationResponse} = require('@simplewebauthn/server');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } = require('firebase/firestore');
 const db = getFirestore();
 const sendMail=require('./mailSender');
+const { json } = require('express');
 
 
 
@@ -376,6 +378,182 @@ async function getProcessedPayoutOfLandlord(req,res){
     }
 }
 
+async function registerChallenge(req,res){
+    try {
+        let user = jwt.verify(req.cookies.sid,process.env.sess_secret);
+
+        const docSnap = await getDoc(doc(db, "landlord",user.id));
+
+    if (docSnap.exists()) {
+         user = docSnap.data();
+        if (user.passkey_info ){
+            return res.status(400).send({status:false,message:'passkey already registered.'});
+        }
+
+    } 
+
+  
+        const chanllengePayload = await generateRegistrationOptions({
+          rpID:'rnmr.vercel.app',
+          rpName:'RNMR',
+          userName:user.phone,
+          userDisplayName:user.name
+        });
+
+        const dataRef = doc(db, "landlord",user.id);
+        updateDoc(dataRef, {passkey_challlenge:chanllengePayload.challenge});
+        
+        
+        res.json({challenge:chanllengePayload});
+
+      } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+        
+      }
+}
+
+async function verifyChallenge(req,res){
+    const {publicKey} = req.body;
+
+    try {
+
+        let user = jwt.verify(req.cookies.sid,process.env.sess_secret);
+
+        const docSnap = await getDoc(doc(db, "landlord",user.id));
+
+    if (docSnap.exists()) {
+         user = docSnap.data();
+        
+    }
+const challenge = user.passkey_challlenge;
+
+    const verifyChallengeData = await verifyRegistrationResponse({
+        expectedChallenge:challenge,
+        expectedOrigin:'https://rnmr.vercel.app',
+        expectedRPID:'',
+        response:publicKey
+    });
+
+    if(!verifyChallengeData.verified){
+       return res.status(400).json({status:'failure',message:'Auth Data verification failed.'});
+    }
+
+        const passkyData= {
+            credentialID:verifyChallengeData.registrationInfo.credentialID,
+            credentialPublicKey:btoa(String.fromCharCode.apply(null,verifyChallengeData.registrationInfo.credentialPublicKey)),
+            counter:verifyChallengeData.registrationInfo.counter
+        }
+        
+        const dataRef = doc(db, "landlord",user.id);
+        updateDoc(dataRef, {passkey_info:passkyData,passkey_challlenge:''});
+        res.send({status:'success',message:'passkey registered successfully.',name:user.name,id:user.id,userType:user.userType});
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+        
+    }
+
+}
+
+async function authOptions(req,res){
+    const userId = req.params.id;
+
+    try {
+        // const docSnap = await getDoc(doc(db, "landlord",userId));
+        // let user ={};
+        // if (docSnap.exists()) {
+        //      user = docSnap.data();
+        //     if (!user.device_info || user.device_info == ""){
+        //         return res.status(400).send({status:false,message:'Passkey not registered.'});
+        //     }
+        // } 
+        // let passkeyInfo ;
+        // passkeyInfo= (JSON.parse(user.device_info));
+        // console.log(passkeyInfo);
+        
+    const option =await generateAuthenticationOptions({
+        rpID:"rnmr.vercel.app",
+    });
+
+
+    const dataRef = doc(db, "landlord",userId);
+    updateDoc(dataRef, {passkey_challlenge:option.challenge});
+
+    res.send({option:option});
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+
+    
+}
+
+async function loginWithPasskey(req,res){
+
+    const{userId,publicKey} = req.body;
+
+    try {
+
+        const docSnap = await getDoc(doc(db, "landlord",userId));
+        let user ={};
+        if (docSnap.exists()) {
+             user = docSnap.data();
+            if (!user.passkey_info || user.passkey_info == ""){
+                res.status(400).send({status:false,message:'Passkey not registered.'});
+                return;
+            }
+        } 
+
+        const passkeyInfo = user.passkey_info;  
+        
+        const binaryString = atob(passkeyInfo.credentialPublicKey);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        passkeyInfo.credentialPublicKey = bytes;
+
+        const validateUser =await verifyAuthenticationResponse({
+            response:publicKey,
+            expectedOrigin:'https://rnme.vercel.app',
+            expectedChallenge:user.passkey_challlenge,
+            expectedRPID:"rnmr.vercel.app",
+            authenticator: passkeyInfo
+        });
+    
+        if(!validateUser.verified){
+            res.status(400).send({status:"failure",message:"User Validation failed."});
+            return;
+        }
+
+        let tokenData = {id:user.id,phone:user.phone,email:user.email,userType:user.userType,name:user.name};
+        tokenData.isActive = true;
+        tokenData.expairTime = Date.now() + 1200000;
+        let responce = {
+            id:user.id,
+            name:user.name,
+            email:user.email,
+            phone:user.phone,
+            isActive:true
+        }
+        const secretKey = process.env.sess_secret;
+        const token = jwt.sign(tokenData,secretKey);
+        
+        res.cookie('sid',token,{sameSite:'None',secure:true});
+
+        res.send(responce);
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+
+}
+
 
 module.exports = {
     createUserData,
@@ -386,5 +564,9 @@ module.exports = {
     loginLandlord,
     landlordPayout,
     checkAlreadyQueuedPayoutRequest,
-    getProcessedPayoutOfLandlord
+    getProcessedPayoutOfLandlord,
+    registerChallenge,
+    verifyChallenge,
+    authOptions,
+    loginWithPasskey
 }

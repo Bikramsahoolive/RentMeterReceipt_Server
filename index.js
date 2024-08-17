@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const crypto = require('node:crypto');
 // const {createServer} = require('http');
 //dev module
 
@@ -23,7 +24,9 @@ const{checkRouter, landlordLogout} = require('./src/controller/authControl');
 const{checkSession}= require('./src/middlewares/session')
 const clientMailRouter = require('./src/routes/clientMailRouts');
 
-
+if(!globalThis.crypto){
+  globalThis.crypto = crypto;
+}
 
 const app = express();
 
