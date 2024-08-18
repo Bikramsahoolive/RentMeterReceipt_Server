@@ -395,7 +395,7 @@ async function registerChallenge(req,res){
   
         const chanllengePayload = await generateRegistrationOptions({
           rpID:'rnmr.vercel.app',
-          rpName:'RNMR',
+          rpName:'RentⓝMeter.Receipt',
           userName:user.phone,
           userDisplayName:user.name
         });
@@ -554,6 +554,19 @@ async function loginWithPasskey(req,res){
 
 }
 
+function unregdPasskey(req,res){
+    const id = req.params.id;
+    try {
+        const docref = doc(db,'landlord',id);
+    updateDoc(docref,{passkey_info:""});
+    res.send({status:'success',message:'Passkey unregistered successfully.'});
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);  
+    }
+}
+
 
 module.exports = {
     createUserData,
@@ -568,5 +581,6 @@ module.exports = {
     registerChallenge,
     verifyChallenge,
     authOptions,
-    loginWithPasskey
+    loginWithPasskey,
+    unregdPasskey
 }

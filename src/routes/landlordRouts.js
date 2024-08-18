@@ -1,7 +1,7 @@
 const express = require('express');
 // const app = express();
 const {createUserData,getAllUsers,getSingleUser,updateUserData,deleteUserData,
-    loginLandlord,landlordPayout,checkAlreadyQueuedPayoutRequest,getProcessedPayoutOfLandlord,registerChallenge,verifyChallenge,authOptions,loginWithPasskey} = require('../controller/landlordControl');
+    loginLandlord,landlordPayout,checkAlreadyQueuedPayoutRequest,getProcessedPayoutOfLandlord,registerChallenge,verifyChallenge,authOptions,loginWithPasskey,unregdPasskey} = require('../controller/landlordControl');
 const{checkLandlordCreateData,checkLandlordUpdateData,validateLogin} = require('../middlewares/validateUser');
 const{checkSession,checkAdminUser,checkLandlordUser,checkRentHolderUser} = require('../middlewares/session');
 const landlordRouter = express.Router();
@@ -39,6 +39,9 @@ landlordRouter.route('/auth-options/:id')
 
 landlordRouter.route('/login-passkey')
 .post(loginWithPasskey);
+
+landlordRouter.route('/unregd-passkey/:id')
+.delete(checkSession,checkLandlordUser,unregdPasskey);
 
 landlordRouter.route('/check-payout/:id')
 .get(checkSession,checkLandlordUser,checkAlreadyQueuedPayoutRequest);
