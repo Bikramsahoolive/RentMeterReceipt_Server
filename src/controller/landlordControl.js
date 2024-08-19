@@ -378,6 +378,15 @@ async function getProcessedPayoutOfLandlord(req,res){
     }
 }
 
+
+
+
+
+
+const rpid = "rnmr.vercel.app";  //"localhost"; 
+const origin =  "https://rnmr.vercel.app";  //"http://localhost:4200";
+const rpname = "RentⓝMeter.Receipt";
+
 async function registerChallenge(req,res){
     try {
         let user = jwt.verify(req.cookies.sid,process.env.sess_secret);
@@ -394,10 +403,16 @@ async function registerChallenge(req,res){
 
   
         const chanllengePayload = await generateRegistrationOptions({
-          rpID:'rnmr.vercel.app',
-          rpName:'RentⓝMeter.Receipt',
-          userName:user.phone,
-          userDisplayName:user.name
+          rpID:rpid,
+          rpName:rpname,
+          userName:user.name,
+          userDisplayName:user.name,
+          attestationType:'none',
+          authenticatorSelection: {
+            residentKey: 'preferred',
+            userVerification:'preferred',
+            // authenticatorAttachment:'platform'
+          }
         });
 
         const dataRef = doc(db, "landlord",user.id);
@@ -430,24 +445,27 @@ const challenge = user.passkey_challlenge;
 
     const verifyChallengeData = await verifyRegistrationResponse({
         expectedChallenge:challenge,
-        expectedOrigin:'https://rnmr.vercel.app',
-        expectedRPID:'',
+        expectedOrigin:origin,
+        expectedRPID:rpid,
         response:publicKey
     });
 
     if(!verifyChallengeData.verified){
        return res.status(400).json({status:'failure',message:'Auth Data verification failed.'});
     }
-
+        
+        
         const passkyData= {
             credentialID:verifyChallengeData.registrationInfo.credentialID,
             credentialPublicKey:btoa(String.fromCharCode.apply(null,verifyChallengeData.registrationInfo.credentialPublicKey)),
-            counter:verifyChallengeData.registrationInfo.counter
-        }
-        
+            counter:verifyChallengeData.registrationInfo.counter,
+            deviceType:verifyChallengeData.registrationInfo.credentialDeviceType,
+            backedUp:verifyChallengeData.registrationInfo.credentialBackedUp,
+            transports:publicKey.response.transports
+        };
         const dataRef = doc(db, "landlord",user.id);
         updateDoc(dataRef, {passkey_info:passkyData,passkey_challlenge:''});
-        res.send({status:'success',message:'passkey registered successfully.',name:user.name,id:user.id,userType:user.userType});
+        res.send({status:'success',message:'passkey registered successfully.',name:user.name,id:user.id,userType:user.userType,phone:user.phone});
         
     } catch (error) {
         console.log(error);
@@ -461,20 +479,23 @@ async function authOptions(req,res){
     const userId = req.params.id;
 
     try {
-        // const docSnap = await getDoc(doc(db, "landlord",userId));
-        // let user ={};
-        // if (docSnap.exists()) {
-        //      user = docSnap.data();
-        //     if (!user.device_info || user.device_info == ""){
-        //         return res.status(400).send({status:false,message:'Passkey not registered.'});
-        //     }
-        // } 
-        // let passkeyInfo ;
-        // passkeyInfo= (JSON.parse(user.device_info));
-        // console.log(passkeyInfo);
+        const docSnap = await getDoc(doc(db, "landlord",userId));
+        let user ={};
+        if (docSnap.exists()) {
+             user = docSnap.data();
+            if (!user.passkey_info || user.passkey_info == ""){
+                return res.status(400).send({status:false,message:'Passkey not registered.'});
+            }
+        } 
+        let passkeyInfo = [];
+        passkeyInfo.push(user.passkey_info);
         
     const option =await generateAuthenticationOptions({
-        rpID:"rnmr.vercel.app",
+        rpID:rpid,
+        allowCredentials: passkeyInfo.map(passkey=>({
+            id:passkey.credentialID,
+            transports:passkey.transports
+        }))
     });
 
 
@@ -519,9 +540,9 @@ async function loginWithPasskey(req,res){
 
         const validateUser =await verifyAuthenticationResponse({
             response:publicKey,
-            expectedOrigin:'https://rnmr.vercel.app',
+            expectedOrigin:origin,
             expectedChallenge:user.passkey_challlenge,
-            expectedRPID:"rnmr.vercel.app",
+            expectedRPID:rpid,
             authenticator: passkeyInfo
         });
     
