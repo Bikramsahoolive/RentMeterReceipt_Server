@@ -484,7 +484,7 @@ async function authOptions(req,res){
         if (docSnap.exists()) {
              user = docSnap.data();
             if (!user.passkey_info || user.passkey_info == ""){
-                return res.status(400).send({status:false,message:'Passkey not registered.'});
+                return res.send({status:'failure',message:'Passkey not found, Please Re-register.'});
             }
         } 
         let passkeyInfo = [];
