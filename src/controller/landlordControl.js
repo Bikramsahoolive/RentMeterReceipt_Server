@@ -381,10 +381,12 @@ async function getProcessedPayoutOfLandlord(req,res){
 
 
 
+// const rpid = "localhost"; 
+// const origin ="http://localhost:4200";
 
+const rpid = "rnmr.vercel.app";
+const origin = "https://rnmr.vercel.app";
 
-const rpid = "rnmr.vercel.app";  //"localhost"; 
-const origin =  "https://rnmr.vercel.app";  //"http://localhost:4200";
 const rpname = "RentⓝMeter.Receipt";
 
 async function registerChallenge(req,res){
@@ -580,7 +582,7 @@ function unregdPasskey(req,res){
     try {
         const docref = doc(db,'landlord',id);
     updateDoc(docref,{passkey_info:""});
-    res.send({status:'success',message:'Passkey unregistered successfully.'});
+    res.send({status:'success',message:'Passkey De-registered'});
         
     } catch (error) {
         console.log(error);
