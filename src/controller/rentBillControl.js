@@ -3,7 +3,7 @@ const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, get
 const db = getFirestore();
 const rentBillCalc = require('../calculation/rentBillCalc');
 const jwt = require('jsonwebtoken');
-const sendMail=require('./mailSender');
+const mailer=require('./mailSender');
 
 const Razorpay = require('razorpay');
 
@@ -85,23 +85,35 @@ let rentholderData =docSnap.data();
 
                     const billMailData ={
                         email:rentholderData.email,
-                        subject:'New Rent Bill is Generated -RentⓝMeter.Receipt',
-                        content:`Hi ${rentholderData.name}!
+                        subject:'New Rent Bill is Created -RentⓝMeter.Receipt',
+                        content:`<div style="font-family: Arial, sans-serif; color: #333; margin: 0; padding: 20px; background-color: #f4f4f4;">
+    <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); border: 1px solid #eaeaea;">
+        <div style="text-align: center; background-color: #4CAF50; color: white; padding: 10px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 24px;">Rent Bill Created</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p style="font-size: 16px; line-height: 1.5;">Hi ${rentholderData.name}!</p>
+            <p style="font-size: 16px; line-height: 1.5;">We are pleased to inform you that your rent bill has been successfully created. Below are the details:</p>
 
-This is to inform you that your rent bill has been successfully created.
+            <ul style="list-style-type: none; padding: 0;">
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Bill Date:</strong> ${calcVal.billingDate}</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Bill ID:</strong> ${calcVal.id}</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Bill Amount:</strong> ₹${calcVal.final_amt}/-</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Due Date:</strong> ${calcVal.dueDate}</li>
+            </ul>
 
-- **Bill Date**:  ${calcVal.billingDate}
-- **Bill ID**:  ${calcVal.id}
-- **Bill Amount**:  ₹${calcVal.final_amt}/-
-- **Due Date**:  ${calcVal.dueDate}
+            <p style="font-size: 16px; line-height: 1.5;">Please ensure to pay the bill on or before the due date. You can track your bill details by logging into your account:</p>
+            <a href="https://rnmr.vercel.app" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px; font-size: 16px;">View Bill Details</a>
+        </div>
+        <div style="text-align: center; padding: 20px; background-color: #f4f4f4; border-top: 1px solid #eaeaea; border-radius: 0 0 8px 8px;">
+            <p style="font-size: 14px; color: #666;">Thank you,<br><strong>Team RentⓝMeter.Receipt</strong></p>
+            <p style="font-size: 14px; color: #666;">If you have any questions, please don't hesitate to <a href="mailto:support@rnmr.vercel.app" style="color: #4CAF50;">contact us</a>.</p>
+        </div>
+    </div>
+</div>`
+}
+                mailer.sendMail(billMailData);
 
-Please ensure to pay the bill on or before the due date. You can also track your bill details by logging into your account at https://rnmr.vercel.app
-
-Thank you,
-
-Team RentⓝMeter.Receipt`,
-                    }
-                    sendMail(null,billMailData);
                 })
                 .catch((err)=>res.send(err))
 
@@ -204,28 +216,33 @@ async function getSingleRentBill(req,res){
                 let emailData = {
                     email:rentholderPaymentState.email,
                     subject:"Rent Bill Payment Confirmation.",
-                    content:`Dear ${rentholderPaymentState.name},
+                    content:`<div style="font-family: Arial, sans-serif; color: #333; margin: 0; padding: 20px; background-color: #f4f4f4;">
+    <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); border: 1px solid #eaeaea;">
+        <div style="text-align: center; background-color: #4CAF50; color: white; padding: 10px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 24px;">Payment Processed</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p style="font-size: 16px; line-height: 1.5;">Dear ${rentholderPaymentState.name},</p>
+            <p style="font-size: 16px; line-height: 1.5;">We are pleased to inform you that your rent bill payment has been successfully processed. Below are the details:</p>
 
-We are pleased to inform you that your rent bill payment has been successfully processed.
+            <ul style="list-style-type: none; padding: 0;">
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Bill ID:</strong> ${billId}</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Bill Amount:</strong> ₹${billData.final_amt}/-</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Payment Date:</strong> ${data.payment_date}</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Paid Amount:</strong> ₹${paidAmount}/-</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Payment Method:</strong> ${data.payment_method}</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Remaining Amount:</strong> ₹${remainingAmount}/-</li>
+            </ul>
 
-- **Bill ID**:   ${billId};
-- **Bill Amount**:   ₹${billData.final_amt}/-
-
-- **Payment Date**:   ${data.payment_date}
-- **Paid Amount**:   ₹${paidAmount}/-
-- **Payment Method**:   ${data.payment_method}
-
-- **Remaining Amount**:   ₹${remainingAmount}/-
-
-You can view and track all your payment details by logging into your account at https://rnmr.vercel.app.
-
-Thank you for your payment.
-
-Best regards,
-
-Team RentⓝMeter.Receipt`
-                }
-                sendMail(null,emailData)
+            <p style="font-size: 16px; line-height: 1.5;">You can view and track all your payment details by logging into your account at <a href="https://rnmr.vercel.app" style="color: #4CAF50;">RentⓝMeter.Receipt</a>.</p>
+        </div>
+        <div style="text-align: center; padding: 20px; background-color: #f4f4f4; border-top: 1px solid #eaeaea; border-radius: 0 0 8px 8px;">
+            <p style="font-size: 14px; color: #666;">Thank you for your payment.<br><strong>Best regards,</strong><br>Team RentⓝMeter.Receipt</p>
+        </div>
+    </div>
+</div>`
+ }
+                mailer.sendMail(emailData);
             } catch (err) {
                 res.status(400).send({error:err});
             }
@@ -288,58 +305,67 @@ async function updateCapturedPaymentData(req,res){
             let emailDataRentholder = {
                 email:rentholderPaymentState.email,
                 subject:"Rent Bill Payment Confirmation.",
-                content:`Dear ${billdata.consumer_Name},
+                content:`<div style="font-family: Arial, sans-serif; color: #333; margin: 0; padding: 20px; background-color: #f4f4f4;">
+    <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); border: 1px solid #eaeaea;">
+        <div style="text-align: center; background-color: #4CAF50; color: white; padding: 10px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 24px;">Payment Processed</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p style="font-size: 16px; line-height: 1.5;">Dear ${billdata.consumer_Name},</p>
+            <p style="font-size: 16px; line-height: 1.5;">We are pleased to inform you that your rent bill payment has been successfully processed. Below are the details:</p>
 
-We are pleased to inform you that your rent bill payment has been successfully processed.
+            <ul style="list-style-type: none; padding: 0;">
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Bill ID:</strong> ${billdata.id}</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Bill Amount:</strong> ₹${billdata.final_amt}/-</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Payment Date:</strong> ${paymentDate}</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Paid Amount:</strong> ₹${paymentDetails.notes.billAmt}/-</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Payment Method:</strong> ${paymentDetails.method}</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Remaining Amount:</strong> ₹${(+billdata.final_amt) - (+capAmount)}/-</li>
+            </ul>
 
-- **Bill ID**:   ${billdata.id};
-- **Bill Amount**:   ₹${billdata.final_amt}/-
-
-- **Payment Date**:   ${paymentDate}
-- **Paid Amount**:   ₹${paymentDetails.notes.billAmt}/-
-- **Payment Method**:   ${paymentDetails.method}
-
-- **Remaining Amount**:   ₹${(+billdata.final_amt)-(+capAmount)}/-
-
-You can view and track all your payment details by logging into your account at https://rnmr.vercel.app.
-
-Thank you for your payment.
-
-Best regards,
-
-Team RentⓝMeter.Receipt`
+            <p style="font-size: 16px; line-height: 1.5;">You can view and track all your payment details by logging into your account at <a href="https://rnmr.vercel.app" style="color: #4CAF50;">RentⓝMeter.Receipt</a>.</p>
+        </div>
+        <div style="text-align: center; padding: 20px; background-color: #f4f4f4; border-top: 1px solid #eaeaea; border-radius: 0 0 8px 8px;">
+            <p style="font-size: 14px; color: #666;">Thank you for your payment.<br><strong>Best regards,</strong><br>Team RentⓝMeter.Receipt</p>
+        </div>
+    </div>
+</div>`
             };
 
             let emailDataLandlord = {
                 email:landlordData.email,
                 subject:" Online Rentholder Bill Payment Confirmation.",
-                content:`Dear ${landlordData.name},
+                content:`<div style="font-family: Arial, sans-serif; color: #333; margin: 0; padding: 20px; background-color: #f4f4f4;">
+    <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); border: 1px solid #eaeaea;">
+        <div style="text-align: center; background-color: #4CAF50; color: white; padding: 10px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 24px;">Payment Processed</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p style="font-size: 16px; line-height: 1.5;">Dear ${landlordData.name},</p>
+            <p style="font-size: 16px; line-height: 1.5;">We are pleased to inform you that ${billdata.consumer_Name} has paid their rent bill online and the payment has been successfully processed. Below are the details:</p>
 
-We are pleased to inform you that, ${billdata.consumer_Name} was paid a  rent bill online and  payment has been successfully processed.
+            <ul style="list-style-type: none; padding: 0;">
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Bill ID:</strong> ${billdata.id}</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Bill Amount:</strong> ₹${billdata.final_amt}/-</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Payment Date:</strong> ${paymentDate}</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Paid Amount:</strong> ₹${paymentDetails.notes.billAmt}/-</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Payment Method:</strong> ${paymentDetails.method}</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Remaining Amount:</strong> ₹${(+billdata.final_amt) - (+capAmount)}/-</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Total Payout Amount:</strong> ₹${payoutVal}/-</li>
+            </ul>
 
-- **Bill ID**:   ${billdata.id};
-- **Bill Amount**:   ₹${billdata.final_amt}/-
-
-- **Payment Date**:   ${paymentDate}
-- **Paid Amount**:   ₹${paymentDetails.notes.billAmt}/-
-- **Payment Method**:   ${paymentDetails.method}
-
-- **Remaining Amount**:   ₹${(+billdata.final_amt)-(+capAmount)}/-
-
-- **Total Payout Amount**:   ₹${payoutVal}/-
-
-You can view and track all your payment details by logging into your account at https://rnmr.vercel.app.
-
-Thank you for your payment.
-
-Best regards,
-
-Team RentⓝMeter.Receipt`
+            <p style="font-size: 16px; line-height: 1.5;">You can view and track all your payment details by logging into your account at <a href="https://rnmr.vercel.app" style="color: #4CAF50;">RentⓝMeter.Receipt</a>.</p>
+        </div>
+        <div style="text-align: center; padding: 20px; background-color: #f4f4f4; border-top: 1px solid #eaeaea; border-radius: 0 0 8px 8px;">
+            <p style="font-size: 14px; color: #666;">Thank you for your payment.<br><strong>Best regards,</strong><br>Team RentⓝMeter.Receipt</p>
+        </div>
+    </div>
+</div>`
             };
 
 
-            sendMail(null,emailDataLandlord);
-            sendMail(null,emailDataRentholder);
+            mailer.sendMail(emailDataLandlord);
+            mailer.sendMail(emailDataRentholder);
             
           }else{
             res.status(402).send({message:"Payment Processing Failed",status:"failure"});

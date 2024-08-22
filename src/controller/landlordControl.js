@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const {generateRegistrationOptions,verifyRegistrationResponse,generateAuthenticationOptions,verifyAuthenticationResponse} = require('@simplewebauthn/server');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } = require('firebase/firestore');
 const db = getFirestore();
-const sendMail=require('./mailSender');
+const mailer=require('./mailSender');
 const { json } = require('express');
 
 
@@ -89,11 +89,11 @@ async function createUserData(req, res) {
              
 
             data.id = rid;
-            data.userType = "landlord";
+            data.userType = "Landlord";
             data.photo='';
             data.signature='';
             data.plan = 'Free';
-            data.planExp = '2026-01-01';
+            data.planExp = '2030-01-01';
             data.payout = 0;
             data.billCount = 10;
             data.billCountRenewOn = `${year}-${month}-01`;
@@ -104,24 +104,22 @@ async function createUserData(req, res) {
             try {
 
                 setDoc(dataRef, data);
-                res.send({status:'success',message:`Landlord request Approved with
-                     landlord Id ${rid}`});
+                res.send({status:'success',message:`Landlord Profile Created with landlord Id: ${rid}`});
                 let clientApproveMailData={
                     email:data.email,
                     subject:'Welcome to RentⓝMeter.Receipt! Landlord Registration Completed',
-                    content:`        Congratulations!
-
-Your profile has been created with Landlord ID: ${rid} on RentⓝMeter.Receipt. As a landlord, you can now log in using your phone number as your user ID and the password you chose during registration.
-
-We are excited to have you on board! RentⓝMeter.Receipt aims to make rental management effortless and efficient. Manage your properties, track payments, and communicate with tenants all in one place.
-
-Thank you for choosing RentⓝMeter.Receipt. If you have any questions, our support team is here to help.
-
-Best regards,
-
-Team RentⓝMeter.Receipt`
+                    content:` <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; margin: 0; padding: 20px; background-color: #f4f4f4;">
+                    <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #4CAF50; text-align: center;">Congratulations!</h2>
+        <p>Your profile has been created  on <strong>RentⓝMeter.Receipt</strong>.</p>
+        <p>As a landlord, you can now log in using your phone number as your user ID and password.</p>
+        <p>We are excited to have you on board! <strong>RentⓝMeter.Receipt</strong> aims to make rental management effortless and efficient. Manage your properties, track payments, and communicate with tenants all in one place.</p>
+        <p>Thank you for choosing <strong>RentⓝMeter.Receipt</strong>. If you have any questions, our support team is here to help.</p>
+        <p style="text-align: center; margin-top: 40px;">Best regards,<br><strong>Team RentⓝMeter.Receipt</strong></p>
+    </div>
+    </div>`
                 }
-                sendMail(null,clientApproveMailData);
+                mailer.sendMail(clientApproveMailData);
                
             } catch (error) {
                 res.send(error);
@@ -309,32 +307,66 @@ async function landlordPayout(req,res){
     const adminMailData = {
         email:process.env.admin_email,
         subject:'Payout Request',
-        content:`Hi Admin !
+        content:`<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; margin: 0; padding: 20px; background-color: #f4f4f4;">
+    <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #FF5733; text-align: center;">New Payout Request Pending</h2>
+        <p>Hi Admin,</p>
+        <p>A new payout request is pending in the queue for processing. Please find the details below:</p>
 
-A new payout request pending in queue to process with
- 
+        <h3 style="color: #4CAF50;">Landlord Details:</h3>
+        <table style="width: 100%; margin-top: 10px; border-collapse: collapse;">
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>ID:</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.id}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>Name:</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.name}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>Phone:</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.phone}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>Email:</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.email}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>UPI ID:</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.upi}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>Account Number:</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.account_no}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>IFSC:</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.ifsc}</td>
+            </tr>
+        </table>
 
- Landlord details-:
+        <h3 style="color: #4CAF50; margin-top: 20px;">Payout Details:</h3>
+        <table style="width: 100%; margin-top: 10px; border-collapse: collapse;">
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>Payout Amount:</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">₹ ${data.payout_amt}/-</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>Request Date:</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.request_date}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>Method:</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.request_method}</td>
+            </tr>
+        </table>
 
- ID : ${data.id}
- Name: ${data.name}
- Phone : ${data.phone}
- Email : ${data.email}
- UPI ID : ${data.upi}
- A/c no : ${data.account_no}
- IFSC : ${data.ifsc}
-
- Payout Details-:
-
- Payout Amount : ₹ ${data.payout_amt}/-
- Request Date : ${data.request_date}
- Method : ${data.request_method}
-
- And the same should be processed with in 3 to 5 working days.
- 
-Team RentⓝMeter.Receipt`
+        <p style="margin-top: 20px;">Please ensure that this payout is processed within the next 3 to 5 working days.</p>
+        <p style="text-align: center; margin-top: 40px;">Thank you,<br><strong>Team RentⓝMeter.Receipt</strong></p>
+    </div>
+</div>`
     }
-    sendMail(null,adminMailData);
+    mailer.sendMail(adminMailData);
 }
 
 async function checkAlreadyQueuedPayoutRequest(req,res){

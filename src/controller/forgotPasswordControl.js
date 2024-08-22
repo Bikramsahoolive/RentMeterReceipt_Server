@@ -2,7 +2,7 @@ const firebase = require('../model/firebase');
 const bcrypt = require('bcrypt');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } = require('firebase/firestore');
 const db = getFirestore();
-const sendMail=require('./mailSender');
+const mailer=require('./mailSender');
 
 async function forgotPasswordRequest(req,res){
 
@@ -24,26 +24,30 @@ async function forgotPasswordRequest(req,res){
             let otpMail = {
                 email:user.email,
                 subject:"Password Reset OTP RentⓝMeter.Receipt",
-                content:`Dear ${user.name},
-
-You have requested to reset your password for your account with RentⓝMeter.Receipt, Please use the following OTP (One Time Password) to proceed with the password reset process:
-
-OTP: ${otpVal}
-
-This OTP is valid for 10 minutes. If you did not initiate this request, please ignore this email.
-
-Thank you,
-Team
-RentⓝMeter.Receipt`
+                content:`<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; margin: 0; padding: 20px; background-color: #f4f4f4;">
+    <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #4CAF50; text-align: center;">Password Reset Request</h2>
+        <p>Dear ${user.name},</p>
+        <p>You have requested to reset your password for your account with <strong>RentⓝMeter.Receipt</strong>. Please use the following OTP (One-Time Password) to proceed with the password reset process:</p>
+        <p style="font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0; color: #4CAF50;">OTP: ${otpVal}</p>
+        <p>This OTP is valid for 10 minutes. If you did not initiate this request, please ignore this email.</p>
+        <p style="text-align: center; margin-top: 40px;">Thank you,<br><strong>Team RentⓝMeter.Receipt</strong></p>
+    </div>
+</div>`
             }
-            sendMail(null,otpMail);
+            mailer.sendMail(otpMail,(resp)=>{
+                if(resp.status==='success'){
+                    let initialFour = user.email.split('@');
+                    let emailSample = initialFour[0].slice(initialFour[0].length-4).concat(`@${initialFour[1]}`);
+                    res.send({status:'success',message:'otp sent',id:user.id,email:emailSample,usertype:user.userType});
+                }else{
+                    res.send({status:'failure',message:'error while sending otp.'});
+                    return
+                }
+            });
             
             
-let initialFour = user.email.split('@');
-let emailSample = initialFour[0].slice(initialFour[0].length-4).concat(`@${initialFour[1]}`);
 
-
-        res.send({status:'success',message:'otp sent',id:user.id,email:emailSample,usertype:user.userType});
         }else{
             res.send({status:'failure',message:'error while creating otp.'});
         }
@@ -68,20 +72,24 @@ async function resendOtp(req,res){
             let otpMail = {
                 email:user.email,
                 subject:"Password Reset OTP RentⓝMeter.Receipt",
-                content:`Dear ${user.name},
-
-You have requested to reset your password for your account with RentⓝMeter.Receipt, Please use the following OTP (One Time Password) to proceed with the password reset process:
-
-OTP: ${otpVal}
-
-This OTP is valid for 10 minutes. If you did not initiate this request, please ignore this email.
-
-Thank you,
-Team
-RentⓝMeter.Receipt`
+                content:`<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; margin: 0; padding: 20px; background-color: #f4f4f4;">
+    <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #4CAF50; text-align: center;">Resend OTP Request</h2>
+        <p>Dear ${user.name},</p>
+        <p>As per your request, we have resent the OTP (One-Time Password) to reset your password for your <strong>RentⓝMeter.Receipt</strong> account. Please use the following OTP to proceed with the password reset process:</p>
+        <p style="font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0; color: #4CAF50;">OTP: ${otpVal}</p>
+        <p>This OTP is valid for 10 minutes. If you did not initiate this request, please disregard this email.</p>
+        <p style="text-align: center; margin-top: 40px;">Thank you,<br><strong>Team RentⓝMeter.Receipt</strong></p>
+    </div>
+</div>`
             }
-            sendMail(null,otpMail);
-            res.send({status:'success',message:'Resend OTP Successfully.'});
+            mailer.sendMail(otpMail,(resp)=>{
+                if(resp.status==='success'){
+                    res.send({status:'success',message:'Resend OTP Successfully.'});
+                }else{
+                    res.send({status:'failure',message:'error while sending otp.'});
+                }
+            });
         
         }else{
             res.send({status:'failure',message:'error while creating otp.'})

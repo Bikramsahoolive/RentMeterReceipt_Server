@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, increment } = require('firebase/firestore');
 const db = getFirestore();
-const sendMail = require('./mailSender');
+const mailer = require('./mailSender');
 
 
 
@@ -96,7 +96,7 @@ async function createUserData(req, res) {
             data.landlord_name = user.name;
             data.paid_amt =0;
             data.id = rid;
-            data.userType = "rentholder";
+            data.userType = "Rentholder";
 
             let dataRef = doc(db, "rentholder", rid);
 
@@ -108,22 +108,30 @@ async function createUserData(req, res) {
                 let rentHolderCreateMail={
                     email:data.email,
                     subject:'Info-RentⓝMeter.Receipt.',
-                    content:`Dear ${data.name},
+                    content:`<div style="font-family: Arial, sans-serif; color: #333; margin: 0; padding: 20px; background-color: #f4f4f4;">
+    <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); border: 1px solid #eaeaea;">
+        <div style="text-align: center; background-color: #4CAF50; color: white; padding: 10px; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 24px;">Registration Confirmation</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p style="font-size: 16px; line-height: 1.5;">Dear ${data.name},</p>
+            <p style="font-size: 16px; line-height: 1.5;">You have been successfully registered as a rentholder by <strong>${user.name}</strong>. You can now log in to your account at <a href="https://rnmr.vercel.app" style="color: #4CAF50;">RentⓝMeter.Receipt</a> using the following credentials:</p>
+            
+            <ul style="list-style-type: none; padding: 0;">
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>User ID:</strong> ${data.phone}</li>
+                <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Password:</strong> ${rentholderPassword}</li>
+            </ul>
 
-You have been registered as a rentholder with ID ${rid} by ${user.name}. You can now log in at https://rnmr.vercel.app using the following credentials:
-
-User ID: ${data.phone}
-Password: ${rentholderPassword}
-
-Once logged in, you can view your rent and bill details also pay online.
-
-We hope you have a great experience using our platform. If you have any questions, feel free to contact our support team.
-
-Thank you,
-
-Team RentⓝMeter.Receipt`
+            <p style="font-size: 16px; line-height: 1.5;">Once logged in, you will be able to view your rent and bill details, and make payments online.</p>
+            <p style="font-size: 16px; line-height: 1.5;">We hope you have a great experience using our platform. If you have any questions or need assistance, please feel free to contact our support team.</p>
+        </div>
+        <div style="text-align: center; padding: 20px; background-color: #f4f4f4; border-top: 1px solid #eaeaea; border-radius: 0 0 8px 8px;">
+            <p style="font-size: 14px; color: #666;">Thank you,<br><strong>Team RentⓝMeter.Receipt</strong></p>
+        </div>
+    </div>
+</div>`
                 }
-                sendMail(null,rentHolderCreateMail);
+                mailer.sendMail(rentHolderCreateMail);
 
             } catch (error) {
                console.log(error);
