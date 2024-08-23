@@ -74,6 +74,11 @@ const razorpay = new Razorpay({
 
    let calcVal = rentBillCalc(data);
 
+   if(calcVal.final_amt===0){
+    res.send("Invalid Bill = (0)");
+    return;
+   }
+
 const docSnap =  await getDoc(doc(db, "rentholder",calcVal.rentholder_id));
 let rentholderData =docSnap.data();
         
@@ -93,7 +98,7 @@ let rentholderData =docSnap.data();
         </div>
         <div style="padding: 20px;">
             <p style="font-size: 16px; line-height: 1.5;">Hi ${rentholderData.name}!</p>
-            <p style="font-size: 16px; line-height: 1.5;">We are pleased to inform you that your rent bill has been successfully created. Below are the details:</p>
+            <p style="font-size: 16px; line-height: 1.5;">This is to inform you that your rent bill has been successfully created. Below are the details:</p>
 
             <ul style="list-style-type: none; padding: 0;">
                 <li style="background-color: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #4CAF50; font-size: 16px;"><strong>Bill Date:</strong> ${calcVal.billingDate}</li>
