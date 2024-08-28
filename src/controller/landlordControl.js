@@ -7,7 +7,9 @@ const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, get
 const db = getFirestore();
 const mailer=require('./mailSender');
 const { json } = require('express');
+const { getStorage, ref, uploadString, getDownloadURL, deleteObject } = require("firebase/storage");
 
+const storage = getStorage();
 
 
 async function createUserData(req, res) {
@@ -145,22 +147,57 @@ async function getAllUsers(req, res) {
 
 }
 
-function updateUserData(req, res) {
+async function updateUserData(req, res) {
     let data = req.body;
+    const id = req.params.id;
+    try {
+
     if (data.password){
     let hash = bcrypt.hashSync(data.password, 10);
     data.password = hash;
     }
 
+    if (data.photo){
+        if(data.photo!=='null'){
+        const photoFilename = `photo_${id}`;
+        const photoFile = data.photo;
+        data.photoFileName = photoFilename;
+        const storageRef2 = ref(storage, `photos/${photoFilename}`);
+        const snapshot2 = await uploadString(storageRef2, photoFile, 'data_url');
+        data.photo = await getDownloadURL(snapshot2.ref);
+        }else{
+            deleteObject(ref(storage, `photos/photo_${id}`));
+            data.photo = "";
+            data.photoFileName="";
+        }
+
+    }
+
+    if (data.signature) {
+        if(data.signature!=='null'){
+        const docFilename = `sign_${id}`;
+        const documentFile = data.signature;
+        data.signFileName = docFilename;
+        const storageRef = ref(storage, `signatures/${docFilename}`);
+        const snapshot = await uploadString(storageRef, documentFile, 'data_url');
+        data.signature = await getDownloadURL(snapshot.ref);
+        }else{
+            deleteObject(ref(storage, `signatures/sign_${id}`));
+            data.signature="";
+            data.signFileName="";
+        }
+
+    }
+
     // UPDATE DATA
-
-    const dataRef = doc(db, "landlord",req.params.id);
-
-    try {
+    console.log(data);
+    
+        const dataRef = doc(db, "landlord",id);
         updateDoc(dataRef, data);
         res.send({status:'success',message:`Data updated Successfully.`});
     } catch (error) {
-        res.send(error);
+        console.log(error);
+        res.status(500).send(error);
     }
 }
 
