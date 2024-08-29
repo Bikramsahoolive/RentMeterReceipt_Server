@@ -105,21 +105,23 @@ async function createUserData(req, res) {
 
 
             try {
+                if(data.deedURL){
                 const docFilename = `doc_${rid}`;
                 const documentFile = data.deedURL;
                 data.docFileName = docFilename;
                 const storageRef = ref(storage, `rent-documents/${docFilename}`);
                 const snapshot = await uploadString(storageRef, documentFile, 'data_url');
                 data.deedURL = await getDownloadURL(snapshot.ref);
+                }
 
-
-
+                if(data.photo){
                 const photoFilename = `photo_${rid}`;
                 const photoFile = data.photo;
                 data.photoFileName = photoFilename;
                 const storageRef2 = ref(storage, `photos/${photoFilename}`);
                 const snapshot2 = await uploadString(storageRef2, photoFile, 'data_url');
                 data.photo = await getDownloadURL(snapshot2.ref);
+                }
 
 
                 setDoc(dataRef, data);
@@ -238,7 +240,7 @@ async function updateUserData(req, res) {
 
         }
 
-        if (data.file) {
+        if (data.deedURL) {
             const docFilename = `doc_${id}`;
             const documentFile = data.deedURL;
             data.docFileName = docFilename;
@@ -275,14 +277,12 @@ async function getSingleUser(req, res) {
 
 
 
-function deleteUserData(req, res) {
-    let id = req.params.id
+async function deleteUserData(req, res) {
+    const id = req.params.id
     // Delete related data. 
     try {
-        
-    } catch (error) {
-        
-    }
+        const snap = await getDoc(doc(db, "rentholder",id));
+        const user = snap.data();
     async function deleteRentBill(id) {
         const q = query(collection(db, "rentbill"), where("rentholder_id", "==", id));
         const querySnapshot = await getDocs(q);
@@ -298,8 +298,8 @@ function deleteUserData(req, res) {
 
     // //DELETE USER DATA.
 
-    deleteObject(ref(storage, `rent-documents/doc_${id}`));
-    deleteObject(ref(storage, `photos/photo_${id}`));
+    if(user.photo)deleteObject(ref(storage, `photos/photo_${id}`));
+    if(user.deedURL)deleteObject(ref(storage, `rent-documents/doc_${id}`));
 
     deleteDoc(doc(db, "rentholder", id))
         .then(() => {
@@ -307,6 +307,10 @@ function deleteUserData(req, res) {
             res.send({ status: true, message: `Deleted successfully` });
         })
         .catch((err) => res.status(500).send(err))
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
 
 }
 

@@ -8,7 +8,7 @@ const checkLandlordCreateData = (req,res,next) =>{
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const upiRegex = /^[^\s@]+@[^\s@]+$/;
 
-    let dataval = [name, phone, email, upi, password];
+    let dataval = [name, phone, email, password];
     const isAvail =dataval.some(val=>val==="");
 
     if(!('name' in data &&'phone' in data &&'email' in data &&'upi' in data &&'password' in data)){
@@ -27,8 +27,10 @@ const checkLandlordCreateData = (req,res,next) =>{
     else if(email.length>35 || !emailRegex.test(email)){
         return res.status(400).send({message:"Invalid email"});
     }
-    else if(upi.length>25 || !upiRegex.test(upi)){
+    else if(upi !=="" ){
+        if ( upi.length>25 || !upiRegex.test(upi)){
         return res.status(400).send({message:"Invalid upi"});
+        }
     }
     // else if (password.length >20){
     //     return res.status(400).send({message:"Invalid password"});
@@ -132,48 +134,49 @@ const checkRentHolderCreateData = (req,res,next) =>{
 }
 
 function checkRentHolderUpdateData (req,res,next){
-    let data =req.body;
-    const {name, phone, email, rent, password} = data;
+//     let data =req.body;
+//     console.log('middlewear');
+//     const {name, phone, email, rent, password,current_unit,deedURL,member_count,photo} = data;
 
-    const phoneRegex = /^[06789]/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     const phoneRegex = /^[06789]/;
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if(name){
-        if(name.length>25){
-        return res.send({status:'failure',message:"Invalid name"});
-        }else{
-            next();
-        }
-    }
-    else if(phone){
-    if(phone.length!==10 || !phoneRegex.test(phone) ){
-        return res.send({status:'failure',message:"Invalid Phone"});
-    }else{
-        next();
-    }
-    }
-    else if(email){
-    if(email.length>30 || !emailRegex.test(email)){
-        return res.send({message:"Invalid email"});
-    }else{
-        next();
-    }
-    }
-    else if(rent){
-     if( rent<=0 || rent.length>5){
-        return res.send({message:"Invalid rent input"});
-     }else{
-        next();
-     }
-    }
-    else if(password){
-    if (password.length >20){
-        return res.send({message:"Invalid password"});
-    }else{
-        next();
-    }
-    }
-
+//     if(name){
+//         if( name.length>25|| name.length<3){
+//         return res.send({message:"Invalid name"});
+//         }
+//     }
+//     else if(phone){
+//         if(phone.length!==10 || !phoneRegex.test(phone)){
+//         return res.send({message:"Invalid Phone"});
+//         }
+//     }
+//     else if(email){
+//         if(email.length>30 || !emailRegex.test(email)){
+//         return res.send({message:"Invalid email"});
+//         }
+//     }else if(rent){
+//         if( rent<=0 || rent.length>5){
+//         return res.send({message:"Invalid rent input"});
+//         }
+//     }
+//     else if(password){
+//         if(password.length<8 || password.length >16){
+//         return res.send({message:"Invalid password"});
+//         }
+//     }else if(current_unit ){
+//         if(current_unit<0){
+//         return res.send({message:"Invalid initial unit"});
+//         }
+//     }else if(member_count ){
+//         if(member_count<0 || member_count>10){
+//         return res.send({message:"Invalid member count"});
+//         }
+//     }else{
+//         // next();
+//         return res.send({message:'All data correct'});
+//     }
+        
 }
 
 function validateAdminReset(req,res,next){

@@ -190,7 +190,6 @@ async function updateUserData(req, res) {
     }
 
     // UPDATE DATA
-    console.log(data);
     
         const dataRef = doc(db, "landlord",id);
         updateDoc(dataRef, data);
@@ -221,22 +220,9 @@ async function getSingleUser(req, res) {
 }
 
 async function deleteUserData(req, res) {
-    let id =  req.params.id;
-
-    //Delete related data.
-//    async function deleteMainBill (id){
-//     const q = query(collection(db, "mainmeter"), where("rentholder_id", "==",id));
-//     const querySnapshot = await getDocs(q);
-//     let user=[]
-//     querySnapshot.forEach((doc) => {
-//         let d = doc.data()
-//         user.push(d.id);
-//     });
-//         // console.log(user);
-//     user.forEach((docId) => {
-//         deleteDoc(doc(db, "rentbill", docId));
-//       });
-//     }
+    const id =  req.params.id;
+    const snap = await getDoc(doc(db, "landlord",id));
+    const landlorddata = snap.data();
 
     async function deleteRentBill (id){
     const q = query(collection(db, "rentbill"), where("landlord_id", "==",id));
@@ -255,24 +241,27 @@ async function deleteUserData(req, res) {
     async function deleteRentHolder (id){
         const q = query(collection(db, "rentholder"), where("landlord_id", "==",id));
         const querySnapshot = await getDocs(q);
-        let user=[]
-        querySnapshot.forEach((doc) => {
-            let d = doc.data()
-            user.push(d.id);
+        const user=[];
+        // const userId = [];
+        querySnapshot.forEach((d) => {
+            user.push(d.data());
         });
-            // console.log(user);
-        user.forEach((docId) => {
-            deleteDoc(doc(db, "rentholder",docId));
+        user.forEach((rentholder) => {
+            if(rentholder.photo)deleteObject(ref(storage, `photos/photo_${rentholder.id}`));
+            if(rentholder.deedURL)deleteObject(ref(storage, `rent-documents/doc_${rentholder.id}`));
+            deleteDoc(doc(db, "rentholder",rentholder.id));
           });
         }
 
     //DELETE USER DATA
 
+    if(landlorddata.photo)deleteObject(ref(storage, `photos/photo_${id}`));
+    if(landlorddata.signature)deleteObject(ref(storage, `signatures/sign_${id}`));
+
     deleteDoc(doc(db, "landlord",id))
         .then(async() => {
-            // deleteMainBill(id);
-           await deleteRentBill(id);
-           await deleteRentHolder(id);
+            await deleteRentBill(id);
+            await deleteRentHolder(id);
             res.send({status:"success",message:"Deleted successfully"})
         
         })
