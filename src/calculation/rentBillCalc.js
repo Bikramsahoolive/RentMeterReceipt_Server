@@ -1,5 +1,5 @@
 function rentBillCalc (value){
-    const {billingDate,totalUnit,totalAmount,previousUnit,currentUnit,adjustUnit,dueAmount,rent,electric_status,perunit,eBill,maintenance,water_bill,service} = value;
+    const {billingDate,totalUnit,totalAmount,previousUnit,currentUnit,adjustUnit,dueAmount,rent,electric_status,perunit,eBill,split_ebill,maintenance,water_bill,service} = value;
 
     
        if(adjustUnit===''||adjustUnit===null)value.adjustUnit=0;
@@ -45,11 +45,14 @@ function rentBillCalc (value){
 
         value.perunit= ebillData.perUnit;
         value.unitAdv = ebillData.unitAdvance;
-        value.eBill = ebillData.billamount;
-        
+        if(split_ebill!==''){
+        value.eBill = Math.round(((+ebillData.billamount) * (+split_ebill)).toFixed(2));
+        }else{
+            value.eBill = ebillData.billamount;
+        }
 
         
-        let finalAmount = ebillData.billamount+(+rent)+(+dueAmount)+(+water_bill)+(+maintenance)+(+service);
+        let finalAmount = value.eBill+(+rent)+(+dueAmount)+(+water_bill)+(+maintenance)+(+service);
         value.final_amt = finalAmount;
         value.paid_amt = 0;
         
