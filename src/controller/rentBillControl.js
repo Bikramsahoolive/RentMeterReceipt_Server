@@ -42,7 +42,6 @@ const razorpay = new Razorpay({
             }else{
                 let date = new Date(landlordData.billCountRenewOn);
                 date.setMonth(date.getMonth()+1);
-                
                 landlordData.billCountRenewOn = date.toISOString().split('T')[0];
                 // console.log(landlordData.billCountRenewOn);
                 
@@ -382,10 +381,46 @@ async function updateCapturedPaymentData(req,res){
 }
 
 
-function deleteRentBill(req,res){
-    deleteDoc(doc(db, "rentbill", req.params.id))
+async function deleteRentBill(req,res){
+    let user = jwt.verify(req.cookies.sid,process.env.sess_secret);
+    
+
+    if(user.userType === 'Landlord'){
+        const docSnap = await getDoc(doc(db, "rentbill", req.params.id));
+            const billData = docSnap.data()
+            if(billData.paid_amt == 0){
+                let currentDate = new Date();
+                let cmonth =(currentDate.getMonth()+1).toString().padStart(2,'0');
+                let cyear = currentDate.getFullYear().toString();
+                 let billingMontAndYear = String(billData.billingDate).split('-');
+                
+                 if(billingMontAndYear[1]===cmonth && billingMontAndYear[2]===cyear){
+                    const landlordDataRef = doc(db, "landlord", user.id);
+                    const userSnap = await getDoc(landlordDataRef);
+                    user = userSnap.data();
+                    landlordBillCount = user.billCount +1;
+                    updateDoc(landlordDataRef, {billCount:landlordBillCount});
+                 }
+
+                 deleteDoc(doc(db, "rentbill", req.params.id))
+                .then(() => res.send({status:'success',message:`Rent Bill deleted successfully.`}))
+                .catch((err) => res.send(err))
+                
+            }else{
+                res.status(400).send({status:'failure',message:'can not delete paid bill.'});
+            }
+    }else if(user.userType === 'Admin'){
+        deleteDoc(doc(db, "rentbill", req.params.id))
         .then(() => res.send({status:'success',message:`Rent Bill deleted successfully.`}))
         .catch((err) => res.send(err))
+    }
+    //check user data;//complte
+    //get bill data;
+    //check if landlord then chck already paid or not;
+    //if not paid then compare current month and year with bill create month year;
+    //if matched then increase bill count for landlord and delete bill
+    //else only delete bill; 
+    
 }
 
 module.exports ={
@@ -397,5 +432,4 @@ module.exports ={
     updateRentBillPayment,
     updateCapturedPaymentData,
     deleteRentBill,
-    // addFineRentBill
 }
