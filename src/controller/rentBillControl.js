@@ -37,14 +37,14 @@ const razorpay = new Razorpay({
     }else{
         if(landlordData.billCount<=0){
             if(Date.parse(landlordData.billCountRenewOn)>Date.now()){
-                res.status(400).send({status:false,message:"Your monthly bill quota has been reached,Please upgrade the plan"});
+                res.status(400).send({status:false,message:"Your monthly bill quota has been reached, Upgrade plan"});
                 return;
             }else{
                 let date = new Date(landlordData.billCountRenewOn);
                 date.setMonth(date.getMonth()+1);
                 
                 landlordData.billCountRenewOn = date.toISOString().split('T')[0];
-                console.log(landlordData.billCountRenewOn);
+                // console.log(landlordData.billCountRenewOn);
                 
                 if(landlordData.plan ==='Pro'){
                     landlordData.billCount = 150;
@@ -75,7 +75,7 @@ const razorpay = new Razorpay({
    let calcVal = rentBillCalc(data);
 
    if(calcVal.final_amt===0){
-    res.send("Invalid Bill = (0)");
+    res.status(400).send({status:false,message:"Invalid Bill = (0)"});
     return;
    }
 
@@ -120,7 +120,7 @@ let rentholderData =docSnap.data();
                 mailer.sendMail(billMailData);
 
                 })
-                .catch((err)=>res.send(err))
+                .catch((err)=>res.status(500).send(err));
 
 }
 
@@ -381,30 +381,6 @@ async function updateCapturedPaymentData(req,res){
     }
 }
 
-
-// async function addFineRentBill (req,res){
-//     let data = req.body;
-
-//     const docSnap = await getDoc(doc(db, "rentbill", req.params.id));
-
-//     if (docSnap.exists()) {
-//         let billData = docSnap.data()
-//         data.final_amt = (+billData.final_amt) + (+data.fine_amt);
-
-//         try {
-//             const dataRef = doc(db, "rentbill", req.params.id);
-//             updateDoc(dataRef, data);
-//             res.send({status:true,message:`Fine Added Successfully.`});
-//         } catch (err) {
-//             res.status(400).send({error:err});
-//         }
-
-//     } else {
-//         res.status(400).send({status:false,message:"document not found."});
-//     }
-
-
-// }
 
 function deleteRentBill(req,res){
     deleteDoc(doc(db, "rentbill", req.params.id))
