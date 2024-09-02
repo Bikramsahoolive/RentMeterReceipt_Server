@@ -5,7 +5,8 @@ const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, get
 const db = getFirestore();
 const mailer = require('./mailSender');
 const { getStorage, ref, uploadString, getDownloadURL, deleteObject } = require("firebase/storage");
-
+const NodeCache = require('node-cache');
+const myCache = new NodeCache({stdTTl:100});
 const storage = getStorage();
 
 
@@ -195,9 +196,13 @@ async function getAllUsers(req, res) {
 
 async function getRentholdersOfLandlord(req, res) {
     // let data = req.session.key;
-    let data = jwt.verify(req.cookies.sid, process.env.sess_secret);
-    let id = data.id;
+    const data = jwt.verify(req.cookies.sid, process.env.sess_secret);
+    const id = data.id;
 
+    if(myCache.has(`rentholder_${id}`)){
+        const cachedValue = myCache.get(`rentholder_${id}`);
+        res.send(cachedValue);
+    }else{
     const q = query(collection(db, "rentholder"), where('landlord_id', '==', id));
     const querySnapshot = await getDocs(q);
     const details = [];
@@ -205,11 +210,14 @@ async function getRentholdersOfLandlord(req, res) {
         details.push(doc.data());
     });
     if (details.length != 0) {
+        const cacheStatus = myCache.set(`rentholder_${id}`,details,900);
+    if(!cacheStatus)console.log('unable to cache rentholders of landlord.');
         res.send(details);
     } else {
 
         res.status(400).send({ status: false, message: 'No data found' });
     }
+}
 }
 
 
@@ -264,14 +272,23 @@ async function updateUserData(req, res) {
 async function getSingleUser(req, res) {
 
     // GET SINGLE DATA
+    
+    //use node cache here;
+    if(myCache.has(req.params.id)){
+        const value = myCache.get(req.params.id);
+         res.send(value);
+    }else{
     const docSnap = await getDoc(doc(db, "rentholder", req.params.id));
 
     if (docSnap.exists()) {
-        res.send(docSnap.data());
+        const rentholderData = docSnap.data();
+        const cacheStatus = myCache.set(req.params.id,rentholderData,900);
+        if(!cacheStatus)console.log('unable to cache landlord data.');
+        res.send(rentholderData);
     } else {
         res.send("No such document!");
     }
-
+    }
 
 }
 

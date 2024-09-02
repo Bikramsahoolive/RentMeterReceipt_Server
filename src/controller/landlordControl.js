@@ -7,6 +7,8 @@ const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, get
 const db = getFirestore();
 const mailer=require('./mailSender');
 const { json } = require('express');
+const NodeCache = require('node-cache');
+const myCache = new NodeCache({stdTTl:100});
 const { getStorage, ref, uploadString, getDownloadURL, deleteObject } = require("firebase/storage");
 
 const storage = getStorage();
@@ -206,15 +208,24 @@ async function getSingleUser(req, res) {
 
     // GET SINGLE DATA
 
+    if(myCache.has(req.params.id)){
+        const value = myCache.get(req.params.id);
+         res.send(value);
+        
+         
+    }else{
     const docSnap = await getDoc(doc(db, "landlord",req.params.id));
 
     if (docSnap.exists()) {
         let user = docSnap.data();
         delete user.password;
-        res.send(user);
+        const cacheStatus = myCache.set(req.params.id,user,900);
+        if(!cacheStatus)console.log('unable to cache landlord data.');
+            res.send(user);
     } else {
         res.send({status:"failure",message:"document not available"});
     }
+}
 
 
 }

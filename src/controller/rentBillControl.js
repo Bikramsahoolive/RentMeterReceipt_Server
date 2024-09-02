@@ -4,7 +4,8 @@ const db = getFirestore();
 const rentBillCalc = require('../calculation/rentBillCalc');
 const jwt = require('jsonwebtoken');
 const mailer=require('./mailSender');
-
+const NodeCache = require('node-cache');
+const myCache = new NodeCache({stdTTl:100});
 const Razorpay = require('razorpay');
 
 
@@ -141,6 +142,10 @@ async function getLandlordRentBill(req,res){
     let data = jwt.verify(req.cookies.sid, process.env.sess_secret);
     let id = data.id;
 
+    if(myCache.has(`bill_${id}`)){
+        const cachedValue = myCache.get(`bill_${id}`);
+        res.send(cachedValue);
+    }else{
 const q = query(collection(db, "rentbill"), where('landlord_id', '==',id));
 const querySnapshot = await getDocs(q);
 const details = [];
@@ -148,18 +153,27 @@ querySnapshot.forEach((doc) => {
     details.push(doc.data());
 });
 if(details.length != 0){
+    const cacheStatus = myCache.set(`bill_${id}`,details,900);
+    if(!cacheStatus)console.log('unable to cache landlord rent bills.');
     res.status(200).send(details);
 }else{
     
     res.status(400).send({status:false,message:'No record fount.'});
 }
+    }
 }
 
 
 async function getRentholderRentBill(req,res){
     // let data = req.session.key;
-    let data = jwt.verify(req.cookies.sid, process.env.sess_secret);
-    let id = data.id;
+    const data = jwt.verify(req.cookies.sid, process.env.sess_secret);
+    const id = data.id;
+
+    if(myCache.has(`bill_${id}`)){
+        const cachedValue = myCache.get(`bill_${id}`);
+        res.send(cachedValue);
+        
+    }else{
 
 const q = query(collection(db, "rentbill"), where('rentholder_id', '==',id));
 const querySnapshot = await getDocs(q);
@@ -168,21 +182,33 @@ querySnapshot.forEach((doc) => {
     details.push(doc.data());
 });
 if(details.length != 0){
+
+    const cacheStatus = myCache.set(`bill_${id}`,details,900);
+    if(!cacheStatus)console.log('unable to cache rentholder rent bills.');
     res.send(details);
 }else{
     
     res.send('No data found');
 }
+    }
 }
 
 async function getSingleRentBill(req,res){
+    if(myCache.has(req.params.id)){
+        const value = myCache.get(req.params.id);
+         res.send(value);
+    }else{
     const docSnap = await getDoc(doc(db, "rentbill", req.params.id));
 
     if (docSnap.exists()) {
-        res.send(docSnap.data())
+        const billData = docSnap.data();
+        const cacheStatus = myCache.set(req.params.id,billData,900);
+        if(!cacheStatus)console.log('unable to cache landlord data.');
+        res.send(billData)
     } else {
         res.send("No such document!");
     }
+}
 }
 
  async function updateRentBillPayment (req,res){
