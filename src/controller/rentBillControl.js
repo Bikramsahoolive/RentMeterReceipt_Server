@@ -243,6 +243,11 @@ async function getSingleRentBill(req,res){
                 updateDoc(dataRef, data);
                 res.send({status:true,message:`Payment Done.`});
 
+                
+                if(myCache.has(`bill_${billData.rentholder_id}`))myCache.del(`bill_${billData.rentholder_id}`);
+                if(myCache.has(`bill_${billData.landlord_id}`))myCache.del(`bill_${billData.landlord_id}`);
+                if(myCache.has(req.params.id))myCache.del(req.params.id);
+
                 let emailData = {
                     email:rentholderPaymentState.email,
                     subject:"Rent Bill Payment Confirmation.",
@@ -332,6 +337,12 @@ async function updateCapturedPaymentData(req,res){
                   updateDoc(dataRef, {paid_amt:capAmount,payment_date:paymentDate,payment_method:paymentDetails.method,transaction_id:paymentDetails.id});
             res.send({message:"payment successful",status:"success",billId:paymentDetails.notes.billId});
 
+            // Clear cacheing;
+            if(myCache.has(`bill_${billdata.rentholder_id}`))myCache.del(`bill_${billdata.rentholder_id}`);
+            if(myCache.has(`bill_${billdata.landlord_id}`))myCache.del(`bill_${billdata.landlord_id}`);
+            if(myCache.has(req.params.id))myCache.del(billdata.id);
+
+            //send Mail
             let emailDataRentholder = {
                 email:rentholderPaymentState.email,
                 subject:"Rent Bill Payment Confirmation.",
@@ -427,7 +438,8 @@ async function deleteRentBill(req,res){
                     landlordBillCount = user.billCount +1;
                     updateDoc(landlordDataRef, {billCount:landlordBillCount});
                  }
-                 if(myCache.has(`bill_${user.id}`))myCache.del(`bill_${user.id}`);
+                 if(myCache.has(`bill_${billData.rentholder_id}`))myCache.del(`bill_${billData.rentholder_id}`);
+                 if(myCache.has(`bill_${billData.landlord_id}`))myCache.del(`bill_${billData.landlord_id}`);
                  if(myCache.has(req.params.id))myCache.del(req.params.id);
                  deleteDoc(doc(db, "rentbill", req.params.id))
                 .then(() => res.send({status:'success',message:`Rent Bill deleted successfully.`}))
