@@ -427,7 +427,8 @@ async function deleteRentBill(req,res){
                     landlordBillCount = user.billCount +1;
                     updateDoc(landlordDataRef, {billCount:landlordBillCount});
                  }
-
+                 if(myCache.has(`bill_${user.id}`))myCache.del(`bill_${user.id}`);
+                 if(myCache.has(req.params.id))myCache.del(req.params.id);
                  deleteDoc(doc(db, "rentbill", req.params.id))
                 .then(() => res.send({status:'success',message:`Rent Bill deleted successfully.`}))
                 .catch((err) => res.send(err))
