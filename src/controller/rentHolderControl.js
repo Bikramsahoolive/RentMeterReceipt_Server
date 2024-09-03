@@ -5,8 +5,7 @@ const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, get
 const db = getFirestore();
 const mailer = require('./mailSender');
 const { getStorage, ref, uploadString, getDownloadURL, deleteObject } = require("firebase/storage");
-const NodeCache = require('node-cache');
-const myCache = new NodeCache({stdTTl:100});
+const myCache = require('../model/cache');
 const storage = getStorage();
 
 
@@ -225,7 +224,7 @@ async function getRentholdersOfLandlord(req, res) {
 async function updateUserData(req, res) {
 
     // UPDATE DATA
-
+    const user = jwt.verify(req.cookies.sid, process.env.sess_secret);
     let data = req.body;
     const id = req.params.id
     
@@ -261,6 +260,9 @@ async function updateUserData(req, res) {
         const dataRef = doc(db, "rentholder", id);
         updateDoc(dataRef, data);
         res.send({ status: 'success', message: `Data updated Successfully.` });
+        if(myCache.has(`rentholder_${user.id}`))myCache.del(`rentholder_${user.id}`);
+        if(myCache.has(`rentholder_${id}`))myCache.del(`rentholder_${id}`);
+        if(myCache.has(id))myCache.del(id);
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
@@ -310,6 +312,7 @@ async function deleteUserData(req, res) {
         });
         user.forEach((docId) => {
             deleteDoc(doc(db, "rentbill", docId));
+            if(myCache.has(docId))myCache.del(docId);
         });
     }
 
@@ -318,10 +321,16 @@ async function deleteUserData(req, res) {
     if(user.photo)deleteObject(ref(storage, `photos/photo_${id}`));
     if(user.deedURL)deleteObject(ref(storage, `rent-documents/doc_${id}`));
 
+    if(myCache.has(`bill_${user.id}`))myCache.del(`bill_${user.id}`);
+    if(myCache.has(`bill_${user.landlord_id}`))myCache.del(`bill_${user.landlord_id}`);
+    if(myCache.has(`rentholder_${user.landlord_id}`))myCache.del(`rentholder_${user.landlord_id}`)
+
     deleteDoc(doc(db, "rentholder", id))
         .then(() => {
             deleteRentBill(id);
             res.send({ status: true, message: `Deleted successfully` });
+            if(myCache.has(`rentholder_${id}`))myCache.del(`rentholder_${id}`);
+            if(myCache.has(id))myCache.del(id);
         })
         .catch((err) => res.status(500).send(err))
     } catch (error) {

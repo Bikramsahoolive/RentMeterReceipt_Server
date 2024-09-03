@@ -4,8 +4,7 @@ const db = getFirestore();
 const rentBillCalc = require('../calculation/rentBillCalc');
 const jwt = require('jsonwebtoken');
 const mailer=require('./mailSender');
-const NodeCache = require('node-cache');
-const myCache = new NodeCache({stdTTl:100});
+const myCache = require('../model/cache');
 const Razorpay = require('razorpay');
 
 
@@ -86,6 +85,10 @@ let rentholderData =docSnap.data();
 
                 setDoc(dataRef, calcVal)
                 .then(()=>{
+                    
+                if(myCache.has(`bill_${calcVal.rentholder_id}`))myCache.del(`bill_${calcVal.rentholder_id}`);
+                if(myCache.has(`bill_${calcVal.landlord_id}`))myCache.del(`bill_${calcVal.landlord_id}`);
+                if(myCache.has(calcVal.id))myCache.del(calcVal.id);
                     res.send({status:true, id:calcVal.id,message:`Bill created with ID : ${calcVal.id}`});
 
                     const billMailData ={
@@ -213,14 +216,15 @@ async function getSingleRentBill(req,res){
 
  async function updateRentBillPayment (req,res){
 
+    //offline
         let data = req.body;
         let billId = data.id;
         delete data.id;
         const docSnap = await getDoc(doc(db, "rentbill", req.params.id));
+        const billData = docSnap.data();
 
         if (docSnap.exists()) {
             let userdetails = jwt.verify(req.cookies.sid,process.env.sess_secret);
-            let billData = docSnap.data();
             if(billData.landlord_id !== userdetails.id){
                 res.status(400).send({status:'failure',message:'Unauthorized bill access.'});
                 return;
@@ -243,7 +247,7 @@ async function getSingleRentBill(req,res){
                 updateDoc(dataRef, data);
                 res.send({status:true,message:`Payment Done.`});
 
-                
+                if(myCache.has(`rentholder_${billData.landlord_id}`))myCache.del(`rentholder_${billData.landlord_id}`);
                 if(myCache.has(`bill_${billData.rentholder_id}`))myCache.del(`bill_${billData.rentholder_id}`);
                 if(myCache.has(`bill_${billData.landlord_id}`))myCache.del(`bill_${billData.landlord_id}`);
                 if(myCache.has(req.params.id))myCache.del(req.params.id);
@@ -300,6 +304,15 @@ async function updateRentHolderPaymentData(id,paidAmt){
 
         try {
             const dataRef = doc(db, "rentholder",id);
+            
+            // if(myCache.has(`rentholder_${id}`))myCache.del(`rentholder_${id}`);
+            // if(myCache.has(`rentholder_${userData.landlord_id}`)){
+            //     console.log(userData.landlord_id);
+            //     console.log('line 310');
+                
+            //     myCache.del(`rentholder_${userData.landlord_id}`);}
+            // if(myCache.has(id))myCache.del(id);
+            // if(myCache.has(userData.landlord_id))myCache.del(userData.landlord_id);
             updateDoc(dataRef, data);
             return {status:true,name:userData.name,email:userData.email,landlord_id:userData.landlord_id};
         } catch (err) {
@@ -340,7 +353,7 @@ async function updateCapturedPaymentData(req,res){
             // Clear cacheing;
             if(myCache.has(`bill_${billdata.rentholder_id}`))myCache.del(`bill_${billdata.rentholder_id}`);
             if(myCache.has(`bill_${billdata.landlord_id}`))myCache.del(`bill_${billdata.landlord_id}`);
-            if(myCache.has(req.params.id))myCache.del(billdata.id);
+            if(myCache.has(billdata.id))myCache.del(billdata.id);
 
             //send Mail
             let emailDataRentholder = {
