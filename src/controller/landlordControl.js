@@ -543,7 +543,8 @@ const challenge = user.passkey_challlenge;
         const dataRef = doc(db, "landlord",user.id);
         updateDoc(dataRef, {passkey_info:passkyData,passkey_challlenge:''});
         res.send({status:'success',message:'passkey registered successfully.',name:user.name,id:user.id,userType:user.userType,phone:user.phone});
-        
+
+        if(myCache.has(user.id))myCache.del(user.id);
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
@@ -658,7 +659,8 @@ function unregdPasskey(req,res){
         const docref = doc(db,'landlord',id);
     updateDoc(docref,{passkey_info:""});
     res.send({status:'success',message:'Passkey De-registered'});
-        
+
+        if(myCache.has(id))myCache.del(id);
     } catch (error) {
         console.log(error);
         res.status(500).send(error);  

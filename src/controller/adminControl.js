@@ -144,7 +144,7 @@ async function processPayout(req,res){
     const newPayoutAmount = (+user.payout) - (+data.payout_amt);
 
         updateDoc(dataRef, {payout:newPayoutAmount});
-
+        if(myCache.has(data.id))myCache.del(data.id);
     //set  complete Payout document.
 
     let tid = String(Date.now());
@@ -156,6 +156,7 @@ async function processPayout(req,res){
     deleteDoc(doc(db, "payout",data.id));
 
     res.status(200).send({status:'success'});
+
     const landlordMail = {
         email:user.email,
         subject:"Payout Proccessed !",
