@@ -1,5 +1,6 @@
 const express = require('express');
-const {createUserData,getAllUsers, getRentholdersOfLandlord,getSingleUser,updateUserData,deleteUserData,loginRentHolder} = require('../controller/rentHolderControl');
+const {createUserData,getAllUsers, getRentholdersOfLandlord,getSingleUser,updateUserData,deleteUserData,
+    loginRentHolder,registerChallenge,verifyChallenge,authOptions,loginWithPasskey,unregdPasskey} = require('../controller/rentHolderControl');
 const{checkSession,checkAdminUser,checkLandlordUser,checkRentHolderUser} = require('../middlewares/session');
 const {checkRentHolderCreateData,checkRentHolderUpdateData} = require('../middlewares/validateUser')
 const rentHolderRouter = express.Router();
@@ -19,6 +20,21 @@ rentHolderRouter.route('/login')
 
 rentHolderRouter.route('/landlord')
 .get(checkSession,checkLandlordUser,getRentholdersOfLandlord);
+
+rentHolderRouter.route('/reg-challenge')
+.get(checkSession,checkRentHolderUser,registerChallenge);
+
+rentHolderRouter.route('/verify-challenge')
+.post(checkSession,checkRentHolderUser,verifyChallenge);
+
+rentHolderRouter.route('/auth-options/:id')
+.get(authOptions);
+
+rentHolderRouter.route('/login-passkey')
+.post(loginWithPasskey);
+
+rentHolderRouter.route('/unregd-passkey/:id')
+.delete(checkSession,checkRentHolderUser,unregdPasskey);
 
 
 module.exports =rentHolderRouter;

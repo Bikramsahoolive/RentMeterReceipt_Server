@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, increment } = require('firebase/firestore');
 const db = getFirestore();
 const mailer = require('./mailSender');
+const {generateRegistrationOptions,verifyRegistrationResponse,generateAuthenticationOptions,verifyAuthenticationResponse} = require('@simplewebauthn/server');
 const { getStorage, ref, uploadString, getDownloadURL, deleteObject } = require("firebase/storage");
 const myCache = require('../model/cache');
 const storage = getStorage();
@@ -365,8 +366,8 @@ async function loginRentHolder(req, res) {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
-                rent: user.rent,
-                member_count: user.member_count,
+                // rent: user.rent,
+                // member_count: user.member_count,
                 isActive: true
             }
             const secretKey = process.env.sess_secret;
@@ -380,6 +381,220 @@ async function loginRentHolder(req, res) {
 }
 
 
+// const rpid = "localhost"; 
+// const origin ="http://localhost:4200";
+
+const rpid = "rnmr.vercel.app";
+const origin = "https://rnmr.vercel.app";
+
+const rpname = "RentⓝMeter.Receipt";
+
+async function registerChallenge(req,res){
+    try {
+        let user = jwt.verify(req.cookies.sid,process.env.sess_secret);
+
+        const docSnap = await getDoc(doc(db, "rentholder",user.id));
+
+    if (docSnap.exists()) {
+         user = docSnap.data();
+        if (user.passkey_info ){
+            return res.status(400).send({status:false,message:'passkey already registered.'});
+        }
+
+    } 
+
+  
+        const chanllengePayload = await generateRegistrationOptions({
+          rpID:rpid,
+          rpName:rpname,
+          userName:user.name,
+          userDisplayName:user.name,
+          attestationType:'none',
+          authenticatorSelection: {
+            residentKey: 'preferred',
+            userVerification:'preferred',
+            // authenticatorAttachment:'platform'
+          }
+        });
+
+        const dataRef = doc(db, "rentholder",user.id);
+        updateDoc(dataRef, {passkey_challlenge:chanllengePayload.challenge});
+        
+        
+        res.json({challenge:chanllengePayload});
+
+      } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+        
+      }
+}
+
+async function verifyChallenge(req,res){
+    const {publicKey} = req.body;
+
+    try {
+
+        let user = jwt.verify(req.cookies.sid,process.env.sess_secret);
+
+        const docSnap = await getDoc(doc(db, "rentholder",user.id));
+
+    if (docSnap.exists()) {
+         user = docSnap.data();
+        
+    }
+const challenge = user.passkey_challlenge;
+
+    const verifyChallengeData = await verifyRegistrationResponse({
+        expectedChallenge:challenge,
+        expectedOrigin:origin,
+        expectedRPID:rpid,
+        response:publicKey
+    });
+
+    if(!verifyChallengeData.verified){
+       return res.status(400).json({status:'failure',message:'Auth Data verification failed.'});
+    }
+        
+        
+        const passkyData= {
+            credentialID:verifyChallengeData.registrationInfo.credentialID,
+            credentialPublicKey:btoa(String.fromCharCode.apply(null,verifyChallengeData.registrationInfo.credentialPublicKey)),
+            counter:verifyChallengeData.registrationInfo.counter,
+            deviceType:verifyChallengeData.registrationInfo.credentialDeviceType,
+            backedUp:verifyChallengeData.registrationInfo.credentialBackedUp,
+            transports:publicKey.response.transports
+        };
+        const dataRef = doc(db, "rentholder",user.id);
+        updateDoc(dataRef, {passkey_info:passkyData,passkey_challlenge:''});
+        res.send({status:'success',message:'passkey registered successfully.',name:user.name,id:user.id,userType:user.userType,phone:user.phone});
+
+        if(myCache.has(user.id))myCache.del(user.id);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+        
+    }
+
+}
+
+async function authOptions(req,res){
+    const userId = req.params.id;
+
+    try {
+        const docSnap = await getDoc(doc(db, "rentholder",userId));
+        let user ={};
+        if (docSnap.exists()) {
+             user = docSnap.data();
+            if (!user.passkey_info || user.passkey_info == ""){
+                return res.send({status:'failure',message:'Passkey not found, Please Re-register.'});
+            }
+        } 
+        let passkeyInfo = [];
+        passkeyInfo.push(user.passkey_info);
+        
+    const option =await generateAuthenticationOptions({
+        rpID:rpid,
+        allowCredentials: passkeyInfo.map(passkey=>({
+            id:passkey.credentialID,
+            transports:passkey.transports
+        }))
+    });
+
+
+    const dataRef = doc(db, "rentholder",userId);
+    updateDoc(dataRef, {passkey_challlenge:option.challenge});
+
+    res.send({option:option});
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+
+    
+}
+
+async function loginWithPasskey(req,res){
+
+    const{userId,publicKey} = req.body;
+
+    try {
+
+        const docSnap = await getDoc(doc(db, "rentholder",userId));
+        let user ={};
+        if (docSnap.exists()) {
+             user = docSnap.data();
+            if (!user.passkey_info || user.passkey_info == ""){
+                res.status(400).send({status:false,message:'Passkey not registered.'});
+                return;
+            }
+        } 
+
+        const passkeyInfo = user.passkey_info;  
+        
+        const binaryString = atob(passkeyInfo.credentialPublicKey);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        passkeyInfo.credentialPublicKey = bytes;
+
+        const validateUser =await verifyAuthenticationResponse({
+            response:publicKey,
+            expectedOrigin:origin,
+            expectedChallenge:user.passkey_challlenge,
+            expectedRPID:rpid,
+            authenticator: passkeyInfo
+        });
+    
+        if(!validateUser.verified){
+            res.status(400).send({status:"failure",message:"User Validation failed."});
+            return;
+        }
+
+        let tokenData = {id:user.id,phone:user.phone,email:user.email,userType:user.userType,name:user.name};
+        tokenData.isActive = true;
+        tokenData.expairTime = Date.now() + 1200000;
+        let responce = {
+            id:user.id,
+            landlord_id: user.landlord_id,
+            name:user.name,
+            email:user.email,
+            phone:user.phone,
+            isActive:true
+        }
+        const secretKey = process.env.sess_secret;
+        const token = jwt.sign(tokenData,secretKey);
+        
+        res.cookie('sid',token,{sameSite:'None',secure:true});
+
+        res.send(responce);
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+
+}
+
+function unregdPasskey(req,res){
+    const id = req.params.id;
+    try {
+        const docref = doc(db,'rentholder',id);
+    updateDoc(docref,{passkey_info:""});
+    res.send({status:'success',message:'Passkey De-registered'});
+
+        if(myCache.has(id))myCache.del(id);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);  
+    }
+}
+
+
+
 
 module.exports = {
     createUserData,
@@ -389,4 +604,9 @@ module.exports = {
     getSingleUser,
     deleteUserData,
     loginRentHolder,
+    registerChallenge,
+    verifyChallenge,
+    authOptions,
+    loginWithPasskey,
+    unregdPasskey
 };
