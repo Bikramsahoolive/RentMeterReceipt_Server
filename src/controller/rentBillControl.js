@@ -323,18 +323,44 @@ async function updateRentHolderPaymentData(id,paidAmt){
 }
 
 async function updateCapturedPaymentData(req,res){
-    const {paymentId,paymentDate}=req.body;
+    const {paymentId}=req.body;
     try {
         const paymentDetails = await razorpay.payments.fetch(paymentId);
           if(paymentDetails.status==="captured"){
-            const docSnap = await getDoc(doc(db, "rentbill",paymentDetails.notes.billId));
+            
+          const result = await updateBillPaymentData(paymentDetails);
+              res.send(result);
+          }else{
+            res.status(402).send({message:"Payment not captured",status:"failure"});
+          }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(error);
+    }
+}
+
+
+async function updateBillPaymentData(paymentDetails){
+
+    let date= new Date();
+    let year = date.getFullYear();
+    let month =(date.getMonth()+1).toString().padStart(2,'0');
+    let day = date.getDate().toString().padStart(2,'0');
+    const paymentDate=`${day}-${month}-${year}`;
+
+
+    const docSnap = await getDoc(doc(db, "rentbill",paymentDetails.notes.billId));
             let billdata ;
             if (docSnap.exists()) {
                 billdata = docSnap.data();
             }
-            if(billdata.final_amt <= billdata.paid_amt){
-                res.status(400).send({status:'failure',message:"Payment Processing Canceled."});
-                return;
+            if(billdata.final_amt < billdata.paid_amt){
+                return ({status:'failure',message:"Payment Processing Canceled."});
+            }
+            if(billdata.final_amt == billdata.paid_amt){
+                console.log('webhook already saved data');
+                
+                return {message:"payment successful",status:"success",billId:paymentDetails.notes.billId};
             }
 
             let capAmount =(+paymentDetails.notes.billAmt) + (+billdata.paid_amt);
@@ -348,7 +374,6 @@ async function updateCapturedPaymentData(req,res){
 
             const dataRef = doc(db, "rentbill", paymentDetails.notes.billId);
                   updateDoc(dataRef, {paid_amt:capAmount,payment_date:paymentDate,payment_method:paymentDetails.method,transaction_id:paymentDetails.id});
-            res.send({message:"payment successful",status:"success",billId:paymentDetails.notes.billId});
 
             // Clear cacheing;
             if(myCache.has(`bill_${billdata.rentholder_id}`))myCache.del(`bill_${billdata.rentholder_id}`);
@@ -420,16 +445,9 @@ async function updateCapturedPaymentData(req,res){
 
             mailer.sendMail(emailDataLandlord);
             mailer.sendMail(emailDataRentholder);
-            
-          }else{
-            res.status(402).send({message:"Payment Processing Failed",status:"failure"});
-          }
-    } catch (error) {
-      console.log(error);
-      res.status(500).send(error);
-    }
+            return ({message:"payment successful",status:"success",billId:paymentDetails.notes.billId});
+          
 }
-
 
 async function deleteRentBill(req,res){
     let user = jwt.verify(req.cookies.sid,process.env.sess_secret);
@@ -484,4 +502,5 @@ module.exports ={
     updateRentBillPayment,
     updateCapturedPaymentData,
     deleteRentBill,
+    updateBillPaymentData
 }

@@ -23,6 +23,7 @@ const forgotPasswordRouter = require('./src/routes/forgotPasswordRouts');
 const{checkRouter, landlordLogout} = require('./src/controller/authControl');
 const{checkSession}= require('./src/middlewares/session')
 const clientMailRouter = require('./src/routes/clientMailRouts');
+const {updateBillPaymentData} = require('./src/controller/rentBillControl');
 
 if(!globalThis.crypto){
   globalThis.crypto = crypto;
@@ -87,6 +88,13 @@ const razorpay = new Razorpay({
 
 app.post('/create-order',checkSession,async(req,res)=>{
   const {amount,currency,billid}=req.body;
+
+  //get bill data;
+  //compare due date and current date;
+  //if true then reduce the bill by 4 %
+
+
+
   const finalAmt = amount + Math.round(amount*(3/100));
   try {
     const order = await razorpay.orders.create({
@@ -100,6 +108,26 @@ app.post('/create-order',checkSession,async(req,res)=>{
   }
 });
 
+app.post('/api/webhook/razorpay/payment-captured',async( req,res)=>{
+  
+  const webhookSignature = req.headers['x-razorpay-signature'];
+  const hash = crypto
+    .createHmac('sha256', process.env.razorpaySecret)
+    .update(JSON.stringify(req.body))
+    .digest('hex');
+
+    if (hash === webhookSignature) {
+
+      // console.log(req.body.payload.payment.entity);
+      
+      updateBillPaymentData(req.body.payload.payment.entity);
+      res.status(200).send('Webhook received');
+    } else {
+      console.log('Invalid signature');
+      res.status(400).send('Invalid signature');
+    }
+  
+});
 // Handle Wild Card Routs.
 app.use((req,res,next)=>{
   res.status(404).send('Rentⓝmeter.Receipt can not find this Route, Error code 404!');
