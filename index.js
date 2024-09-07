@@ -43,7 +43,7 @@ app.use(cors({
 }));
 
 app.get('/',(req,res)=>{
-  res.status(200).send({status:'success',message:"Welcome to Rentⓝmeter.Receipt Server!"});
+  res.status(200).send({status:'OK',message:"Welcome to Rentⓝmeter.Receipt Server!"});
 });
 
 app.use(cookieParser());
@@ -86,27 +86,6 @@ const razorpay = new Razorpay({
   key_secret:process.env.key_secret
 });
 
-app.post('/create-order',checkSession,async(req,res)=>{
-  const {amount,currency,billid}=req.body;
-
-  //get bill data;
-  //compare due date and current date;
-  //if true then reduce the bill by 4 %
-
-
-
-  const finalAmt = amount + Math.round(amount*(3/100));
-  try {
-    const order = await razorpay.orders.create({
-      amount:finalAmt * 100,
-      currency:currency,
-      notes:{billId:billid,billAmt:amount}
-    });
-    res.json(order);
-  } catch (error) {
-    console.log(error);
-  }
-});
 
 app.post('/api/webhook/razorpay/payment-captured',async( req,res)=>{
   
@@ -117,13 +96,10 @@ app.post('/api/webhook/razorpay/payment-captured',async( req,res)=>{
     .digest('hex');
 
     if (hash === webhookSignature) {
-
-      // console.log(req.body.payload.payment.entity);
-      
-      updateBillPaymentData(req.body.payload.payment.entity);
+      const payload = req.body.payload.payment.entity;
+      if(payload.notes.paymentType === 'rentbill')await updateBillPaymentData(payload);
       res.status(200).send('Webhook received');
     } else {
-      console.log('Invalid signature');
       res.status(400).send('Invalid signature');
     }
   

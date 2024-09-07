@@ -322,6 +322,49 @@ async function updateRentHolderPaymentData(id,paidAmt){
     }
 }
 
+async function createPaymentOrder(req,res){
+    try {
+    const {amount,currency,billid}=req.body;
+    
+    const docSnap = await getDoc(doc(db, "rentbill", billid));
+    const billData = docSnap.data();
+    let savedDueDate = String(billData.dueDate).split('-');
+
+    let localDate = new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'});
+    localDate = String(localDate).split(',')[0];
+    let DateFormat = String(localDate).split('/');
+    const cdate = DateFormat[0].toString().padStart(2,'0');
+    const cmonth = DateFormat[1].toString().padStart(2,'0');
+    const cyear = DateFormat[2];
+    
+    const currentDate =new Date(`${cyear}-${cmonth}-${cdate}`);
+    const dueDate = new Date(`${savedDueDate[2]}-${savedDueDate[1]}-${((+savedDueDate[0])+1).toString()}`);
+
+    let finalAmt;
+    let payableAmount;
+
+    if(currentDate<dueDate){
+        finalAmt = amount - parseFloat((amount*(1/100)).toFixed(2));
+        payableAmount = (finalAmt - (finalAmt*(3/100)).toFixed(2))*100;
+    }else{
+        finalAmt = amount + parseFloat((amount*(3/100)).toFixed(2));
+        payableAmount = amount*100;
+    }
+      const order = await razorpay.orders.create({
+        amount:finalAmt * 100,
+        currency:currency,
+        notes:{paymentType:'rentbill',billId:billid,billAmt:amount,payable:payableAmount}
+      });
+    const rentholderSnap = await getDoc(doc(db, "rentholder",billData.rentholder_id ));
+    const rentholderData = rentholderSnap.data();
+    order.phone = rentholderData.phone;
+    order.email = rentholderData.email;
+      res.json(order);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
 async function updateCapturedPaymentData(req,res){
     const {paymentId}=req.body;
     try {
@@ -355,19 +398,17 @@ async function updateBillPaymentData(paymentDetails){
                 billdata = docSnap.data();
             }
             if(billdata.final_amt < billdata.paid_amt){
-                return ({status:'failure',message:"Payment Processing Canceled."});
+                return ({status:'failure',message:"Bill is Ovrpaid."});
             }
             if(billdata.final_amt == billdata.paid_amt){
-                console.log('webhook already saved data');
-                
-                return {message:"payment successful",status:"success",billId:paymentDetails.notes.billId};
+                return {message:"payment successful by webhook",status:"success",billId:paymentDetails.notes.billId};
             }
 
             let capAmount =(+paymentDetails.notes.billAmt) + (+billdata.paid_amt);
             let rentholderPaymentState = await updateRentHolderPaymentData(billdata.rentholder_id,paymentDetails.notes.billAmt);
             const landlordDocSnap = await getDoc(doc(db, "landlord",rentholderPaymentState.landlord_id));
             const landlordData = landlordDocSnap.data();
-            let payoutVal = (+landlordData.payout) + (+paymentDetails.notes.billAmt);
+            let payoutVal = (+landlordData.payout) + (+paymentDetails.notes.payable)/100;
             
             const landlorddataRef = doc(db, "landlord", landlordData.id);
                   updateDoc(landlorddataRef,{payout:payoutVal});
@@ -376,6 +417,11 @@ async function updateBillPaymentData(paymentDetails){
                   updateDoc(dataRef, {paid_amt:capAmount,payment_date:paymentDate,payment_method:paymentDetails.method,transaction_id:paymentDetails.id});
 
             // Clear cacheing;
+            if(myCache.has(billdata.landlord_id))myCache.del(billdata.landlord_id);
+
+            if(myCache.has(`rentholder_${billdata.landlord_id}`))myCache.del(`rentholder_${billdata.landlord_id}`);
+            if(myCache.has(billdata.rentholder_id))myCache.del(billdata.rentholder_id);
+
             if(myCache.has(`bill_${billdata.rentholder_id}`))myCache.del(`bill_${billdata.rentholder_id}`);
             if(myCache.has(`bill_${billdata.landlord_id}`))myCache.del(`bill_${billdata.landlord_id}`);
             if(myCache.has(billdata.id))myCache.del(billdata.id);
@@ -500,6 +546,7 @@ module.exports ={
     getRentholderRentBill,
     getSingleRentBill,
     updateRentBillPayment,
+    createPaymentOrder,
     updateCapturedPaymentData,
     deleteRentBill,
     updateBillPaymentData

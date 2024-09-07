@@ -8,7 +8,7 @@ const checkSession = (req, res, next) => {
 
         if (Date.now() > data.expairTime) {
             // res.cookie('sid',"",{expires: new Date(0)});
-            res.send({
+            res.status(400).send({
                 isActive: false,
                 message: "session expired."
             });
@@ -22,7 +22,7 @@ const checkSession = (req, res, next) => {
             next();
         }
         }else{
-            res.send({
+            res.status(400).send({
                 isActive: false,
                 message: "Login required."
             });
