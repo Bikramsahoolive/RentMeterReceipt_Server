@@ -344,7 +344,7 @@ async function createPaymentOrder(req,res){
     let payableAmount;
 
     if(currentDate<dueDate){
-        finalAmt = amount - parseFloat((amount*(1/100)).toFixed(2));
+        finalAmt = amount - parseFloat((billData.eBill*(1/100)).toFixed(2));
         payableAmount = (finalAmt - (finalAmt*(3/100)).toFixed(2))*100;
     }else{
         finalAmt = amount + parseFloat((amount*(3/100)).toFixed(2));
@@ -408,8 +408,7 @@ async function updateBillPaymentData(paymentDetails){
             let rentholderPaymentState = await updateRentHolderPaymentData(billdata.rentholder_id,paymentDetails.notes.billAmt);
             const landlordDocSnap = await getDoc(doc(db, "landlord",rentholderPaymentState.landlord_id));
             const landlordData = landlordDocSnap.data();
-            let payoutVal = (+landlordData.payout) + (+paymentDetails.notes.payable)/100;
-            
+            let payoutVal = Number(parseFloat((+landlordData.payout) + (+paymentDetails.notes.payable/100)).toFixed(2));
             const landlorddataRef = doc(db, "landlord", landlordData.id);
                   updateDoc(landlorddataRef,{payout:payoutVal});
 
