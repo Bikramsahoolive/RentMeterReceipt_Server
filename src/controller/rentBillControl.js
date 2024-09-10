@@ -21,7 +21,7 @@ admin.initializeApp({
 
 async function createRentBill(req, res) {
     let data = req.body;
-
+    try {
     // let user = req.session.key;
     let user = jwt.verify(req.cookies.sid, process.env.sess_secret);
 
@@ -89,12 +89,11 @@ async function createRentBill(req, res) {
     let dataRef = doc(db, "rentbill", calcVal.id);
 
     setDoc(dataRef, calcVal)
-        .then(() => {
 
             if (myCache.has(`bill_${calcVal.rentholder_id}`)) myCache.del(`bill_${calcVal.rentholder_id}`);
             if (myCache.has(`bill_${calcVal.landlord_id}`)) myCache.del(`bill_${calcVal.landlord_id}`);
             if (myCache.has(calcVal.id)) myCache.del(calcVal.id);
-            res.send({ status: true, id: calcVal.id, message: `Bill created with ID : ${calcVal.id}` });
+            
 
             if (rentholderData.fcm_token) {
 
@@ -112,7 +111,7 @@ async function createRentBill(req, res) {
                       }
                 };
 
-                constadmin.messaging().send(message)
+                admin.messaging().send(message)
                     .catch((error) => {
                         if(error.code==='messaging/registration-token-not-registered'){
                             updateDoc(doc(db,'rentholder',rentholderData.id),{fcm_token:''});
@@ -153,9 +152,12 @@ async function createRentBill(req, res) {
 </div>`
             }
             mailer.sendMail(billMailData);
-
-        })
-        .catch((err) => res.status(500).send(err));
+            res.send({ status: true, id: calcVal.id, message: `Bill created with ID : ${calcVal.id}` });
+            } catch (error) {
+                res.status(500).send(error);
+                console.log(error);
+            }
+        // .catch((err) => 
 
 }
 
