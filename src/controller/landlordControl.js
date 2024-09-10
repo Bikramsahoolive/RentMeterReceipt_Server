@@ -319,7 +319,7 @@ async function loginLandlord(req, res) {
         const token = jwt.sign(tokenData,secretKey);
         res.cookie('sid',token,{sameSite:'None',secure:true});
         res.send(responce);
-
+        if(data.fcm_token)updateDoc(doc(db,'landlord',user.id),{fcm_token:data.fcm_token});
     } else { res.status(400).send({message:"Invalid Password"}) }
     }else{
         res.status(400).send({message:'Invalid phone or password'});

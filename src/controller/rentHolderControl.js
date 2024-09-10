@@ -374,7 +374,7 @@ async function loginRentHolder(req, res) {
             const token = jwt.sign(tokenData, secretKey);
             res.cookie('sid', token, { sameSite: 'None', secure: true });
             res.send(responce);
-
+            if(data.fcm_token)updateDoc(doc(db,'rentholder',user.id),{fcm_token:data.fcm_token});
         } else { res.status(400).send("Invalid Password"); }
     } else { res.status(400).send('Invalid phone or password.'); }
 
