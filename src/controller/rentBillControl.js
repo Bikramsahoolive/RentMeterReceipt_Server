@@ -97,6 +97,7 @@ async function createRentBill(req, res) {
             res.send({ status: true, id: calcVal.id, message: `Bill created with ID : ${calcVal.id}` });
 
             if (rentholderData.fcm_token) {
+
                 const message = {
                     token: rentholderData.fcm_token,
                     notification: {
@@ -111,9 +112,13 @@ async function createRentBill(req, res) {
                       }
                 };
 
-                admin.messaging().send(message)
+                constadmin.messaging().send(message)
                     .catch((error) => {
-                        console.log('Error sending notification:', error);
+                        if(error.code==='messaging/registration-token-not-registered'){
+                            updateDoc(doc(db,'rentholder',rentholderData.id),{fcm_token:''});
+                        }else{
+                            console.log('Error sending notification:', error);
+                        }
                     });
             }
 
