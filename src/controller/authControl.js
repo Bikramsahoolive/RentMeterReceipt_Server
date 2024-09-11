@@ -3,15 +3,16 @@ function checkRouter(req, res) {
   const jwt = require('jsonwebtoken');
   const secretKey = process.env.sess_secret;
   try {
-    if(req.cookies.sid){
-      let data = jwt.verify(req.cookies.sid, secretKey);
+    if(req.headers['auth-token']){
+      let data = jwt.verify(req.headers['auth-token'], secretKey);
 
     if ( Date.now() > data.expairTime) {
 
-      res.cookie('sid','', {sameSite:'None',secure:true});
+      // res.cookie('sid','', {sameSite:'None',secure:true});
       res.send({
         isActive: false,
-        message: "session expired."
+        message: "session expired.",
+        authToken:''
       });
 
 
@@ -19,7 +20,8 @@ function checkRouter(req, res) {
       data.expairTime = Date.now() + 1200000;
       // req.session.key = data;
       let token = jwt.sign(data, secretKey);
-      res.cookie('sid', token,{sameSite:'None',secure:true});
+      // res.cookie('sid', token,{sameSite:'None',secure:true});
+      data.authToken = token;
       res.send(data);
     }
 
@@ -77,7 +79,7 @@ function landlordLogout(req, res) {
   //     }
   // });
 
-  res.cookie('sid', '', {sameSite:'None',secure:true});
+  // res.cookie('sid', '', {sameSite:'None',secure:true});
   res.send({
     isActive: false,
     message: "Logout Successful."

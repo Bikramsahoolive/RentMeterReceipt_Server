@@ -78,7 +78,8 @@ async function adminLogin(req, res) {
         admin.expairTime = Date.now() + 1200000;
         // req.session.key = admin;
         let token = jwt.sign(admin,process.env.sess_secret);
-        res.cookie('sid',token,{sameSite:'None',secure:true})
+        // res.cookie('sid',token,{sameSite:'None',secure:true})
+        admin.authToken = token;
         res.send(admin);
 
     } else { res.send("Invalid Password") }

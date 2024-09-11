@@ -23,7 +23,7 @@ async function createRentBill(req, res) {
     let data = req.body;
     try {
     // let user = req.session.key;
-    let user = jwt.verify(req.cookies.sid, process.env.sess_secret);
+    let user = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
 
     const landlordDataRef = doc(db, "landlord", user.id);
     const docSnap1 = await getDoc(landlordDataRef);
@@ -176,7 +176,7 @@ async function getAllRentBill(req, res) {
 
 async function getLandlordRentBill(req, res) {
     // let data = req.session.key;
-    let data = jwt.verify(req.cookies.sid, process.env.sess_secret);
+    let data = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
     let id = data.id;
 
     if (myCache.has(`bill_${id}`)) {
@@ -203,7 +203,7 @@ async function getLandlordRentBill(req, res) {
 
 async function getRentholderRentBill(req, res) {
     // let data = req.session.key;
-    const data = jwt.verify(req.cookies.sid, process.env.sess_secret);
+    const data = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
     const id = data.id;
 
     if (myCache.has(`bill_${id}`)) {
@@ -258,7 +258,7 @@ async function updateRentBillPayment(req, res) {
     const billData = docSnap.data();
 
     if (docSnap.exists()) {
-        let userdetails = jwt.verify(req.cookies.sid, process.env.sess_secret);
+        let userdetails = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
         if (billData.landlord_id !== userdetails.id) {
             res.status(400).send({ status: 'failure', message: 'Unauthorized bill access.' });
             return;
@@ -529,9 +529,7 @@ async function updateBillPaymentData(paymentDetails) {
 }
 
 async function deleteRentBill(req, res) {
-    let user = jwt.verify(req.cookies.sid, process.env.sess_secret);
-
-
+    let user = jwt.verify(req.headers['auth-token'], process.env.sess_secret);        
     if (user.userType === 'Landlord') {
         const docSnap = await getDoc(doc(db, "rentbill", req.params.id));
         const billData = docSnap.data()

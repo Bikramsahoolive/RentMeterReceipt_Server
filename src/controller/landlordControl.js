@@ -317,7 +317,8 @@ async function loginLandlord(req, res) {
         }
         const secretKey = process.env.sess_secret;
         const token = jwt.sign(tokenData,secretKey);
-        res.cookie('sid',token,{sameSite:'None',secure:true});
+        responce.authToken = token;
+        // res.cookie('sid',token,{sameSite:'None',secure:true});
         res.send(responce);
         if(data.fcm_token)updateDoc(doc(db,'landlord',user.id),{fcm_token:data.fcm_token});
     } else { res.status(400).send({message:"Invalid Password"}) }
@@ -436,7 +437,7 @@ async function checkPayoutAlreadyExist(id){
 }
 
 async function getProcessedPayoutOfLandlord(req,res){
-    const user = jwt.verify(req.cookies.sid, process.env.sess_secret);
+    const user = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
     try {
         const q = query(collection(db, "post_payout"), where("id", "==",(user.id)));
         const querySnapshot = await getDocs(q);
@@ -466,7 +467,7 @@ const rpname = "RentⓝMeter.Receipt";
 
 async function registerChallenge(req,res){
     try {
-        let user = jwt.verify(req.cookies.sid,process.env.sess_secret);
+        let user = jwt.verify(req.headers['auth-token'],process.env.sess_secret);
 
         const docSnap = await getDoc(doc(db, "landlord",user.id));
 
@@ -510,7 +511,7 @@ async function verifyChallenge(req,res){
 
     try {
 
-        let user = jwt.verify(req.cookies.sid,process.env.sess_secret);
+        let user = jwt.verify(req.headers['auth-token'],process.env.sess_secret);
 
         const docSnap = await getDoc(doc(db, "landlord",user.id));
 
@@ -641,8 +642,8 @@ async function loginWithPasskey(req,res){
         }
         const secretKey = process.env.sess_secret;
         const token = jwt.sign(tokenData,secretKey);
-        
-        res.cookie('sid',token,{sameSite:'None',secure:true});
+        responce.authToken = token;
+        // res.cookie('sid',token,{sameSite:'None',secure:true});
 
         res.send(responce);
 

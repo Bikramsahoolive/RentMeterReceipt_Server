@@ -10,7 +10,7 @@ const cors = require('cors');
 
 // const session = require('express-session');//session auth (stateful).
 // const jwt = require('jsonwebtoken'); //jwt auth (stateless).
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
 const Razorpay = require('razorpay');
 
 const SignupLandlordRouter = require('./src/routes/signUpLandlordRouts');
@@ -46,7 +46,7 @@ app.get('/',(req,res)=>{
   res.status(200).send({status:'OK',message:"Welcome to Rentⓝmeter.Receipt Server!"});
 });
 
-app.use(cookieParser());
+// app.use(cookieParser());
 
 // app.use(session({
 //     secret:process.env.sess_secret,
