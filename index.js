@@ -78,7 +78,7 @@ app.use('/rent-bill',rentBillRouter);
 app.use('/client',clientMailRouter);
 
 app.post('/check-session',checkRouter);
-app.post('/logout',checkSession,landlordLogout);
+app.post('/logout',landlordLogout);
 
 //razor pay test.
 const razorpay = new Razorpay({

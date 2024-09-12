@@ -88,7 +88,7 @@ async function createRentBill(req, res) {
 
     let dataRef = doc(db, "rentbill", calcVal.id);
 
-    setDoc(dataRef, calcVal)
+    setDoc(dataRef, calcVal);
 
             if (myCache.has(`bill_${calcVal.rentholder_id}`)) myCache.del(`bill_${calcVal.rentholder_id}`);
             if (myCache.has(`bill_${calcVal.landlord_id}`)) myCache.del(`bill_${calcVal.landlord_id}`);
@@ -100,14 +100,30 @@ async function createRentBill(req, res) {
                 const message = {
                     token: rentholderData.fcm_token,
                     notification: {
-                        title: 'New Bill Created',
-                        body: `Hi ${rentholderData.name}, a new bill has been created on ${calcVal.billingDate} with Bill ID: ${calcVal.id} and amount is ₹${calcVal.final_amt}/-. Please ensure to pay the bill on or before  ${calcVal.dueDate}, Thank You, Team RentⓝMeter.Receipt
-                        `
+                        title: 'Hi Bikram',
+                        body: `Hi ${rentholderData.name}, a new bill has been created on ${calcVal.billingDate} with Bill ID: ${calcVal.id} and amount is ₹${calcVal.final_amt}/-. Please ensure to pay the bill on or before  ${calcVal.dueDate}, Thank You, Team RentⓝMeter.Receipt`,
+                        
                     },
                     webpush: {
                         fcm_options: {
-                          link: 'https://rnmr.vercel.app/',
+                          link: 'https://rnmr.vercel.app/login',
                         },
+                        notification:{
+                            title: 'Hi Bikram',
+                            body: `Hi ${rentholderData.name}, a new bill has been created on ${calcVal.billingDate} with Bill ID: ${calcVal.id} and amount is ₹${calcVal.final_amt}/-. Please ensure to pay the bill on or before  ${calcVal.dueDate}, Thank You, Team RentⓝMeter.Receipt`,
+                            icon:'https://static.vecteezy.com/system/resources/thumbnails/028/114/987/small_2x/bill-3d-rendering-isometric-icon-png.png',
+                            // image:'https://static.vecteezy.com/system/resources/thumbnails/028/114/987/small_2x/bill-3d-rendering-isometric-icon-png.png',
+                            actions: [
+                                {
+                                  action: 'open_action',
+                                  title: 'Open',
+                                },
+                                {
+                                  action: 'dismiss_action',
+                                  title: 'Dismiss',
+                                }
+                              ]
+                        }
                       }
                 };
 
@@ -121,7 +137,7 @@ async function createRentBill(req, res) {
                     });
             }
 
-
+            
             const billMailData = {
                 email: rentholderData.email,
                 subject: 'New Rent Bill is Created -RentⓝMeter.Receipt',
