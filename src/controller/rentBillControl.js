@@ -101,7 +101,7 @@ async function createRentBill(req, res) {
                     token: rentholderData.fcm_token,
                     notification: {
                         title: 'New Bill Created',
-                        body: `Hi ${rentholderData.name}, a new bill was created on ${calcVal.billingDate} with Bill ID: ${calcVal.id} and amount is ₹${calcVal.final_amt}/-. Please ensure to pay the bill on or before  ${calcVal.dueDate}, Thank You, Team RentⓝMeter.Receipt
+                        body: `Hi ${rentholderData.name}, a new bill has been created on ${calcVal.billingDate} with Bill ID: ${calcVal.id} and amount is ₹${calcVal.final_amt}/-. Please ensure to pay the bill on or before  ${calcVal.dueDate}, Thank You, Team RentⓝMeter.Receipt
                         `
                     },
                     webpush: {
