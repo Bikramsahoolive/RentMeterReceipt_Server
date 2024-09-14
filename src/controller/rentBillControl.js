@@ -109,7 +109,7 @@ async function createRentBill(req, res) {
                           link: 'https://rnmr.vercel.app/login',
                         },
                         notification:{
-                            badge:`https://firebasestorage.googleapis.com/v0/b/rent-n-meter-receipt.appspot.com/o/icons%2Ficon-32x32.png?alt=media&token=27e7464b-e3cd-4d24-9df1-ec65e155667e`,
+                            badge:`https://www.i2symbol.com/images/text-symbols/n-symbol.png`,
                             icon:'https://static.vecteezy.com/system/resources/thumbnails/028/114/987/small_2x/bill-3d-rendering-isometric-icon-png.png',
                             // image:'https://static.vecteezy.com/system/resources/thumbnails/028/114/987/small_2x/bill-3d-rendering-isometric-icon-png.png',
                             actions: [
