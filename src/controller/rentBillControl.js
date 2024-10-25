@@ -1,5 +1,5 @@
 const firebase = require('../model/firebase');
-const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query } = require('firebase/firestore');
+const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, and } = require('firebase/firestore');
 const db = getFirestore();
 const rentBillCalc = require('../calculation/rentBillCalc');
 const jwt = require('jsonwebtoken');
@@ -245,9 +245,41 @@ async function getRentholderRentBill(req, res) {
     }
 }
 
+async function getPendingBills(id){
+    try {
+        let rentholderId;
+    const docSnap = await getDoc(doc(db, "rentbill",id));
+    if(docSnap.exists()){
+        let user = docSnap.data();
+        rentholderId = user.rentholder_id;
+    }
+
+    const q = query(collection(db, "rentbill"), where('rentholder_id', '==', rentholderId));
+        const querySnapshot = await getDocs(q);
+        const details = [];
+        querySnapshot.forEach((doc) => {
+            
+            if(doc.data().final_amt > doc.data().paid_amt && doc.data().id !== id){
+                let obj = {
+                    id:doc.data().id,
+                    billingDate:doc.data().billingDate,
+                    amount:doc.data().final_amt - doc.data().paid_amt
+                };
+                details.push(obj);
+            }
+        });
+        return details ;
+        
+    } catch (error) {
+        console.log(error);
+        return;
+    }
+}
+
 async function getSingleRentBill(req, res) {
     if (myCache.has(req.params.id)) {
         const value = myCache.get(req.params.id);
+        value.pendingBills = await getPendingBills(req.params.id);
         res.send(value);
     } else {
         const docSnap = await getDoc(doc(db, "rentbill", req.params.id));
@@ -256,6 +288,7 @@ async function getSingleRentBill(req, res) {
             const billData = docSnap.data();
             const cacheStatus = myCache.set(req.params.id, billData, 900);
             if (!cacheStatus) console.log('unable to cache landlord data.');
+            billData.pendingBills = await getPendingBills(req.params.id);
             res.send(billData)
         } else {
             res.send("No such document!");
