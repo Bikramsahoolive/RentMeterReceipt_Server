@@ -93,6 +93,7 @@ async function createRentBill(req, res) {
             if (myCache.has(`bill_${calcVal.rentholder_id}`)) myCache.del(`bill_${calcVal.rentholder_id}`);
             if (myCache.has(`bill_${calcVal.landlord_id}`)) myCache.del(`bill_${calcVal.landlord_id}`);
             if (myCache.has(calcVal.id)) myCache.del(calcVal.id);
+            if(myCache.has(calcVal.landlord_id)) myCache.del(calcVal.landlord_id);
             
 
             if (rentholderData.fcm_token) {
