@@ -124,6 +124,7 @@ async function createUserData(req, res) {
                 data.photo = await getDownloadURL(snapshot2.ref);
                 }
 
+                if(myCache.has(`rentholder_${user.id}`)) myCache.del(`rentholder_${user.id}`);
 
                 setDoc(dataRef, data);
                 res.send({ status: true, message: `Rent holder created` });
