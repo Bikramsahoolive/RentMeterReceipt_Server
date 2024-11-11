@@ -9,7 +9,7 @@ async function forgotPasswordRequest(req,res){
         let data = req.body;
 
         try {
-            const q = query(collection(db, data.userType), where("phone", "==",(data.phone)));
+            const q = query(collection(db, String(data.userType).toLowerCase()), where("phone", "==",(data.phone)));
         const querySnapshot = await getDocs(q);
         let user ;
         querySnapshot.forEach((doc) => {
@@ -41,7 +41,7 @@ async function forgotPasswordRequest(req,res){
                     let emailSample = initialFour[0].slice(initialFour[0].length-4).concat(`@${initialFour[1]}`);
                     res.send({status:'success',message:'otp sent',id:user.id,email:emailSample,usertype:user.userType});
                 }else{
-                    res.send({status:'failure',message:'error while sending otp.'});
+                    res.send({status:'failure',message:'Invalid/ Test email'});
                     return
                 }
             });
@@ -101,7 +101,7 @@ async function forgotPasswordVerify(req,res){
 
     let data =req.body;
 
-    const docSnap = await getDoc(doc(db, data.usertype,data.id));
+    const docSnap = await getDoc(doc(db, String(data.usertype).toLowerCase(),data.id));
         if (docSnap.exists()) {
            let userData=  docSnap.data();
             if (userData.otp && userData.otpExp && Date.now() < userData.otpExp){
@@ -111,7 +111,7 @@ async function forgotPasswordVerify(req,res){
                     userData.password = newPassword;
                     delete userData.otp;
                     delete userData.otpExp;
-                    const dataRef = doc(db,data.usertype,data.id);
+                    const dataRef = doc(db,String(data.usertype).toLowerCase(),data.id);
                     setDoc(dataRef,userData);
                     res.send({status:'success',message:'Password Updated Successfully!'});
                 }else{
@@ -136,9 +136,9 @@ async function createOtp( usertype,userid,isResend){
             otp:otp,
             otpExp:otpExpireTime
         }
-        setTimeout(()=>{
-            clearOtp(usertype,userid);
-        },600000);
+        // setTimeout(()=>{
+        //     clearOtp(usertype,userid);
+        // },600000);
     }else{
         otpData={
             otp:otp
@@ -146,8 +146,8 @@ async function createOtp( usertype,userid,isResend){
     }
 
     if (otp.length===6){
-        const dataRef = await doc(db, usertype,userid);
         try {
+        const dataRef = doc(db, String(usertype).toLowerCase(),userid);
             updateDoc(dataRef,otpData);
 
             return otp;
@@ -161,23 +161,23 @@ async function createOtp( usertype,userid,isResend){
     
 }
 
-async function clearOtp(userType,userId){
-    try {
+// async function clearOtp(userType,userId){
+//     try {
 
-        const docSnap = await getDoc(doc(db, userType,userId));
-        if (docSnap.exists()) {
-           let userData=  docSnap.data()
-           if(userData.otp && userData.otpExp){
-            delete userData.otp;
-           delete userData.otpExp;
-           const dataRef = doc(db, userType,userId);
-           setDoc(dataRef, userData);
-           }
-        } 
-    } catch (error) {
-        console.log(error);
-    }
+//         const docSnap = await getDoc(doc(db, userType,userId));
+//         if (docSnap.exists()) {
+//            let userData=  docSnap.data()
+//            if(userData.otp && userData.otpExp){
+//             delete userData.otp;
+//            delete userData.otpExp;
+//            const dataRef = doc(db, userType,userId);
+//            setDoc(dataRef, userData);
+//            }
+//         } 
+//     } catch (error) {
+//         console.log(error);
+//     }
 
-}
+// }
 
 module.exports={forgotPasswordRequest,forgotPasswordVerify,resendOtp};
