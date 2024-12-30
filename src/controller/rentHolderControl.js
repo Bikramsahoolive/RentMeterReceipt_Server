@@ -595,7 +595,26 @@ function unregdPasskey(req,res){
     }
 }
 
+async function getPaymentDataForRentholder(req, res) {
+    
+    try {
+        const user = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
+        
+        const q = query(collection(db, "paymentData"), where("rentholderId", "==",(user.id)));
+    const querySnapshot = await getDocs(q);
+    let paymentData = [];
+    querySnapshot.forEach((doc) => {
+        paymentData.push( doc.data());
+    });
+    res.status(200).send(paymentData);
+    
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('internal server error.');
+    }
+    
 
+}
 
 
 module.exports = {
@@ -610,5 +629,6 @@ module.exports = {
     verifyChallenge,
     authOptions,
     loginWithPasskey,
-    unregdPasskey
+    unregdPasskey,
+    getPaymentDataForRentholder
 };

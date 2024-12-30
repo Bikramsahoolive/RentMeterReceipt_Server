@@ -332,6 +332,27 @@ async function loginLandlord(req, res) {
 
 }
 
+async function getPaymentDataForLandlord(req, res) {
+    
+    try {
+        const user = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
+        
+        const q = query(collection(db, "paymentData"), where("landlordId", "==",(user.id)));
+    const querySnapshot = await getDocs(q);
+    let paymentData = [];
+    querySnapshot.forEach((doc) => {
+        paymentData.push( doc.data());
+    });
+    res.status(200).send(paymentData);
+    
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('internal server error.');
+    }
+    
+
+}
+
 async function landlordPayout(req,res){
     let data = req.body;
     let payoutData = await checkPayoutAlreadyExist(data.id);
@@ -683,5 +704,6 @@ module.exports = {
     verifyChallenge,
     authOptions,
     loginWithPasskey,
-    unregdPasskey
+    unregdPasskey,
+    getPaymentDataForLandlord
 }

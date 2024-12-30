@@ -328,6 +328,25 @@ async function updateRentBillPayment(req, res) {
                 data.paid_amt = Number(billData.paid_amt) + Number(paidAmount);
                 const dataRef = doc(db, "rentbill", req.params.id);
                 updateDoc(dataRef, data);
+
+                // Payment-history
+                let payData = {
+                    billId: billData.id,
+                    landlordId:billData.landlord_id,
+                    landlordName:billData.landlord_name,
+                    rentholderId:billData.rentholder_id,
+                    billDate: billData.billingDate,
+                    consumerName: billData.consumer_Name,
+                    billAmount: billData.final_amt,
+                    transactionId:'',
+                    paidAmount: paidAmount,
+                    remainingAmount: remainingAmount,
+                    paymentDate: data.payment_date,
+                    paymentMethod: 'cash'
+                }
+                setPaymentData(payData);
+
+                
                 res.send({ status: true, message: `Payment Done.` });
 
                 if (myCache.has(`rentholder_${billData.landlord_id}`)) myCache.del(`rentholder_${billData.landlord_id}`);
@@ -465,6 +484,30 @@ async function updateCapturedPaymentData(req, res) {
     }
 }
 
+// create payment-history
+function setPaymentData(payInfo) {
+    let payId = `PAY${Date.now()}`;
+    const payDataRef = doc(db, "paymentData", payId);
+
+    let paymentObj = {
+        id: payId,
+        billId: payInfo.billId,
+        billDate: payInfo.billDate,
+        landlordId:payInfo.landlordId,
+        landlordName: payInfo.landlordName,
+        rentholderId: payInfo.rentholderId,
+        transactionId: payInfo.transactionId,
+        consumerName: payInfo.consumerName,
+        billAmount: payInfo.billAmount,
+        paidAmount: payInfo.paidAmount,
+        remainingAmount: payInfo.remainingAmount,
+        paymentDate: payInfo.paymentDate,
+        paymentMethod: payInfo.paymentMethod
+    }
+
+    setDoc(payDataRef,paymentObj);
+    
+}
 
 async function updateBillPaymentData(paymentDetails) {
 
@@ -497,6 +540,23 @@ async function updateBillPaymentData(paymentDetails) {
 
     const dataRef = doc(db, "rentbill", paymentDetails.notes.billId);
     updateDoc(dataRef, { paid_amt: capAmount, payment_date: paymentDate, payment_method: paymentDetails.method, transaction_id: paymentDetails.id });
+
+    //payment-history
+    let payData = {
+        billId: billdata.id,
+        landlordId:billdata.landlord_id,
+        landlordName:billdata.landlord_name,
+        rentholderId:billdata.rentholder_id,
+        billDate: billdata.billingDate,
+        consumerName: billdata.consumer_Name,
+        billAmount: billdata.final_amt,
+        transactionId:paymentDetails.id,
+        paidAmount: paymentDetails.notes.billAmt,
+        remainingAmount: (+billdata.final_amt) - (+capAmount),
+        paymentDate: paymentDate,
+        paymentMethod:paymentDetails.method
+    }
+    setPaymentData(payData);
 
     // Clear cacheing;
     if (myCache.has(billdata.landlord_id)) myCache.del(billdata.landlord_id);

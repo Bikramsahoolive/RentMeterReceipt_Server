@@ -1,6 +1,6 @@
 const express = require('express');
 const {createUserData,getAllUsers, getRentholdersOfLandlord,getSingleUser,updateUserData,deleteUserData,
-    loginRentHolder,registerChallenge,verifyChallenge,authOptions,loginWithPasskey,unregdPasskey} = require('../controller/rentHolderControl');
+    loginRentHolder,registerChallenge,verifyChallenge,authOptions,loginWithPasskey,unregdPasskey,getPaymentDataForRentholder} = require('../controller/rentHolderControl');
 const{checkSession,checkAdminUser,checkLandlordUser,checkRentHolderUser} = require('../middlewares/session');
 const {checkRentHolderCreateData,checkRentHolderUpdateData} = require('../middlewares/validateUser')
 const rentHolderRouter = express.Router();
@@ -36,5 +36,7 @@ rentHolderRouter.route('/login-passkey')
 rentHolderRouter.route('/unregd-passkey/:id')
 .delete(checkSession,checkRentHolderUser,unregdPasskey);
 
+rentHolderRouter.route('/rentBill/paymentData')
+.get(checkSession,checkRentHolderUser,getPaymentDataForRentholder);
 
 module.exports =rentHolderRouter;
