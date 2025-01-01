@@ -338,7 +338,7 @@ async function updateRentBillPayment(req, res) {
                     billDate: billData.billingDate,
                     consumerName: billData.consumer_Name,
                     billAmount: billData.final_amt,
-                    transactionId:'',
+                    transactionId:'NA',
                     paidAmount: paidAmount,
                     remainingAmount: remainingAmount,
                     paymentDate: data.payment_date,
