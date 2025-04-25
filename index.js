@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const crypto = require('node:crypto');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 // const {createServer} = require('http');
 //dev module
 
@@ -37,10 +39,42 @@ const PORT = process.env.PORT || 3000;
 
 
 //Handle Prevalidate middlewares
+
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'RNMR API',
+      version: '1.0.0',
+      description: 'API documentation using Swagger',
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+  
+  },
+  // Path to the API specs
+  apis: ['src/routes/*.js'],  // Point to your route files
+};
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+//Handle Prevalidate middlewares
 app.use(cors({
   origin:'https://rnmr.vercel.app',
   credentials: true
 }));
+
+app.use('/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get('/',(req,res)=>{
   res.status(200).send({status:'OK',message:"Welcome to Rentⓝmeter.Receipt Server!"});
