@@ -1,7 +1,8 @@
 const express = require('express');
 // const app = express();
 const {createUserData,getAllUsers,getSingleUser,updateUserData,deleteUserData,
-    loginLandlord,landlordPayout,checkAlreadyQueuedPayoutRequest,getProcessedPayoutOfLandlord,registerChallenge,verifyChallenge,authOptions,loginWithPasskey,unregdPasskey,getPaymentDataForLandlord} = require('../controller/landlordControl');
+    loginLandlord,landlordPayout,checkAlreadyQueuedPayoutRequest,getProcessedPayoutOfLandlord,registerChallenge,verifyChallenge,authOptions,loginWithPasskey,unregdPasskey,getPaymentDataForLandlord,
+yearlyChartData} = require('../controller/landlordControl');
 const{checkLandlordCreateData,checkLandlordUpdateData,validateLogin} = require('../middlewares/validateUser');
 const{checkSession,checkAdminUser,checkLandlordUser,checkRentHolderUser} = require('../middlewares/session');
 const landlordRouter = express.Router();
@@ -48,6 +49,9 @@ landlordRouter.route('/check-payout/:id')
 
 landlordRouter.route('/rentBill/paymentData')
 .get(checkSession,checkLandlordUser,getPaymentDataForLandlord);
+
+landlordRouter.route('/yearlyChartData/:year')
+.get(checkSession,checkLandlordUser,yearlyChartData);
 
 
 module.exports =landlordRouter;
