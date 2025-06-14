@@ -739,13 +739,53 @@ async function yearlyChartData(req, res) {
         }
     });
 
-    res.status(200).json({ status: 'success',message:'Yearly Chart Report Fetched Successfully.', months: monthsArray, billedAmount: totalAmountArray, paidAmount: paidAmountArray });
+    res.status(200).json({ status: 'success',message:'Yearly Chart Data Get Successfully.', months: monthsArray, billedAmount: totalAmountArray, paidAmount: paidAmountArray });
 
     } catch (error) {
         console.log(error);
         res.status(500).json({status:'failure',message:'Internal server error.'})
         
     }
+}
+
+async function totalChartData(req,res){
+
+    try {
+
+         let data = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
+    let id = data.id;
+
+
+    const q = query(collection(db, "rentbill"), where('landlord_id', '==', id));
+    const querySnapshot = await getDocs(q);
+    const details = [];
+    querySnapshot.forEach((doc) => {
+        details.push(doc.data());
+    });
+
+    // console.log(details);
+
+    const billedData = {billedAmount:0,percent:'100'};
+    const paidData = {paidAmount:0,percent:0};
+    const pendingData = {pendingAmount:0,percent:0}
+
+    details.forEach((bill)=>{
+        billedData.billedAmount += bill.final_amt;
+        paidData.paidAmount += bill.paid_amt;
+        pendingData.pendingAmount += bill.final_amt-bill.paid_amt;
+    })
+    
+    paidData.percent = (paidData.paidAmount/billedData.billedAmount*100).toFixed(2);
+    pendingData.percent = (100 - paidData.percent).toFixed(2);
+
+    res.status(200).json({status:'success',message:'Total Chart Data Get Successfully.',billedData,paidData,pendingData});
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({status:'failure',message:'Internal server error.'})
+    }
+
+
 }
 
 
@@ -765,5 +805,6 @@ module.exports = {
     loginWithPasskey,
     unregdPasskey,
     getPaymentDataForLandlord,
-    yearlyChartData
+    yearlyChartData,
+    totalChartData
 }

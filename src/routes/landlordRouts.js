@@ -2,7 +2,7 @@ const express = require('express');
 // const app = express();
 const {createUserData,getAllUsers,getSingleUser,updateUserData,deleteUserData,
     loginLandlord,landlordPayout,checkAlreadyQueuedPayoutRequest,getProcessedPayoutOfLandlord,registerChallenge,verifyChallenge,authOptions,loginWithPasskey,unregdPasskey,getPaymentDataForLandlord,
-yearlyChartData} = require('../controller/landlordControl');
+yearlyChartData,totalChartData} = require('../controller/landlordControl');
 const{checkLandlordCreateData,checkLandlordUpdateData,validateLogin} = require('../middlewares/validateUser');
 const{checkSession,checkAdminUser,checkLandlordUser,checkRentHolderUser} = require('../middlewares/session');
 const landlordRouter = express.Router();
@@ -52,6 +52,9 @@ landlordRouter.route('/rentBill/paymentData')
 
 landlordRouter.route('/yearlyChartData/:year')
 .get(checkSession,checkLandlordUser,yearlyChartData);
+
+landlordRouter.route('/totalChartData')
+.get(checkSession,checkLandlordUser,totalChartData);
 
 
 module.exports =landlordRouter;
