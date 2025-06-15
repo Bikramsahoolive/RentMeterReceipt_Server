@@ -7,13 +7,14 @@ const{checkLandlordCreateData,checkLandlordUpdateData,validateLogin} = require('
 const{checkSession,checkAdminUser,checkLandlordUser,checkRentHolderUser} = require('../middlewares/session');
 const landlordRouter = express.Router();
 
+const validateCaptcha = require('../middlewares/recaptcha');
 
 
 landlordRouter.route('/')
 .get(checkSession,checkAdminUser, getAllUsers)
 
 landlordRouter.route('/action')
-.post(checkLandlordCreateData,createUserData);
+.post(validateCaptcha,checkLandlordCreateData,createUserData);
 
 landlordRouter.route('/user/:id')
 .get(checkSession,checkRentHolderUser, getSingleUser)
@@ -21,7 +22,7 @@ landlordRouter.route('/user/:id')
 .delete(checkSession,checkLandlordUser,deleteUserData);
 
 landlordRouter.route('/login')
-.post(validateLogin,loginLandlord);
+.post(validateCaptcha,validateLogin,loginLandlord);
 
 landlordRouter.route('/payout')
 .post(checkSession,checkLandlordUser,landlordPayout);
