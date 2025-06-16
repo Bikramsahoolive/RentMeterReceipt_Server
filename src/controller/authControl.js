@@ -3,8 +3,8 @@ function checkRouter(req, res) {
   const jwt = require('jsonwebtoken');
   const secretKey = process.env.sess_secret;
   try {
-    if(req.headers['auth-token']){
-      let data = jwt.verify(req.headers['auth-token'], secretKey);
+    if(req.headers['authorization']){
+      let data = jwt.verify(req.headers['authorization'], secretKey);
 
     if ( Date.now() > data.expairTime) {
 

@@ -24,7 +24,7 @@ async function createUserData(req, res) {
     }
     data.password = encPassword(data.password);
 
-    let user = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
+    let user = jwt.verify(req.headers['authorization'], process.env.sess_secret);
     const docSnap = await getDoc(doc(db, "landlord", user.id));
     let landlordData = docSnap.data();
 
@@ -197,7 +197,7 @@ async function getAllUsers(req, res) {
 
 async function getRentholdersOfLandlord(req, res) {
     // let data = req.session.key;
-    const data = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
+    const data = jwt.verify(req.headers['authorization'], process.env.sess_secret);
     const id = data.id;
 
     if(myCache.has(`rentholder_${id}`)){
@@ -226,7 +226,7 @@ async function getRentholdersOfLandlord(req, res) {
 async function updateUserData(req, res) {
 
     // UPDATE DATA
-    const user = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
+    const user = jwt.verify(req.headers['authorization'], process.env.sess_secret);
     let data = req.body;
     const id = req.params.id
     
@@ -393,7 +393,7 @@ const rpname = "RentⓝMeter.Receipt";
 
 async function registerChallenge(req,res){
     try {
-        let user = jwt.verify(req.headers['auth-token'],process.env.sess_secret);
+        let user = jwt.verify(req.headers['authorization'],process.env.sess_secret);
 
         const docSnap = await getDoc(doc(db, "rentholder",user.id));
 
@@ -437,7 +437,7 @@ async function verifyChallenge(req,res){
 
     try {
 
-        let user = jwt.verify(req.headers['auth-token'],process.env.sess_secret);
+        let user = jwt.verify(req.headers['authorization'],process.env.sess_secret);
 
         const docSnap = await getDoc(doc(db, "rentholder",user.id));
 
@@ -598,7 +598,7 @@ function unregdPasskey(req,res){
 async function getPaymentDataForRentholder(req, res) {
     
     try {
-        const user = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
+        const user = jwt.verify(req.headers['authorization'], process.env.sess_secret);
         
         const q = query(collection(db, "paymentData"), where("rentholderId", "==",(user.id)));
     const querySnapshot = await getDocs(q);

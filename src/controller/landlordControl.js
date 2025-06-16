@@ -335,7 +335,7 @@ async function loginLandlord(req, res) {
 async function getPaymentDataForLandlord(req, res) {
 
     try {
-        const user = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
+        const user = jwt.verify(req.headers['authorization'], process.env.sess_secret);
 
         const q = query(collection(db, "paymentData"), where("landlordId", "==", (user.id)));
         const querySnapshot = await getDocs(q);
@@ -361,7 +361,7 @@ async function landlordPayout(req, res) {
         return;
     }
 
-    if (data.payout_amt < 100 || data.payout_amt > 10000) {
+    if (data.payout_amt < 100 || data.payout_amt > 50000) {
         res.status(400).send({ status: 'failure', message: 'Invalid payout amount (Should be ₹100 to ₹10,000).' });
         return;
     }
@@ -422,7 +422,7 @@ async function landlordPayout(req, res) {
             </tr>
             <tr>
                 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Method:</strong></td>
-                <td style="padding: 8px; border: 1px solid #ddd;">${data.request_method}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.payout_method}</td>
             </tr>
         </table>
 
@@ -458,7 +458,7 @@ async function checkPayoutAlreadyExist(id) {
 }
 
 async function getProcessedPayoutOfLandlord(req, res) {
-    const user = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
+    const user = jwt.verify(req.headers['authorization'], process.env.sess_secret);
     try {
         const q = query(collection(db, "post_payout"), where("id", "==", (user.id)));
         const querySnapshot = await getDocs(q);
@@ -488,7 +488,7 @@ const rpname = "RentⓝMeter.Receipt";
 
 async function registerChallenge(req, res) {
     try {
-        let user = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
+        let user = jwt.verify(req.headers['authorization'], process.env.sess_secret);
 
         const docSnap = await getDoc(doc(db, "landlord", user.id));
 
@@ -532,7 +532,7 @@ async function verifyChallenge(req, res) {
 
     try {
 
-        let user = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
+        let user = jwt.verify(req.headers['authorization'], process.env.sess_secret);
 
         const docSnap = await getDoc(doc(db, "landlord", user.id));
 
@@ -693,7 +693,7 @@ async function yearlyChartData(req, res) {
     const year = req.params.year;
 
     try {
-        let data = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
+        let data = jwt.verify(req.headers['authorization'], process.env.sess_secret);
     let id = data.id;
 
 
@@ -752,7 +752,7 @@ async function totalChartData(req,res){
 
     try {
 
-         let data = jwt.verify(req.headers['auth-token'], process.env.sess_secret);
+         let data = jwt.verify(req.headers['authorization'], process.env.sess_secret);
     let id = data.id;
 
 

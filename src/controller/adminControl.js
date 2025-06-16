@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const { getFirestore, doc, setDoc, collection, addDoc, updateDoc, deleteDoc, getDoc, getDocs, where, query, increment } = require('firebase/firestore');
 const mailer = require('./mailSender');
 const db = getFirestore();
-
+const myCache = require('../model/cache');
 
 async function adminCreate(req, res) {
     const querySnapshot = await getDocs(collection(db, "admin"));
@@ -126,7 +126,7 @@ async function getAllPayoutData(req,res){
 async function processPayout(req,res){
 
     let data = req.body;
-
+    
     //minus landlord payout amount.
 
     try {

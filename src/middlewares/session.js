@@ -3,8 +3,8 @@ const secretKey = process.env.sess_secret;
 const checkSession = (req, res, next) => {
     // let data = req.session.key;
     try {
-        if(req.headers['auth-token']){
-            let data = jwt.verify(req.headers['auth-token'], secretKey);
+        if(req.headers['authorization']){
+            let data = jwt.verify(req.headers['authorization'], secretKey);
 
         if (Date.now() > data.expairTime) {
             // res.cookie('sid',"",{expires: new Date(0)});
@@ -68,7 +68,7 @@ const checkSession = (req, res, next) => {
 
 const checkAdminUser = (req, res, next) => {
     // let data = req.session.key;
-    let data = jwt.verify(req.headers['auth-token'], secretKey);
+    let data = jwt.verify(req.headers['authorization'], secretKey);
     if (data.userType != 'Admin') {
         res.status(400).send('You are not authorize to access the service.');
     } else {
@@ -77,7 +77,7 @@ const checkAdminUser = (req, res, next) => {
 }
 const checkLandlordUser = (req, res, next) => {
     // let data = req.session.key;
-    let data = jwt.verify(req.headers['auth-token'], secretKey);
+    let data = jwt.verify(req.headers['authorization'], secretKey);
     if (data.userType != 'Landlord' && data.userType != 'Admin') {
         console.log('not authorize');
         
@@ -88,7 +88,7 @@ const checkLandlordUser = (req, res, next) => {
 }
 const checkRentHolderUser= (req,res,next)=>{
     // let data = req.session.key;3
-    let data = jwt.verify(req.headers['auth-token'], secretKey);
+    let data = jwt.verify(req.headers['authorization'], secretKey);
     if(data.userType!='Rentholder' && data.userType!='Landlord' && data.userType!='Admin'){
         res.status(400).send('You are not authorize to access the service.');
     }else{
