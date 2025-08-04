@@ -1,6 +1,6 @@
 const express = require('express');
 const rentBillRouter = express.Router();
-const{createRentBill,getAllRentBill,getLandlordRentBill,getRentholderRentBill,getSingleRentBill,updateRentBillPayment,deleteRentBill,createPaymentOrder,updateCapturedPaymentData}=require('../controller/rentBillControl');
+const{createRentBill,getAllRentBill,getLandlordRentBill,getRentholderRentBill,getSingleRentBill,updateRentBillPayment,deleteRentBill,createPaymentOrder,updateCapturedPaymentData,updateBillShowStatus}=require('../controller/rentBillControl');
 const{rentBillCreateValidation,rentBillUpdateValidation,}=require('../middlewares/validateBillData');
 const {checkSession,checkAdminUser,checkLandlordUser,checkRentHolderUser} =require('../middlewares/session')
 
@@ -26,5 +26,8 @@ rentBillRouter.route('/create-order')
 
 rentBillRouter.route('/verify-payment')
 .post(checkSession,checkRentHolderUser,updateCapturedPaymentData);
+
+rentBillRouter.route('/update-billshow-status/:id')
+.put(checkSession,checkRentHolderUser,updateBillShowStatus);
 
 module.exports=rentBillRouter;

@@ -679,6 +679,18 @@ async function deleteRentBill(req, res) {
 
 }
 
+async function updateBillShowStatus(req, res) {
+        const data = jwt.verify(req.headers['authorization'], process.env.sess_secret);
+        const id = data.id;
+
+        const rentbillRef = doc(db, "rentbill", req.params.id);
+        await updateDoc(rentbillRef,{showStatus:true});
+        myCache.del(`bill_${id}`);
+        res.json({ status: 'success', message: 'Bill show status updated successfully.' });
+    
+    
+}
+
 module.exports = {
     createRentBill,
     getAllRentBill,
@@ -689,5 +701,6 @@ module.exports = {
     createPaymentOrder,
     updateCapturedPaymentData,
     deleteRentBill,
-    updateBillPaymentData
+    updateBillPaymentData,
+    updateBillShowStatus
 }
